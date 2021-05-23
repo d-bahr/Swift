@@ -1,0 +1,48 @@
+{
+  "block.swift.basic_item_pipe": "Basic Item Pipe",
+  "item.swift.basic_item_pipe": "Basic Item Pipe",
+  "container.swift.basic_item_pipe": "Basic Item Pipe",
+
+  "block.swift.advanced_item_pipe": "Advanced Item Pipe",
+  "item.swift.advanced_item_pipe": "Advanced Item Pipe",
+  "container.swift.advanced_item_pipe": "Advanced Item Pipe",
+
+  "block.swift.ultimate_item_pipe": "Ultimate Item Pipe",
+  "item.swift.ultimate_item_pipe": "Ultimate Item Pipe",
+  "container.swift.ultimate_item_pipe": "Ultimate Item Pipe",
+
+  "block.swift.basic_fluid_pipe": "Basic Fluid Pipe",
+  "item.swift.basic_fluid_pipe": "Basic Fluid Pipe",
+  "container.swift.basic_fluid_pipe": "Basic Fluid Pipe",
+
+  "block.swift.advanced_fluid_pipe": "Advanced Fluid Pipe",
+  "item.swift.advanced_fluid_pipe": "Advanced Fluid Pipe",
+  "container.swift.advanced_fluid_pipe": "Advanced Fluid Pipe",
+
+  "block.swift.ultimate_fluid_pipe": "Ultimate Fluid Pipe",
+  "item.swift.ultimate_fluid_pipe": "Ultimate Fluid Pipe",
+  "container.swift.ultimate_fluid_pipe": "Ultimate Fluid Pipe",
+
+  "block.swift.tank": "Tank",
+
+  "itemGroup.swift": "Swift",
+
+  "item.swift.speed_upgrade": "Speed Upgrade",
+  "item.swift.stack_upgrade": "Stack Upgrade",
+  "item.swift.speed_downgrade": "Speed Downgrade",
+  "item.swift.ultimate_stack_upgrade": "Ultimate Stack Upgrade",
+  "item.swift.basic_item_filter_upgrade": "Basic Item Filter Upgrade",
+  "item.swift.basic_fluid_filter_upgrade": "Basic Fluid Filter Upgrade",
+  "item.swift.wildcard_filter_upgrade": "Wildcard Filter Upgrade",
+  "item.swift.teleporter_upgrade": "Teleporter Upgrade",
+  "item.swift.interdimensional_upgrade": "Interdimensional Upgrade",
+  "item.swift.chunk_loader_upgrade": "Chunk Loader Upgrade",
+  "item.swift.side_upgrade": "Side Upgrade",
+  
+  "swift.text.public": "Public",
+  "swift.text.private": "Private",
+  "swift.text.add": "Add",
+  "swift.text.delete": "Delete",
+  "swift.text.set": "Set",
+  "swift.text.unset": "Unset"
+}

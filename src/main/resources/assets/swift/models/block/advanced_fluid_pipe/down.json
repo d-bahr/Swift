@@ -1,0 +1,7 @@
+{
+    "parent": "swift:block/pipe_model_down",
+    "textures":
+    {
+        "all": "swift:block/advanced_fluid_pipe_vertical"
+    }
+}

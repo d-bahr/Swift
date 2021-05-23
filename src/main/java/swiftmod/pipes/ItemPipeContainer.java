@@ -1,0 +1,178 @@
+package swiftmod.pipes;
+
+import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import swiftmod.common.BigItemStack;
+import swiftmod.common.SwiftItems;
+import swiftmod.common.SwiftNetwork;
+import swiftmod.common.SwiftUtils;
+import swiftmod.common.channels.ItemChannelManager;
+import swiftmod.common.client.ChannelConfigurationPacket;
+import swiftmod.common.client.ClearFilterPacket;
+import swiftmod.common.client.ItemFilterConfigurationPacket;
+import swiftmod.common.client.ItemFilterSlotPacket;
+import swiftmod.common.upgrades.BasicItemFilterUpgradeDataCache;
+import swiftmod.common.upgrades.ChannelConfigurationDataCache;
+import swiftmod.common.upgrades.TeleporterUpgradeItem;
+import swiftmod.common.upgrades.UpgradeInventory;
+import swiftmod.common.upgrades.UpgradeType;
+
+public class ItemPipeContainer extends PipeContainer implements ItemFilterConfigurationPacket.Handler,
+        ItemFilterSlotPacket.Handler, ClearFilterPacket.Handler, ChannelConfigurationPacket.Handler
+{
+    protected ItemPipeContainer(@Nullable ContainerType<?> type, int windowID, PlayerInventory playerInventory,
+            PacketBuffer extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
+            Supplier<UpgradeInventory> sideUpgradeInventorySupplier, int x, int y)
+    {
+        super(type, windowID, playerInventory, extraData, upgradeInventorySupplier, sideUpgradeInventorySupplier, x, y);
+    }
+
+    protected ItemPipeContainer(@Nullable ContainerType<?> type, TileEntity tileEntity, int windowID,
+            PlayerInventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
+            ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
+            UpgradeInventory[] sideUpgradeInventories, int x, int y)
+    {
+        super(type, tileEntity, windowID, playerInventory, cache, refreshFilterCallback, channelManagerCallback,
+                upgradeInventory, sideUpgradeInventories, x, y);
+    }
+
+    public BasicItemFilterUpgradeDataCache getBasicFilterCache(Direction direction)
+    {
+        BasicItemFilterUpgradeDataCache cache = new BasicItemFilterUpgradeDataCache();
+        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(direction)];
+        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+        if (slot >= 0 && slot < inventory.getContainerSize())
+        {
+            ItemStack itemStack = inventory.getItem(slot);
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            {
+                cache.itemStack = itemStack;
+            }
+        }
+        return cache;
+    }
+
+    public void updateFilter(Direction direction, int slot, ItemStack itemStack, int quantity)
+    {
+        ItemFilterSlotPacket updatePacket = new ItemFilterSlotPacket();
+        updatePacket.direction = direction;
+        updatePacket.slot = slot;
+        updatePacket.itemStack = new BigItemStack(itemStack, quantity);
+        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+    }
+
+    public void clearAllFilters(Direction direction)
+    {
+        ClearFilterPacket updatePacket = new ClearFilterPacket();
+        updatePacket.direction = direction;
+        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+    }
+
+    public void sendUpdatePacketToServer(ItemFilterConfigurationPacket updatePacket)
+    {
+        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+    }
+
+    @Override
+    public void handle(ServerPlayerEntity player, ItemFilterConfigurationPacket packet)
+    {
+        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+        if (slot >= 0 && slot < inventory.getContainerSize())
+        {
+            ItemStack itemStack = inventory.getItem(slot);
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            {
+                BasicItemFilterUpgradeDataCache.setWhiteListState(packet.whiteListState, itemStack);
+                BasicItemFilterUpgradeDataCache.setMatchCount(packet.matchCount, itemStack);
+                BasicItemFilterUpgradeDataCache.setMatchDamage(packet.matchDamage, itemStack);
+                BasicItemFilterUpgradeDataCache.setMatchMod(packet.matchMod, itemStack);
+                BasicItemFilterUpgradeDataCache.setMatchNBT(packet.matchNBT, itemStack);
+                BasicItemFilterUpgradeDataCache.setMatchOreDictionary(packet.matchOreDictionary, itemStack);
+
+                refreshFilter(packet.direction);
+            }
+        }
+    }
+
+    @Override
+    public void handle(ServerPlayerEntity player, ItemFilterSlotPacket packet)
+    {
+        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+        if (slot >= 0 && slot < inventory.getContainerSize())
+        {
+            ItemStack itemStack = inventory.getItem(slot);
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            {
+                BasicItemFilterUpgradeDataCache.setFilterSlot(packet.slot, packet.itemStack, itemStack);
+
+                refreshFilter(packet.direction);
+            }
+        }
+    }
+
+    @Override
+    public void handle(ServerPlayerEntity player, ClearFilterPacket packet)
+    {
+        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+        if (slot >= 0 && slot < inventory.getContainerSize())
+        {
+            ItemStack itemStack = inventory.getItem(slot);
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            {
+                BasicItemFilterUpgradeDataCache.clearAllFilters(itemStack);
+
+                refreshFilter(packet.direction);
+            }
+        }
+    }
+
+    @Override
+    public void handle(ServerPlayerEntity player, ChannelConfigurationPacket packet)
+    {
+        int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
+        if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
+        {
+            ItemStack itemStack = m_baseUpgradeInventory.getItem(slot);
+            if (itemStack.getItem() instanceof TeleporterUpgradeItem)
+            {
+                switch (packet.type)
+                {
+                case Add:
+                    {
+                        ItemChannelManager manager = ItemChannelManager.getManager();
+                        manager.put(packet.channel);
+                        manager.save();
+                    }
+                    break;
+                case Delete:
+                    {
+                        ItemChannelManager manager = ItemChannelManager.getManager();
+                        manager.delete(packet.channel.spec);
+                        manager.save();
+                    }
+                    break;
+                case Set:
+                    ChannelConfigurationDataCache.setChannel(itemStack, packet.channel.spec);
+                    m_channelManagerCallback.manage(packet.channel.spec);
+                    break;
+                case Unset:
+                    ChannelConfigurationDataCache.clearChannel(itemStack);
+                    m_channelManagerCallback.manage(null);
+                    break;
+                }
+            }
+        }
+    }
+}

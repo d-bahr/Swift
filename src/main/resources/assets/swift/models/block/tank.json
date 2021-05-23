@@ -1,0 +1,12 @@
+{
+    "parent": "block/cube",
+    "textures": {
+        "down": "swift:block/tank",
+        "up": "swift:block/tank",
+        "north": "swift:block/tank",
+        "east": "swift:block/tank",
+        "south": "swift:block/tank",
+        "west": "swift:block/tank",
+        "particle": "block/lapis_block"
+    }
+}

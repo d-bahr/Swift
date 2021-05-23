@@ -1,0 +1,7 @@
+{
+    "parent": "swift:item/upgrade",
+    "textures":
+    {
+        "layer0": "swift:item/basic_fluid_filter_upgrade"
+    }
+}

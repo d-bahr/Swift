@@ -1,0 +1,7 @@
+{
+    "parent": "swift:block/pipe_model_up",
+    "textures":
+    {
+        "all": "swift:block/ultimate_item_pipe_vertical"
+    }
+}

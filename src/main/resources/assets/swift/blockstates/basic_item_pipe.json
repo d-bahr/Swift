@@ -1,0 +1,32 @@
+{
+    "multipart":
+    [
+        {
+            "apply": { "model": "swift:block/basic_item_pipe/base" }
+        },
+        {
+            "when": { "north": "true" },
+            "apply": { "model": "swift:block/basic_item_pipe/north" }
+        },
+        {
+            "when": { "south": "true" },
+            "apply": { "model": "swift:block/basic_item_pipe/south" }
+        },
+        {
+            "when": { "east": "true" },
+            "apply": { "model": "swift:block/basic_item_pipe/east" }
+        },
+        {
+            "when": { "west": "true" },
+            "apply": { "model": "swift:block/basic_item_pipe/west" }
+        },
+        {
+            "when": { "up": "true" },
+            "apply": { "model": "swift:block/basic_item_pipe/up" }
+        },
+        {
+            "when": { "down": "true" },
+            "apply": { "model": "swift:block/basic_item_pipe/down" }
+        }
+    ]
+}

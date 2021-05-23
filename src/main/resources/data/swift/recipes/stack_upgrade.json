@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "CDC",
+        "DCD",
+        "CDC"
+    ],
+    "key": {
+        "C": {
+            "tag": "forge:gems/emerald"
+        },
+        "D": {
+            "tag": "forge:ingots/gold"
+        }
+    },
+    "result": {
+        "item": "swift:stack_upgrade"
+    }
+}

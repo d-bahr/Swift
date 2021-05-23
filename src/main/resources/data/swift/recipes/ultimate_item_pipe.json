@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " D ",
+        "DED",
+        " D "
+    ],
+    "key": {
+        "D": {
+            "tag": "forge:gems/diamond"
+        },
+        "E": {
+            "item": "swift:advanced_item_pipe"
+        }
+    },
+    "result": {
+        "item": "swift:ultimate_item_pipe"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "CDC",
+        "DED",
+        "CDC"
+    ],
+    "key": {
+        "C": {
+            "item": "minecraft:sugar"
+        },
+        "D": {
+            "item": "minecraft:redstone"
+        },
+        "E": {
+            "tag": "forge:gems/lapis"
+        }
+    },
+    "result": {
+        "item": "swift:basic_fluid_filter_upgrade"
+    }
+}

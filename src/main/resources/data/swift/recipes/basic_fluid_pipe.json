@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "CDC",
+        "DED",
+        "CDC"
+    ],
+    "key": {
+        "C": {
+            "tag": "forge:rods/wooden"
+        },
+        "D": {
+            "tag": "forge:gems/lapis"
+        },
+        "E": {
+            "tag": "forge:stone"
+        }
+    },
+    "result": {
+        "item": "swift:basic_fluid_pipe"
+    }
+}

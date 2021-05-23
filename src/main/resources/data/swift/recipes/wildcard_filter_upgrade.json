@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "CDC",
+        "DED",
+        "CDC"
+    ],
+    "key": {
+        "C": {
+            "item": "minecraft:sugar"
+        },
+        "D": {
+            "item": "minecraft:glowstone_dust"
+        },
+        "E": {
+            "item": "minecraft:paper"
+        }
+    },
+    "result": {
+        "item": "swift:wildcard_filter_upgrade"
+    }
+}
