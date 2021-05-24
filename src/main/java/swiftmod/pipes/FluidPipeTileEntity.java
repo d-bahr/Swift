@@ -39,7 +39,7 @@ public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, 
 
     public void serializeBufferForContainer(PacketBuffer buffer, PlayerEntity player)
     {
-        NeighboringItems items = new NeighboringItems(level, worldPosition, FluidPipeBlock::canConnect);
+        NeighboringItems items = new NeighboringItems(level, worldPosition, FluidPipeBlock::canConnectTo);
         int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
         if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
             getCache().channelConfiguration.itemStack = m_baseUpgradeInventory.getItem(slot);

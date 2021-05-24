@@ -138,13 +138,6 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
     public static void setChannel(ItemStack itemStack, ChannelSpec spec)
     {
         CompoundNBT nbt = itemStack.getOrCreateTagElement(TeleporterUpgradeItem.NBT_TAG);
-
-        if (nbt == null)
-        {
-            nbt = new CompoundNBT();
-            itemStack.setTag(nbt);
-        }
-
         spec.write(nbt);
     }
 

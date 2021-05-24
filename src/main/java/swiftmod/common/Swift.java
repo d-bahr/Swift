@@ -9,16 +9,21 @@ import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.common.world.ForgeChunkManager.TicketHelper;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -34,6 +39,9 @@ public class Swift
     public static final Logger LOGGER = LogManager.getLogger(MOD_NAME);
     public static final CustomItemGroup ITEM_GROUP = new CustomItemGroup(Swift.MOD_NAME,
             () -> SwiftItems.s_advancedItemPipeBlockItem);
+
+    private static long s_lastScrollTime = -1;
+    private static double s_scrollDelta = 0.0;
 
     public Swift()
     {
@@ -75,6 +83,52 @@ public class Swift
             {
                 if (!((IChunkLoadable) tileEntity).isChunkLoaded())
                     ticketHelper.removeAllTickets(pos);
+            }
+        }
+    }
+    
+    @SubscribeEvent
+    public void onTick(ClientTickEvent event)
+    {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level != null)
+        {
+            if (minecraft.level.getGameTime() - s_lastScrollTime > 20)
+                s_scrollDelta = 0.0;
+        }
+    }
+
+    @SubscribeEvent
+    public void onMouseEvent(MouseScrollEvent event)
+    {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null && minecraft.player.isCrouching())
+        {
+            double scroll = event.getScrollDelta();
+
+            s_lastScrollTime = minecraft.level.getGameTime();
+            s_scrollDelta += scroll;
+            int s = (int) s_scrollDelta;
+            s_scrollDelta %= 1;
+
+            if (s != 0)
+            {
+                ItemStack mainHandItem = minecraft.player.getItemInHand(Hand.MAIN_HAND);
+                if (!mainHandItem.isEmpty() && mainHandItem.getItem() == SwiftItems.s_copyPastaItem)
+                {
+                    if (s > 0)
+                    {
+                        CopyPastaItem.incrementCopyType(mainHandItem);
+                        CopyPastaItem.messageCurrentType(minecraft.player);
+                    }
+                    else
+                    {
+                        CopyPastaItem.decrementCopyType(mainHandItem);
+                        CopyPastaItem.messageCurrentType(minecraft.player);
+                    }
+
+                    event.setCanceled(true);
+                }
             }
         }
     }

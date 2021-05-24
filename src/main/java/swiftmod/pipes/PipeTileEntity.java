@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import io.netty.util.internal.ThreadLocalRandom;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -29,6 +28,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import swiftmod.common.Color;
 import swiftmod.common.ContainerInventory;
+import swiftmod.common.CopyPastaItem;
 import swiftmod.common.Filter;
 import swiftmod.common.FilterMatchResult;
 import swiftmod.common.IChunkLoadable;
@@ -42,6 +42,8 @@ import swiftmod.common.channels.ChannelAttachment;
 import swiftmod.common.channels.ChannelData;
 import swiftmod.common.channels.ChannelSpec;
 import swiftmod.common.channels.OwnerBasedChannelManager;
+import swiftmod.common.upgrades.ChannelConfigurationDataCache;
+import swiftmod.common.upgrades.FilterUpgradeItem;
 import swiftmod.common.upgrades.SideUpgradeDataCache;
 import swiftmod.common.upgrades.TeleporterUpgradeItem;
 import swiftmod.common.upgrades.UpgradeInventory;
@@ -171,6 +173,199 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         }
     }
 
+    public boolean copyTileEntityUpgrades(CompoundNBT nbt, Direction dir, CopyPastaItem.CopyType copyType)
+    {
+        switch (copyType)
+        {
+        case CopyLikeToLike:
+        {
+            ListNBT list = new ListNBT();
+            if (dir == null)
+                list.add(copyUpgrades(m_baseUpgradeInventory, null));
+            else
+                list.add(copyUpgrades(m_sideUpgradeInventories[SwiftUtils.dirToIndex(dir)], dir));
+            nbt.put(SwiftUtils.tagName("targets"), list);
+            return true;
+        }
+        case CopyBase:
+        {
+            ListNBT list = new ListNBT();
+            list.add(copyUpgrades(m_baseUpgradeInventory, null));
+            nbt.put(SwiftUtils.tagName("targets"), list);
+            return true;
+        }
+        case CopySingleDirection:
+        {
+            if (dir == null)
+                return false;
+            ListNBT list = new ListNBT();
+            list.add(copyUpgrades(m_sideUpgradeInventories[SwiftUtils.dirToIndex(dir)], dir));
+            nbt.put(SwiftUtils.tagName("targets"), list);
+            return true;
+        }
+        case CopyAllDirections:
+        {
+            ListNBT list = new ListNBT();
+            for (Direction d : Direction.values())
+                list.add(copyUpgrades(m_sideUpgradeInventories[SwiftUtils.dirToIndex(d)], d));
+            nbt.put(SwiftUtils.tagName("targets"), list);
+            return true;
+        }
+        case CopyAll:
+        {
+            ListNBT list = new ListNBT();
+            list.add(copyUpgrades(m_baseUpgradeInventory, null));
+            for (Direction d : Direction.values())
+                list.add(copyUpgrades(m_sideUpgradeInventories[SwiftUtils.dirToIndex(d)], d));
+            nbt.put(SwiftUtils.tagName("targets"), list);
+            return true;
+        }
+        default:
+            return false;
+        }
+    }
+
+    private CompoundNBT copyUpgrades(UpgradeInventory inventory, Direction dir)
+    {
+        CompoundNBT nbt = new CompoundNBT();
+        if (dir == null)
+        {
+            nbt.putInt(SwiftUtils.tagName("direction"), -1);
+        }
+        else
+        {
+            int i = SwiftUtils.dirToIndex(dir);
+            nbt.putInt(SwiftUtils.tagName("direction"), i);
+            RedstoneControl rc = getCache().redstoneControls[i];
+            TransferDirection td = getCache().transferDirections[i];
+            RedstoneControl.write(nbt, rc);
+            TransferDirection.write(nbt, td);
+        }
+        ListNBT upgradeInventoryNBT = new ListNBT();
+        for (int i = 0; i < inventory.getContainerSize(); ++i)
+        {
+            ItemStack stack = inventory.getItem(i);
+            if (stack == null)
+                stack = ItemStack.EMPTY;
+            upgradeInventoryNBT.add(stack.serializeNBT());
+        }
+        nbt.put(SwiftUtils.tagName("upgrades"), upgradeInventoryNBT);
+        return nbt;
+    }
+
+    public boolean pasteTileEntityUpgrades(CompoundNBT nbt, Direction dir, CopyPastaItem.CopyType copyType)
+    {
+        boolean hasMatch = false;
+        ListNBT list = nbt.getList(SwiftUtils.tagName("targets"), Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < list.size(); ++i)
+        {
+            CompoundNBT item = list.getCompound(i);
+            int dirInt = item.getInt(SwiftUtils.tagName("direction"));
+            RedstoneControl rc = RedstoneControl.read(item);
+            TransferDirection td = TransferDirection.read(item);
+            Direction sourceDir = (dirInt < 0) ? null : SwiftUtils.indexToDir(dirInt);
+
+            switch (copyType)
+            {
+            case CopyLikeToLike:
+            {
+                if (dir == null && sourceDir == null)
+                {
+                    pasteUpgrades(item, m_baseUpgradeInventory, dir);
+                    return true;
+                }
+                else if (dir != null && sourceDir != null)
+                {
+                    int idx = SwiftUtils.dirToIndex(dir);
+                    pasteUpgrades(item, m_sideUpgradeInventories[idx], dir);
+                    getCache().redstoneControls[idx] = rc;
+                    getCache().transferDirections[idx] = td;
+                    return true;
+                }
+                break;
+            }
+            case CopyBase:
+            {
+                if (sourceDir == null)
+                {
+                    pasteUpgrades(item, m_baseUpgradeInventory, null);
+                    return true;
+                }
+                break;
+            }
+            case CopySingleDirection:
+            {
+                if (dir != null && sourceDir != null)
+                {
+                    int idx = SwiftUtils.dirToIndex(dir);
+                    pasteUpgrades(item, m_sideUpgradeInventories[idx], dir);
+                    getCache().redstoneControls[idx] = rc;
+                    getCache().transferDirections[idx] = td;
+                    return true;
+                }
+                break;
+            }
+            case CopyAllDirections:
+            {
+                if (sourceDir != null)
+                {
+                    int idx = SwiftUtils.dirToIndex(sourceDir);
+                    pasteUpgrades(item, m_sideUpgradeInventories[idx], sourceDir);
+                    getCache().redstoneControls[idx] = rc;
+                    getCache().transferDirections[idx] = td;
+                    hasMatch = true;
+                }
+                break;
+            }
+            case CopyAll:
+            {
+                if (sourceDir == null)
+                {
+                    pasteUpgrades(item, m_baseUpgradeInventory, null);
+                }
+                else
+                {
+                    int idx = SwiftUtils.dirToIndex(sourceDir);
+                    pasteUpgrades(item, m_sideUpgradeInventories[idx], sourceDir);
+                    getCache().redstoneControls[idx] = rc;
+                    getCache().transferDirections[idx] = td;
+                }
+                hasMatch = true;
+                break;
+            }
+            default:
+                return false;
+            }
+        }
+        return hasMatch;
+    }
+
+    private void pasteUpgrades(CompoundNBT nbt, UpgradeInventory inventory, Direction targetDir)
+    {
+        ListNBT list = nbt.getList(SwiftUtils.tagName("upgrades"), Constants.NBT.TAG_COMPOUND);
+        int length = Math.min(inventory.getContainerSize(), list.size());
+        for (int i = 0; i < length; ++i)
+        {
+            CompoundNBT item = list.getCompound(i);
+            ItemStack targetItem = inventory.getItem(i);
+            ItemStack sourceItem = ItemStack.of(item);
+            if (!sourceItem.isEmpty() && !targetItem.isEmpty() && sourceItem.getItem() == targetItem.getItem())
+            {
+                inventory.setItem(i, sourceItem.copy());
+
+                if (sourceItem.getItem() instanceof TeleporterUpgradeItem)
+                {
+                    ChannelSpec spec = ChannelConfigurationDataCache.getChannel(sourceItem);
+                    onChannelUpdate(spec);
+                }
+                else if (targetDir != null && sourceItem.getItem() instanceof FilterUpgradeItem)
+                {
+                    onSideUpgradesChanged(targetDir);
+                }
+            }
+        }
+    }
+
     public boolean tryAddUpgrade(PlayerInventory inventory, Hand hand)
     {
         return tryAddUpgrade(inventory, hand, null);
@@ -234,7 +429,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             }
         }
     }
-    
+
     public boolean tryAddBaseUpgrade(List<ItemStack> itemList, int itemListIndex, ItemStack itemStack, UpgradeType upgradeType, Direction dir)
     {
         int slot = m_baseUpgradeInventory.getSlotForUpgrade(upgradeType);

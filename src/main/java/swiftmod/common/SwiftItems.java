@@ -78,6 +78,9 @@ public class SwiftItems
 
         s_wildcardFilterUpgradeItem = new WildcardFilterUpgradeItem();
         registry.register(s_wildcardFilterUpgradeItem);
+
+        s_copyPastaItem = new CopyPastaItem();
+        registry.register(s_copyPastaItem);
     }
 
     private static BlockItem createBlockItem(String registryName, int maxStackSize, ItemGroup itemGroup, Block block)
@@ -106,4 +109,5 @@ public class SwiftItems
     public static SideUpgradeItem s_sideUpgradeItem;
     public static ChunkLoaderUpgradeItem s_chunkLoaderUpgradeItem;
     public static WildcardFilterUpgradeItem s_wildcardFilterUpgradeItem;
+    public static CopyPastaItem s_copyPastaItem;
 }
