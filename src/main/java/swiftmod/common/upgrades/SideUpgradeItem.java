@@ -38,7 +38,7 @@ public class SideUpgradeItem extends UpgradeItem
     }
 
     @Override
-    public void addSneakInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
     {
         byte[] states = SideUpgradeDataCache.getStates(stack);
         if (states.length == 0)
@@ -76,7 +76,7 @@ public class SideUpgradeItem extends UpgradeItem
     }
 
     @Override
-    public boolean hasSneakInformation()
+    public boolean hasShiftInformation()
     {
         return true;
     }

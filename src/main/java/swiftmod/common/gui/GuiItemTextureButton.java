@@ -59,6 +59,7 @@ public class GuiItemTextureButton extends GuiButton
         renderItem(m_itemStack, leftAbsolute(), topAbsolute(), width - m_xTexMargin, height - m_yTexMargin);
     }
 
+    @SuppressWarnings("deprecation")
     public static void renderItem(ItemStack stack, int x, int y, int xScale, int yScale)
     {
         Minecraft minecraft = Minecraft.getInstance();

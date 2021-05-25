@@ -21,6 +21,7 @@ public class NeighboringItems
     private NeighboringItems(int size)
     {
         m_stacks = new ArrayList<NeighboringItem>(size);
+        m_startingDirection = null;
     }
 
     public NeighboringItems(IBlockReader blockReader, BlockPos pos)
@@ -64,6 +65,16 @@ public class NeighboringItems
         }
     }
 
+    public void setStartingDirection(Direction dir)
+    {
+        m_startingDirection = dir;
+    }
+
+    public Direction getStartingDirection()
+    {
+        return m_startingDirection;
+    }
+
     public ArrayList<NeighboringItem> getItems()
     {
         return m_stacks;
@@ -77,6 +88,10 @@ public class NeighboringItems
             buffer.writeInt(SwiftUtils.dirToIndex(m_stacks.get(i).direction));
             buffer.writeItemStack(m_stacks.get(i).stack, false);
         }
+        if (m_startingDirection == null)
+            buffer.writeInt(-1);
+        else
+            buffer.writeInt(SwiftUtils.dirToIndex(m_startingDirection));
         return buffer;
     }
 
@@ -91,8 +106,14 @@ public class NeighboringItems
             NeighboringItem item = new NeighboringItem(dir, stack);
             items.m_stacks.add(item);
         }
+        int dirInt = buffer.readInt();
+        if (dirInt < 0)
+            items.setStartingDirection(null);
+        else
+            items.setStartingDirection(SwiftUtils.indexToDir(dirInt));
         return items;
     }
 
     private ArrayList<NeighboringItem> m_stacks;
+    private Direction m_startingDirection;
 }

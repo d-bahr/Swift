@@ -46,19 +46,14 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
     {
         super(PROPERTIES);
 
-        BlockState defaultState = getStateDefinition().any()
-                .setValue(UP, false)
-                .setValue(DOWN, false)
-                .setValue(EAST, false)
-                .setValue(WEST, false)
-                .setValue(NORTH, false)
-                .setValue(SOUTH, false);
+        BlockState defaultState = getStateDefinition().any().setValue(UP, false).setValue(DOWN, false)
+                .setValue(EAST, false).setValue(WEST, false).setValue(NORTH, false).setValue(SOUTH, false);
         registerDefaultState(defaultState);
     }
 
     @Override
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player,
-            Hand hand, BlockRayTraceResult hit)
+    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+            BlockRayTraceResult hit)
     {
         if (world.isClientSide)
             return ActionResultType.SUCCESS; // on client side, don't do anything
@@ -66,25 +61,25 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         TileEntity te = world.getBlockEntity(pos);
         if (te instanceof PipeTileEntity)
         {
-            PipeTileEntity<?,?,?> tileEntity = (PipeTileEntity<?,?,?>) te;
+            PipeTileEntity<?, ?, ?> tileEntity = (PipeTileEntity<?, ?, ?>) te;
+            Direction dir = null;
+
+            int index = BlockStateToShapeIndex(state);
+            Optional<Integer> r = Raytracer.raytrace(INDEXED_SHAPES[index], player, pos);
+
+            if (r.isPresent())
+            {
+                int i = r.get();
+                if (i >= 0)
+                    dir = SwiftUtils.indexToDir(i);
+            }
 
             ItemStack itemInHand = player.getItemInHand(hand);
             if (!itemInHand.isEmpty())
             {
-                int index = BlockStateToShapeIndex(state);
-                Optional<Integer> r = Raytracer.raytrace(INDEXED_SHAPES[index], player, pos);
-    
-                Direction dir = null;
-                if (r.isPresent())
-                {
-                    int i = r.get();
-                    if (i >= 0)
-                        dir = SwiftUtils.indexToDir(i);
-                }
-
                 if (itemInHand.getItem() == SwiftItems.s_copyPastaItem)
                 {
-                    if (player.isCrouching())
+                    if (player.isShiftKeyDown())
                     {
                         if (CopyPastaItem.copyTileEntitySettings(itemInHand, tileEntity, dir))
                         {
@@ -117,7 +112,7 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
                 }
             }
 
-            if (player.isCrouching())
+            if (player.isShiftKeyDown())
                 return ActionResultType.SUCCESS; // do nothing if crouching (shift)
 
             INamedContainerProvider namedContainerProvider = getMenuProvider(state, world, pos);
@@ -126,7 +121,7 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
                 if (!(player instanceof ServerPlayerEntity))
                     return ActionResultType.FAIL; // should always be true, but just in case...
 
-                openGui((ServerPlayerEntity)player, namedContainerProvider, tileEntity);
+                openGui((ServerPlayerEntity) player, namedContainerProvider, tileEntity, dir);
             }
 
             return ActionResultType.SUCCESS;
@@ -137,7 +132,8 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         }
     }
 
-    protected abstract void openGui(ServerPlayerEntity player, INamedContainerProvider namedContainerProvider, PipeTileEntity<?,?,?> tileEntity);
+    protected abstract void openGui(ServerPlayerEntity player, INamedContainerProvider namedContainerProvider,
+            PipeTileEntity<?, ?, ?> tileEntity, Direction startingDir);
 
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world)
@@ -159,7 +155,7 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
             TileEntity tileEntity = world.getBlockEntity(blockPos);
             if (tileEntity instanceof PipeTileEntity)
             {
-                ((PipeTileEntity<?,?,?>) tileEntity).dropAllContents(world, blockPos);
+                ((PipeTileEntity<?, ?, ?>) tileEntity).dropAllContents(world, blockPos);
             }
             super.onRemove(state, world, blockPos, newState, isMoving);
         }
@@ -204,8 +200,7 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         World world = blockItemUseContext.getLevel();
         BlockPos blockPos = blockItemUseContext.getClickedPos();
 
-        BlockState blockState = getStateDefinition().any()
-                .setValue(UP, canConnect(world, blockPos, Direction.UP))
+        BlockState blockState = getStateDefinition().any().setValue(UP, canConnect(world, blockPos, Direction.UP))
                 .setValue(DOWN, canConnect(world, blockPos, Direction.DOWN))
                 .setValue(EAST, canConnect(world, blockPos, Direction.EAST))
                 .setValue(WEST, canConnect(world, blockPos, Direction.WEST))
@@ -215,13 +210,14 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
     }
 
     @Override
-    public BlockState updateShape(BlockState thisState, Direction direction, BlockState neighborState,
-            IWorld world, BlockPos thisPos, BlockPos neighborPos)
+    public BlockState updateShape(BlockState thisState, Direction direction, BlockState neighborState, IWorld world,
+            BlockPos thisPos, BlockPos neighborPos)
     {
         return updateStateOnNeighborChange(world, thisState, direction, thisPos);
     }
 
-    private BlockState updateStateOnNeighborChange(IBlockReader world, BlockState state, Direction direction, BlockPos pos)
+    private BlockState updateStateOnNeighborChange(IBlockReader world, BlockState state, Direction direction,
+            BlockPos pos)
     {
         boolean connect = canConnect(world, pos, direction);
         switch (direction)
@@ -255,8 +251,6 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         if (dir != null)
         {
             updateStateOnNeighborChange(world, state, dir, pos);
-            //TileEntity tileEntity = world.getTileEntity(pos);
-            //tileEntity.markDirty(); // Force an update to the client so it reads the block states again.
         }
     }
 
@@ -267,17 +261,17 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         {
             VoxelShape shape = BASE_SHAPE;
             if ((i & 0x01) != 0)
-                shape = VoxelShapes.or(shape, LINK_UP_SHAPE);
+                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_UP_SHAPE), ATTACHMENT_UP_SHAPE);
             if ((i & 0x02) != 0)
-                shape = VoxelShapes.or(shape, LINK_DOWN_SHAPE);
+                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_DOWN_SHAPE), ATTACHMENT_DOWN_SHAPE);
             if ((i & 0x04) != 0)
-                shape = VoxelShapes.or(shape, LINK_WEST_SHAPE);
+                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_WEST_SHAPE), ATTACHMENT_WEST_SHAPE);
             if ((i & 0x08) != 0)
-                shape = VoxelShapes.or(shape, LINK_EAST_SHAPE);
+                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_EAST_SHAPE), ATTACHMENT_EAST_SHAPE);
             if ((i & 0x10) != 0)
-                shape = VoxelShapes.or(shape, LINK_NORTH_SHAPE);
+                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_NORTH_SHAPE), ATTACHMENT_NORTH_SHAPE);
             if ((i & 0x20) != 0)
-                shape = VoxelShapes.or(shape, LINK_SOUTH_SHAPE);
+                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_SOUTH_SHAPE), ATTACHMENT_SOUTH_SHAPE);
             shapes[i] = shape;
         }
         return shapes;
@@ -292,17 +286,35 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
             List<IndexedVoxelShape> s = new ArrayList<IndexedVoxelShape>();
             s.add(new IndexedVoxelShape(BASE_SHAPE));
             if ((i & 0x01) != 0)
+            {
                 s.add(new IndexedVoxelShape(LINK_UP_SHAPE, SwiftUtils.dirToIndex(Direction.UP)));
+                s.add(new IndexedVoxelShape(ATTACHMENT_UP_SHAPE, SwiftUtils.dirToIndex(Direction.UP)));
+            }
             if ((i & 0x02) != 0)
+            {
                 s.add(new IndexedVoxelShape(LINK_DOWN_SHAPE, SwiftUtils.dirToIndex(Direction.DOWN)));
+                s.add(new IndexedVoxelShape(ATTACHMENT_DOWN_SHAPE, SwiftUtils.dirToIndex(Direction.DOWN)));
+            }
             if ((i & 0x04) != 0)
+            {
                 s.add(new IndexedVoxelShape(LINK_WEST_SHAPE, SwiftUtils.dirToIndex(Direction.WEST)));
+                s.add(new IndexedVoxelShape(ATTACHMENT_WEST_SHAPE, SwiftUtils.dirToIndex(Direction.WEST)));
+            }
             if ((i & 0x08) != 0)
+            {
                 s.add(new IndexedVoxelShape(LINK_EAST_SHAPE, SwiftUtils.dirToIndex(Direction.EAST)));
+                s.add(new IndexedVoxelShape(ATTACHMENT_EAST_SHAPE, SwiftUtils.dirToIndex(Direction.EAST)));
+            }
             if ((i & 0x10) != 0)
+            {
                 s.add(new IndexedVoxelShape(LINK_NORTH_SHAPE, SwiftUtils.dirToIndex(Direction.NORTH)));
+                s.add(new IndexedVoxelShape(ATTACHMENT_NORTH_SHAPE, SwiftUtils.dirToIndex(Direction.NORTH)));
+            }
             if ((i & 0x20) != 0)
+            {
                 s.add(new IndexedVoxelShape(LINK_SOUTH_SHAPE, SwiftUtils.dirToIndex(Direction.SOUTH)));
+                s.add(new IndexedVoxelShape(ATTACHMENT_SOUTH_SHAPE, SwiftUtils.dirToIndex(Direction.SOUTH)));
+            }
             shapes[i] = s;
         }
         return shapes;
@@ -337,39 +349,51 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
 
     private static final Properties PROPERTIES = Block.Properties.of(Material.STONE).strength(0.2f, 0.2f);
 
-    public static final BooleanProperty UP    = BlockStateProperties.UP;
-    public static final BooleanProperty DOWN  = BlockStateProperties.DOWN;
-    public static final BooleanProperty WEST  = BlockStateProperties.WEST;
-    public static final BooleanProperty EAST  = BlockStateProperties.EAST;
+    public static final BooleanProperty UP = BlockStateProperties.UP;
+    public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
+    public static final BooleanProperty WEST = BlockStateProperties.WEST;
+    public static final BooleanProperty EAST = BlockStateProperties.EAST;
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
 
-    private static final double INNER_LENGTH = 4.0;
-    private static final Vector3d MIN_BASE_CORNER = new Vector3d(INNER_LENGTH, INNER_LENGTH, INNER_LENGTH);
-    private static final Vector3d MAX_BASE_CORNER = new Vector3d(16.0 - INNER_LENGTH, 16.0 - INNER_LENGTH, 16.0 - INNER_LENGTH);
+    private static final double FULL_LENGTH = 16.0;
+    private static final double BASE_MARGIN = 5.0;
+    private static final double LINK_MARGIN = 6.0;
+    private static final double ATTACHMENT_MARGIN = 2.0;
+    private static final double ATTACHMENT_WIDTH = 0.5;
+    private static final Vector3d MIN_BASE_CORNER = new Vector3d(BASE_MARGIN, BASE_MARGIN, BASE_MARGIN);
+    private static final Vector3d MAX_BASE_CORNER = new Vector3d(FULL_LENGTH - BASE_MARGIN, FULL_LENGTH - BASE_MARGIN,
+            FULL_LENGTH - BASE_MARGIN);
 
-    private static final VoxelShape BASE_SHAPE = Block.box(
-            MIN_BASE_CORNER.x, MIN_BASE_CORNER.y, MIN_BASE_CORNER.z,
+    private static final VoxelShape BASE_SHAPE = Block.box(MIN_BASE_CORNER.x, MIN_BASE_CORNER.y, MIN_BASE_CORNER.z,
             MAX_BASE_CORNER.x, MAX_BASE_CORNER.y, MAX_BASE_CORNER.z);
 
-    private static final VoxelShape LINK_UP_SHAPE = Block.box(
-            MIN_BASE_CORNER.x, MAX_BASE_CORNER.y, MIN_BASE_CORNER.z,
-            MAX_BASE_CORNER.x, 16.0,                   MAX_BASE_CORNER.z);
-    private static final VoxelShape LINK_DOWN_SHAPE = Block.box(
-            MIN_BASE_CORNER.x, 0.0,                    MIN_BASE_CORNER.z,
-            MAX_BASE_CORNER.x, MIN_BASE_CORNER.y, MAX_BASE_CORNER.z);
-    private static final VoxelShape LINK_WEST_SHAPE = Block.box(
-            0.0,                    MIN_BASE_CORNER.y, MIN_BASE_CORNER.z,
-            MIN_BASE_CORNER.x, MAX_BASE_CORNER.y, MAX_BASE_CORNER.z);
-    private static final VoxelShape LINK_EAST_SHAPE = Block.box(
-            MAX_BASE_CORNER.x, MIN_BASE_CORNER.y, MIN_BASE_CORNER.z,
-            16.0,                   MAX_BASE_CORNER.y, MAX_BASE_CORNER.z);
-    private static final VoxelShape LINK_NORTH_SHAPE = Block.box(
-            MIN_BASE_CORNER.x, MIN_BASE_CORNER.y, 0.0,
-            MAX_BASE_CORNER.x, MAX_BASE_CORNER.y, MIN_BASE_CORNER.z);
-    private static final VoxelShape LINK_SOUTH_SHAPE = Block.box(
-            MIN_BASE_CORNER.x, MIN_BASE_CORNER.y, MAX_BASE_CORNER.z,
-            MAX_BASE_CORNER.x, MAX_BASE_CORNER.y, 16.0);
+    private static final VoxelShape LINK_UP_SHAPE = Block.box(LINK_MARGIN, MAX_BASE_CORNER.y, LINK_MARGIN,
+            FULL_LENGTH - LINK_MARGIN, FULL_LENGTH - ATTACHMENT_WIDTH, FULL_LENGTH - LINK_MARGIN);
+    private static final VoxelShape LINK_DOWN_SHAPE = Block.box(LINK_MARGIN, ATTACHMENT_WIDTH, LINK_MARGIN,
+            FULL_LENGTH - LINK_MARGIN, MIN_BASE_CORNER.y, FULL_LENGTH - LINK_MARGIN);
+    private static final VoxelShape LINK_WEST_SHAPE = Block.box(ATTACHMENT_WIDTH, LINK_MARGIN, LINK_MARGIN, MIN_BASE_CORNER.x,
+            FULL_LENGTH - LINK_MARGIN, FULL_LENGTH - LINK_MARGIN);
+    private static final VoxelShape LINK_EAST_SHAPE = Block.box(MAX_BASE_CORNER.x, LINK_MARGIN, LINK_MARGIN,
+            FULL_LENGTH - ATTACHMENT_WIDTH, FULL_LENGTH - LINK_MARGIN, FULL_LENGTH - LINK_MARGIN);
+    private static final VoxelShape LINK_NORTH_SHAPE = Block.box(LINK_MARGIN, LINK_MARGIN, ATTACHMENT_WIDTH,
+            FULL_LENGTH - LINK_MARGIN, FULL_LENGTH - LINK_MARGIN, MIN_BASE_CORNER.z);
+    private static final VoxelShape LINK_SOUTH_SHAPE = Block.box(LINK_MARGIN, LINK_MARGIN, MAX_BASE_CORNER.z,
+            FULL_LENGTH - LINK_MARGIN, FULL_LENGTH - LINK_MARGIN, FULL_LENGTH - ATTACHMENT_WIDTH);
+
+    private static final VoxelShape ATTACHMENT_UP_SHAPE = Block.box(ATTACHMENT_MARGIN, FULL_LENGTH - ATTACHMENT_WIDTH,
+            ATTACHMENT_MARGIN, FULL_LENGTH - ATTACHMENT_MARGIN, FULL_LENGTH, FULL_LENGTH - ATTACHMENT_MARGIN);
+    private static final VoxelShape ATTACHMENT_DOWN_SHAPE = Block.box(ATTACHMENT_MARGIN, 0.0, ATTACHMENT_MARGIN,
+            FULL_LENGTH - ATTACHMENT_MARGIN, ATTACHMENT_WIDTH, FULL_LENGTH - ATTACHMENT_MARGIN);
+    private static final VoxelShape ATTACHMENT_WEST_SHAPE = Block.box(0.0, ATTACHMENT_MARGIN, ATTACHMENT_MARGIN,
+            ATTACHMENT_WIDTH, FULL_LENGTH - ATTACHMENT_MARGIN, FULL_LENGTH - ATTACHMENT_MARGIN);
+    private static final VoxelShape ATTACHMENT_EAST_SHAPE = Block.box(FULL_LENGTH - ATTACHMENT_WIDTH, ATTACHMENT_MARGIN,
+            ATTACHMENT_MARGIN, FULL_LENGTH, FULL_LENGTH - ATTACHMENT_MARGIN, FULL_LENGTH - ATTACHMENT_MARGIN);
+    private static final VoxelShape ATTACHMENT_NORTH_SHAPE = Block.box(ATTACHMENT_MARGIN, ATTACHMENT_MARGIN, 0.0,
+            FULL_LENGTH - ATTACHMENT_MARGIN, FULL_LENGTH - ATTACHMENT_MARGIN, ATTACHMENT_WIDTH);
+    private static final VoxelShape ATTACHMENT_SOUTH_SHAPE = Block.box(ATTACHMENT_MARGIN, ATTACHMENT_MARGIN,
+            FULL_LENGTH - ATTACHMENT_WIDTH, FULL_LENGTH - ATTACHMENT_MARGIN, FULL_LENGTH - ATTACHMENT_MARGIN,
+            FULL_LENGTH);
 
     protected static final VoxelShape[] SHAPES = populateShapes();
     protected static final List<IndexedVoxelShape>[] INDEXED_SHAPES = populateIndexedShapes();

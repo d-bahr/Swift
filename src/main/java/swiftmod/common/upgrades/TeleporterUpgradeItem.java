@@ -27,16 +27,12 @@ public class TeleporterUpgradeItem extends UpgradeItem
         super(t, n);
     }
 
-    // TODO: Figure out item vs. fluid. Probably should just add buttons on the top
-    // of the UI to switch between them.
-    /*
     @Override
     public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand)
     {
         return ItemContainerProvider.openContainerGui(world, player, hand,
                 TeleporterUpgradeContainer::createContainerServerSide, TeleporterUpgradeContainer::encode);
     }
-    */
 
     @Override
     public void addStandardInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
@@ -46,7 +42,7 @@ public class TeleporterUpgradeItem extends UpgradeItem
     }
 
     @Override
-    public void addSneakInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
     {
         ChannelSpec spec = ChannelConfigurationDataCache.getChannel(stack);
         if (spec == null || spec.name.isEmpty())
@@ -61,7 +57,7 @@ public class TeleporterUpgradeItem extends UpgradeItem
     }
 
     @Override
-    public boolean hasSneakInformation()
+    public boolean hasShiftInformation()
     {
         return true;
     }

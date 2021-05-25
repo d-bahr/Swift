@@ -14,8 +14,9 @@ import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import swiftmod.common.Filter;
 import swiftmod.common.NeighboringItems;
 import swiftmod.common.SwiftUtils;
+import swiftmod.common.channels.BaseChannelManager;
 import swiftmod.common.channels.ChannelData;
-import swiftmod.common.channels.FluidChannelManager;
+import swiftmod.common.channels.ChannelSpec;
 import swiftmod.common.channels.OwnerBasedChannelManager;
 import swiftmod.common.upgrades.IFluidFilterUpgradeItem;
 import swiftmod.common.upgrades.UpgradeInventory;
@@ -37,15 +38,16 @@ public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, 
             return null;
     }
 
-    public void serializeBufferForContainer(PacketBuffer buffer, PlayerEntity player)
+    public void serializeBufferForContainer(PacketBuffer buffer, PlayerEntity player, Direction startingDir)
     {
         NeighboringItems items = new NeighboringItems(level, worldPosition, FluidPipeBlock::canConnectTo);
+        items.setStartingDirection(startingDir);
         int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
         if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
             getCache().channelConfiguration.itemStack = m_baseUpgradeInventory.getItem(slot);
         else
             getCache().channelConfiguration.itemStack = ItemStack.EMPTY;
-        getCache().channelConfiguration.assignCurrentChannels(FluidChannelManager.getManager(), player);
+        getCache().channelConfiguration.assignCurrentChannels(BaseChannelManager.getManager(), player);
         getCache().serialize(buffer, items);
     }
 
@@ -120,7 +122,13 @@ public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, 
     @Override
     protected OwnerBasedChannelManager<ChannelData> getChannelManager()
     {
-        return FluidChannelManager.getManager();
+        return BaseChannelManager.getManager();
+    }
+
+    @Override
+    protected int getChannelTag()
+    {
+        return ChannelSpec.TAG_FLUIDS;
     }
 
     @Override

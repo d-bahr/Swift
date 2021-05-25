@@ -20,7 +20,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         m_attachments = new HashMap<ChannelOwner, OwnedChannelAttachments>();
         m_blocks = new HashMap<ChannelAttachment, ChannelSpec>();
     }
-    
+
     public void clear()
     {
         m_channels.clear();
@@ -34,7 +34,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         {
             OwnedChannelAttachments attachments = m_attachments.get(spec.owner);
             if (attachments != null)
-                attachments.add(spec.name, attachment);
+                attachments.add(spec.getKey(), attachment);
             m_blocks.put(attachment, spec);
         }
     }
@@ -84,7 +84,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
     {
         OwnedChannelAttachments attachments = m_attachments.get(spec.owner);
         if (attachments != null)
-            attachments.remove(spec.name, attachment);
+            attachments.remove(spec.getKey(), attachment);
     }
 
     public Set<ChannelAttachment> getAttached(ChannelSpec spec)
@@ -93,7 +93,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         if (attachments == null)
             return new HashSet<ChannelAttachment>();
         else
-            return attachments.getOrEmpty(spec.name);
+            return attachments.getOrEmpty(spec.getKey());
     }
 
     @Override
@@ -217,7 +217,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         OwnedChannelAttachments attachments = m_attachments.get(spec.owner);
         if (attachments != null)
         {
-            HashSet<ChannelAttachment> a = attachments.remove(spec.name);
+            HashSet<ChannelAttachment> a = attachments.remove(spec.getKey());
             if (a != null)
             {
                 for (ChannelAttachment attachment : a)

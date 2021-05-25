@@ -303,6 +303,7 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
         drawTextWithScale(matrix, text, x, y, color, scale);
     }
 
+    @SuppressWarnings("deprecation")
     private void drawTextWithScale(MatrixStack matrix, ITextComponent text, float x, float y, int color, float scale)
     {
         float yAdd = 4 - (scale * 8) / 2F;

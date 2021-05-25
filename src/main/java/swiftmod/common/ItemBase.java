@@ -26,12 +26,12 @@ public class ItemBase extends Item
     public void appendHoverText(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
     {
         addStandardInformation(stack, world, tooltip, flag);
-        if (hasSneakInformation())
+        if (hasShiftInformation())
         {
-            if (SwiftKeyBindings.isSneakKeyPressed())
-                addSneakInformation(stack, world, tooltip, flag);
+            if (SwiftKeyBindings.isShiftKeyPressed())
+                addShiftInformation(stack, world, tooltip, flag);
             else
-                tooltip.add(new StringTextComponent("\u00A7bHold \u00A7b\u00A76sneak\u00A76\u00A7b for more info.\u00A7b"));
+                tooltip.add(new StringTextComponent("\u00A7bHold \u00A7b\u00A76shift\u00A76\u00A7b for more info.\u00A7b"));
         }
     }
 
@@ -39,11 +39,11 @@ public class ItemBase extends Item
     {
     }
 
-    public void addSneakInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
     {
     }
     
-    public boolean hasSneakInformation()
+    public boolean hasShiftInformation()
     {
         return false;
     }

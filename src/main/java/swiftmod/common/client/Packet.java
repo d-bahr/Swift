@@ -18,8 +18,6 @@ public abstract class Packet
         if (sideReceived != LogicalSide.SERVER)
             return;
 
-        // TODO: Message validity check?
-
         ServerPlayerEntity player = context.getSender();
 
         // Dispatch from the network thread to the main server processing thread.

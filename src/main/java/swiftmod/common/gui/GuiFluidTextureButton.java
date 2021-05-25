@@ -66,6 +66,7 @@ public class GuiFluidTextureButton extends GuiButton
         renderFluid(matrixStack, fluidStack, x, y, width, height, 0.0f);
     }
 
+    @SuppressWarnings("deprecation")
     public void renderFluid(MatrixStack matrixStack, FluidStack fluidStack, int x, int y, int width, int height, float alpha)
     {
         if (!fluidStack.isEmpty())

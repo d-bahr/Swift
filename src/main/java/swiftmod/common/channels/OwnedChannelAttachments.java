@@ -3,7 +3,7 @@ package swiftmod.common.channels;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class OwnedChannelAttachments extends HashMap<String, HashSet<ChannelAttachment>>
+public class OwnedChannelAttachments extends HashMap<ChannelKey, HashSet<ChannelAttachment>>
 {
     @java.io.Serial
     private static final long serialVersionUID = 123456789L;
@@ -23,9 +23,9 @@ public class OwnedChannelAttachments extends HashMap<String, HashSet<ChannelAtta
         super(initialCapacity, loadFactor);
     }
 
-    public void add(String name, ChannelAttachment attachment)
+    public void add(ChannelKey key, ChannelAttachment attachment)
     {
-        HashSet<ChannelAttachment> s = get(name);
+        HashSet<ChannelAttachment> s = get(key);
         if (s != null)
         {
             s.add(attachment);
@@ -36,20 +36,20 @@ public class OwnedChannelAttachments extends HashMap<String, HashSet<ChannelAtta
 
             s.add(attachment);
 
-            put(name, s);
+            put(key, s);
         }
     }
 
-    public void remove(String name, ChannelAttachment attachment)
+    public void remove(ChannelKey key, ChannelAttachment attachment)
     {
-        HashSet<ChannelAttachment> s = get(name);
+        HashSet<ChannelAttachment> s = get(key);
         if (s != null)
             s.remove(attachment);
     }
 
-    public HashSet<ChannelAttachment> getOrEmpty(String name)
+    public HashSet<ChannelAttachment> getOrEmpty(ChannelKey key)
     {
-        HashSet<ChannelAttachment> s = get(name);
+        HashSet<ChannelAttachment> s = get(key);
         if (s != null)
             return s;
         else

@@ -104,7 +104,6 @@ public class GuiContainerScreen<T extends Container> extends ContainerScreen<T>
 
     public void lateInit()
     {
-
     }
 
     public void setSize(int width, int height)

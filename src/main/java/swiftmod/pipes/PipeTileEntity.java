@@ -636,6 +636,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
                 if (channelNBT != null)
                 {
                     ChannelSpec spec = new ChannelSpec(channelNBT);
+                    spec.tag = getChannelTag();
                     OwnerBasedChannelManager<ChannelData> manager = getChannelManager();
                     Set<ChannelAttachment> linkedEntities = manager.getAttached(spec);
                     for (ChannelAttachment target : linkedEntities)
@@ -980,7 +981,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             getChannelManager().detach(this);
     }
 
-    private static ChannelSpec getChannel(ItemStack stack)
+    private ChannelSpec getChannel(ItemStack stack)
     {
         if (stack.getCount() > 0)
         {
@@ -989,7 +990,11 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             {
                 CompoundNBT channelNBT = stack.getTagElement(TeleporterUpgradeItem.NBT_TAG);
                 if (channelNBT != null)
-                    return new ChannelSpec(channelNBT);
+                {
+                    ChannelSpec spec = new ChannelSpec(channelNBT);
+                    spec.tag = getChannelTag();
+                    return spec;
+                }
             }
         }
 
@@ -1044,6 +1049,8 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
     protected abstract boolean isEmpty(V stack);
 
     protected abstract OwnerBasedChannelManager<ChannelData> getChannelManager();
+    
+    protected abstract int getChannelTag();
 
     protected UpgradeInventory m_baseUpgradeInventory;
     protected UpgradeInventory[] m_sideUpgradeInventories;

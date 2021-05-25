@@ -15,7 +15,8 @@ import swiftmod.common.BigItemStack;
 import swiftmod.common.SwiftItems;
 import swiftmod.common.SwiftNetwork;
 import swiftmod.common.SwiftUtils;
-import swiftmod.common.channels.ItemChannelManager;
+import swiftmod.common.channels.BaseChannelManager;
+import swiftmod.common.channels.ChannelSpec;
 import swiftmod.common.client.ChannelConfigurationPacket;
 import swiftmod.common.client.ClearFilterPacket;
 import swiftmod.common.client.ItemFilterConfigurationPacket;
@@ -147,18 +148,19 @@ public class ItemPipeContainer extends PipeContainer implements ItemFilterConfig
             ItemStack itemStack = m_baseUpgradeInventory.getItem(slot);
             if (itemStack.getItem() instanceof TeleporterUpgradeItem)
             {
+                packet.channel.spec.tag = ChannelSpec.TAG_ITEMS;
                 switch (packet.type)
                 {
                 case Add:
                     {
-                        ItemChannelManager manager = ItemChannelManager.getManager();
+                        BaseChannelManager manager = BaseChannelManager.getManager();
                         manager.put(packet.channel);
                         manager.save();
                     }
                     break;
                 case Delete:
                     {
-                        ItemChannelManager manager = ItemChannelManager.getManager();
+                        BaseChannelManager manager = BaseChannelManager.getManager();
                         manager.delete(packet.channel.spec);
                         manager.save();
                     }

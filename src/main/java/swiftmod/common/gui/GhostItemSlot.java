@@ -155,14 +155,14 @@ public class GhostItemSlot extends GuiItemTextureButton
     {
         ItemStack itemInCursor = getPlayer().inventory.getCarried();
         boolean updated = false;
-        boolean isSneaking = SwiftKeyBindings.isSneakKeyPressed();
-        boolean isSprinting = SwiftKeyBindings.isSprintKeyPressed();
+        boolean shift = SwiftKeyBindings.isShiftKeyPressed();
+        boolean control = SwiftKeyBindings.isControlKeyPressed();
 
         // Left button = add
         // Right button = subtract
         if (button == MouseButton.Left)
         {
-            if (isSneaking)
+            if (shift)
             {
                 // Add a stack.
                 if (!m_itemStack.isEmpty() && !itemInCursor.isEmpty())
@@ -191,7 +191,7 @@ public class GhostItemSlot extends GuiItemTextureButton
                     updated = true;
                 }
             }
-            else if (isSprinting)
+            else if (control)
             {
                 // Add a single item.
                 if (!m_itemStack.isEmpty() && !itemInCursor.isEmpty())
@@ -250,7 +250,7 @@ public class GhostItemSlot extends GuiItemTextureButton
         }
         else
         {
-            if (isSneaking)
+            if (shift)
             {
                 // Remove a stack.
                 if (!m_itemStack.isEmpty())
@@ -259,7 +259,7 @@ public class GhostItemSlot extends GuiItemTextureButton
                     updated = true;
                 }
             }
-            else if (isSprinting)
+            else if (control)
             {
                 // Remove a single item.
                 decrQuantity(1);
@@ -287,6 +287,7 @@ public class GhostItemSlot extends GuiItemTextureButton
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);

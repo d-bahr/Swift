@@ -127,14 +127,13 @@ public class ColoredDirectionButton extends GuiTextureButton
         }
         else if (m_state == 17)
         {
-            // TODO: Make a rainbow texture.
             setForegroundTexture(null);
             m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_GRAY));
         }
         else
         {
             setForegroundTexture(null);
-            
+
             // TODO: Clean this up; incorporate into the Color class.
             switch (m_state)
             {

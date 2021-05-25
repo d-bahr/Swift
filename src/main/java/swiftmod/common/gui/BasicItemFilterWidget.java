@@ -82,8 +82,8 @@ public class BasicItemFilterWidget extends GuiWidget
         List<ITextComponent> tooltip = new ArrayList<ITextComponent>();
         tooltip.add(new StringTextComponent("Left click on a slot to add or increment a filter."));
         tooltip.add(new StringTextComponent("Right click on a slot to remove or decrement a filter."));
-        tooltip.add(new StringTextComponent("Sneak + click to add/remove one stack."));
-        tooltip.add(new StringTextComponent("Sprint + click to add/remove one item."));
+        tooltip.add(new StringTextComponent("Shift + click to add/remove one stack."));
+        tooltip.add(new StringTextComponent("Ctrl + click to add/remove one item."));
         tooltip.add(new StringTextComponent("Max quantity: 9999 items"));
         infoTooltip.setText(tooltip);
         infoTooltip.setZ(1000.0f);

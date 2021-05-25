@@ -53,7 +53,7 @@ public class CopyPastaItem extends ItemBase
         if (world.isClientSide)
             return new ActionResult<ItemStack>(ActionResultType.SUCCESS, itemStack);
 
-        if (player.isCrouching())
+        if (player.isShiftKeyDown())
         {
             itemStack.removeTagKey(NBT_TAG);
             player.displayClientMessage(new StringTextComponent("Cleared"), true);
@@ -69,19 +69,19 @@ public class CopyPastaItem extends ItemBase
     }
 
     @Override
-    public void addSneakInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
     {
         CopyType type = getCopyType(stack);
         String str = copyTypeToString(type);
 
         tooltip.add(new StringTextComponent(SwiftTextUtils.color("Current mode: " + str, SwiftTextUtils.AQUA)));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Sneak + Right Click = Copy", SwiftTextUtils.AQUA)));
+        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Shift + Right Click = Copy", SwiftTextUtils.AQUA)));
         tooltip.add(new StringTextComponent(SwiftTextUtils.color("Right Click = Paste", SwiftTextUtils.AQUA)));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Sneak + Right Click Air = Clear", SwiftTextUtils.AQUA)));
+        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Shift + Right Click Air = Clear", SwiftTextUtils.AQUA)));
     }
 
     @Override
-    public boolean hasSneakInformation()
+    public boolean hasShiftInformation()
     {
         return true;
     }

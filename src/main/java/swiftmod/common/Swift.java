@@ -102,7 +102,7 @@ public class Swift
     public void onMouseEvent(MouseScrollEvent event)
     {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player != null && minecraft.player.isCrouching())
+        if (minecraft.player != null && minecraft.player.isShiftKeyDown())
         {
             double scroll = event.getScrollDelta();
 

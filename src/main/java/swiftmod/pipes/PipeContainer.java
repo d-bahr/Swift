@@ -54,6 +54,18 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         void manage(ChannelSpec spec);
     };
 
+    @FunctionalInterface
+    public interface BaseSlotChangedCallback
+    {
+        void onChanged(SlotBase slot);
+    };
+
+    @FunctionalInterface
+    public interface DirectionalSlotChangedCallback
+    {
+        void onChanged(SlotBase slot, Direction dir);
+    };
+
     protected PipeContainer(@Nullable ContainerType<?> type, int windowID, PlayerInventory playerInventory,
             PacketBuffer extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
             Supplier<UpgradeInventory> sideUpgradeInventorySupplier, int x, int y)
@@ -62,6 +74,9 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
 
         m_refreshFilterCallback = null;
         m_channelManagerCallback = null;
+        m_teleportSlotChangedCallback = null;
+        m_sideSlotChangedCallback = null;
+        m_filterSlotChangedCallback = null;
 
         int len = Direction.values().length;
 
@@ -70,6 +85,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
             m_itemStacks[i] = null;
 
         NeighboringItems neighbors = m_cache.deserialize(extraData);
+        m_startingDirection = neighbors.getStartingDirection();
         ArrayList<NeighboringItem> items = neighbors.getItems();
         for (int i = 0; i < items.size(); ++i)
         {
@@ -101,8 +117,12 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
 
         m_refreshFilterCallback = refreshFilterCallback;
         m_channelManagerCallback = channelManagerCallback;
+        m_teleportSlotChangedCallback = null;
+        m_sideSlotChangedCallback = null;
+        m_filterSlotChangedCallback = null;
 
         m_itemStacks = null;
+        m_startingDirection = null;
 
         m_baseUpgradeInventory = upgradeInventory;
         m_sideUpgradeInventories = sideUpgradeInventories;
@@ -117,6 +137,14 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         m_baseUpgradeInventoryStartingSlot = getNumSlots();
         SlotBase[] upgradeSlots = m_baseUpgradeInventory.createSlots(PipeContainerScreen.UPGRADE_PANEL_X + 1,
                 PipeContainerScreen.UPGRADE_PANEL_Y + 1, 2, 2);
+        int filterUpgradeSlot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
+        for (int i = 0; i < upgradeSlots.length; ++i)
+        {
+            if (i == filterUpgradeSlot)
+            {
+                upgradeSlots[i].setChangedCallback(this::onTeleportUpgradeSlotChanged);
+            }
+        }
         addSlots(upgradeSlots);
     }
 
@@ -136,8 +164,37 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
             m_sideUpgradeInventoryStartingSlots[i] = getNumSlots();
             SlotBase[] upgradeSlots = m_sideUpgradeInventories[i].createSlots(x, y, 1,
                     m_sideUpgradeInventories[i].getContainerSize(), width, height);
+
+            int filterUpgradeSlot = m_sideUpgradeInventories[i].getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+            int sideUpgradeSlot = m_sideUpgradeInventories[i].getSlotForUpgrade(UpgradeType.SideUpgrade);
+            for (int j = 0; j < upgradeSlots.length; ++j)
+            {
+                if (j == filterUpgradeSlot)
+                {
+                    upgradeSlots[j].setChangedCallback((slot) -> onFilterUpgradeSlotChanged(slot, dir));
+                }
+                else if (j == sideUpgradeSlot)
+                {
+                    upgradeSlots[j].setChangedCallback((slot) -> onSideUpgradeSlotChanged(slot, dir));
+                }
+            }
             addSlots(upgradeSlots);
         }
+    }
+
+    public void setTeleportSlotChangedCallback(BaseSlotChangedCallback callback)
+    {
+        m_teleportSlotChangedCallback = callback;
+    }
+
+    public void setSideSlotChangedCallback(DirectionalSlotChangedCallback callback)
+    {
+        m_sideSlotChangedCallback = callback;
+    }
+
+    public void setFilterSlotChangedCallback(DirectionalSlotChangedCallback callback)
+    {
+        m_filterSlotChangedCallback = callback;
     }
 
     public WildcardFilterUpgradeDataCache getWildcardFilterCache(Direction direction)
@@ -473,6 +530,24 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         }
     }
 
+    public void onTeleportUpgradeSlotChanged(SlotBase slot)
+    {
+        if (m_teleportSlotChangedCallback != null)
+            m_teleportSlotChangedCallback.onChanged(slot);
+    }
+
+    public void onSideUpgradeSlotChanged(SlotBase slot, Direction dir)
+    {
+        if (m_sideSlotChangedCallback != null)
+            m_sideSlotChangedCallback.onChanged(slot, dir);
+    }
+
+    public void onFilterUpgradeSlotChanged(SlotBase slot, Direction dir)
+    {
+        if (m_filterSlotChangedCallback != null)
+            m_filterSlotChangedCallback.onChanged(slot, dir);
+    }
+
     public ItemStack getNeighbor(Direction dir)
     {
         if (m_itemStacks == null)
@@ -480,6 +555,11 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         if (SwiftUtils.dirToIndex(dir) >= m_itemStacks.length)
             return null;
         return m_itemStacks[SwiftUtils.dirToIndex(dir)];
+    }
+    
+    public Direction getStartingDirection()
+    {
+        return m_startingDirection;
     }
     
     protected void refreshFilter(Direction dir)
@@ -490,8 +570,12 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
 
     protected RefreshFilterCallback m_refreshFilterCallback;
     protected ChannelManagerCallback m_channelManagerCallback;
+    protected BaseSlotChangedCallback m_teleportSlotChangedCallback;
+    protected DirectionalSlotChangedCallback m_sideSlotChangedCallback;
+    protected DirectionalSlotChangedCallback m_filterSlotChangedCallback;
 
     protected ItemStack[] m_itemStacks;
+    protected Direction m_startingDirection;
 
     protected UpgradeInventory m_baseUpgradeInventory;
     protected UpgradeInventory[] m_sideUpgradeInventories;

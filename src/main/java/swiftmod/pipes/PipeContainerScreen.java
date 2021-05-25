@@ -43,6 +43,8 @@ public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerSc
         // TODO: Really need to fix this up in GuiContainerScreen so it doesn't need to be done here.
         m_playerInventoryLabel.x = m_playerInventory.x + 1;
         m_playerInventoryLabel.y = m_playerInventory.top() - m_playerInventoryLabel.height() - 2;
+        
+        m_init = true;
     }
 
     protected void initBasePanel(ITextComponent title)
@@ -87,6 +89,18 @@ public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerSc
         m_directonSelectionWidget.setItemForDirection(Direction.DOWN, menu.getNeighbor(Direction.DOWN));
     }
 
+    @Override
+    public void lateInit()
+    {
+        if (m_init)
+        {
+            Direction dir = menu.getStartingDirection();
+            if (dir != null)
+                onDirectionButtonPressed(dir);
+            m_init = false;
+        }
+    }
+
     protected void onPageChanged(GuiPanelStack stack)
     {
         if (stack.topPanel() == m_basePanel)
@@ -103,12 +117,17 @@ public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerSc
         }
     }
 
-    protected void onDirectionButtonPressed(Direction direction)
+    private void onDirectionButtonPressed(Direction direction)
     {
         m_selectedDirection = direction;
         m_redstoneButton.setState(menu.getCache().getRedstoneControl(m_selectedDirection));
         m_transferDirectionButton.setState(menu.getCache().getTransferDirection(m_selectedDirection));
         m_panelStack.push(m_directionalConfigPanel);
+        onDirectionChanged(direction);
+    }
+    
+    protected void onDirectionChanged(Direction direction)
+    {
     }
 
     protected void onRedstoneControlChanged(RedstoneButton button, RedstoneControl newRedstoneControl)
@@ -136,6 +155,7 @@ public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerSc
     protected Direction m_selectedDirection;
     protected RedstoneButton m_redstoneButton;
     protected TransferDirectionButton m_transferDirectionButton;
+    protected boolean m_init;
 
     public static final int PLAYER_INVENTORY_OFFSET_X = 8;
     public static final int PLAYER_INVENTORY_OFFSET_Y = 97;

@@ -69,9 +69,7 @@ public abstract class PlayerInventoryContainer extends Container
     @Override
     public boolean stillValid(PlayerEntity player)
     {
-        // TODO: Maybe can just return true here? Not sure. Need to test.
         return true;
-        // return m_playerAccessibilityLambda.test(player);
     }
 
     // This is called when the player shift-clicks a slot in the inventory screen.

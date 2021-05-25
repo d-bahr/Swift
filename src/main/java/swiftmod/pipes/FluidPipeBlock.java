@@ -14,14 +14,16 @@ public abstract class FluidPipeBlock extends PipeBlock
         super();
     }
 
-    protected void openGui(ServerPlayerEntity player, INamedContainerProvider namedContainerProvider, PipeTileEntity<?,?,?> tileEntity)
+    @Override
+    protected void openGui(ServerPlayerEntity player, INamedContainerProvider namedContainerProvider,
+            PipeTileEntity<?, ?, ?> tileEntity, Direction startingDir)
     {
         if (tileEntity instanceof FluidPipeTileEntity)
         {
             FluidPipeTileEntity fluidPipeTE = (FluidPipeTileEntity) tileEntity;
             NetworkHooks.openGui((ServerPlayerEntity) player, namedContainerProvider, (packetBuffer) ->
             {
-                fluidPipeTE.serializeBufferForContainer(packetBuffer, player);
+                fluidPipeTE.serializeBufferForContainer(packetBuffer, player, startingDir);
             });
         }
     }

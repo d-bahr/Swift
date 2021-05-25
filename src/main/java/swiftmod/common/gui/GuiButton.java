@@ -113,7 +113,8 @@ public class GuiButton extends GuiWidget
         if (m_drawBackground)
             drawBackground(matrixStack, mouseX, mouseY, partialTicks);
     }
-    
+
+    @SuppressWarnings("deprecation")
     protected void drawBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         Minecraft minecraft = Minecraft.getInstance();

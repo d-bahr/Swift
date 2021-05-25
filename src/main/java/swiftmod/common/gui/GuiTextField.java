@@ -700,6 +700,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
     /**
      * Draws the blue selection box.
      */
+    @SuppressWarnings("deprecation")
     private void drawSelectionBox(MatrixStack matrixStack, int startX, int startY, int endX, int endY)
     {
         if (startX < endX)

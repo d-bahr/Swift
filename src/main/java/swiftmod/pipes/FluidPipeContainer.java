@@ -15,7 +15,8 @@ import net.minecraftforge.fluids.FluidStack;
 import swiftmod.common.SwiftItems;
 import swiftmod.common.SwiftNetwork;
 import swiftmod.common.SwiftUtils;
-import swiftmod.common.channels.FluidChannelManager;
+import swiftmod.common.channels.BaseChannelManager;
+import swiftmod.common.channels.ChannelSpec;
 import swiftmod.common.client.ChannelConfigurationPacket;
 import swiftmod.common.client.ClearFilterPacket;
 import swiftmod.common.client.FluidFilterConfigurationPacket;
@@ -145,18 +146,19 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
             ItemStack itemStack = m_baseUpgradeInventory.getItem(slot);
             if (itemStack.getItem() instanceof TeleporterUpgradeItem)
             {
+                packet.channel.spec.tag = ChannelSpec.TAG_FLUIDS;
                 switch (packet.type)
                 {
                 case Add:
                     {
-                        FluidChannelManager manager = FluidChannelManager.getManager();
+                        BaseChannelManager manager = BaseChannelManager.getManager();
                         manager.put(packet.channel);
                         manager.save();
                     }
                     break;
                 case Delete:
                     {
-                        FluidChannelManager manager = FluidChannelManager.getManager();
+                        BaseChannelManager manager = BaseChannelManager.getManager();
                         manager.delete(packet.channel.spec);
                         manager.save();
                     }

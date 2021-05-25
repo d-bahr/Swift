@@ -5,6 +5,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import swiftmod.common.MouseButton;
+import swiftmod.common.SlotBase;
 import swiftmod.common.Swift;
 import swiftmod.common.gui.ChannelSelectionWidget;
 import swiftmod.common.gui.GuiPanel;
@@ -20,6 +21,8 @@ public class UltimateItemPipeContainerScreen extends AbstractAdvancedItemPipeCon
     public UltimateItemPipeContainerScreen(UltimateItemPipeContainer c, PlayerInventory inv, ITextComponent title)
     {
         super(c, inv, title);
+        
+        menu.setTeleportSlotChangedCallback(this::onTeleportSlotChanged);
 
         m_channelSelectionWidget = new ChannelSelectionWidget(this, 0, 0, width() - BASE_PANEL_X * 2, 8);
 
@@ -56,18 +59,20 @@ public class UltimateItemPipeContainerScreen extends AbstractAdvancedItemPipeCon
     @Override
     public void tick()
     {
-        if (m_selectedDirection != null)
-        {
-            m_teleportSettingsButton.visible = menu.containsUpgradeInSlot(UpgradeType.TeleportUpgrade);
-        }
-
         super.tick();
     }
 
     @Override
-    public void earlyInit()
+    public void lateInit()
     {
-        super.earlyInit();
+        super.lateInit();
+
+        m_teleportSettingsButton.visible = menu.containsUpgradeInSlot(UpgradeType.TeleportUpgrade);
+    }
+
+    protected void onTeleportSlotChanged(SlotBase slot)
+    {
+        m_teleportSettingsButton.visible = slot.hasItem();
     }
 
     @Override

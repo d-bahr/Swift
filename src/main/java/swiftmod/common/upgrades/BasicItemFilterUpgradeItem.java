@@ -74,7 +74,7 @@ public class BasicItemFilterUpgradeItem extends FilterUpgradeItem implements IIt
     }
 
     @Override
-    public void addSneakInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
     {
         BasicItemFilterUpgradeDataCache cache = new BasicItemFilterUpgradeDataCache(stack);
         tooltip.add(new StringTextComponent(SwiftTextUtils.color(cache.getWhiteListState() == WhiteListState.WhiteList ? "Whitelist" : "Blacklist", SwiftTextUtils.AQUA)));
@@ -92,7 +92,7 @@ public class BasicItemFilterUpgradeItem extends FilterUpgradeItem implements IIt
     }
 
     @Override
-    public boolean hasSneakInformation()
+    public boolean hasShiftInformation()
     {
         return true;
     }

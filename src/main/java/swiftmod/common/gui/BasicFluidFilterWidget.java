@@ -78,9 +78,9 @@ public class BasicFluidFilterWidget extends GuiWidget
         List<ITextComponent> tooltip = new ArrayList<ITextComponent>();
         tooltip.add(new StringTextComponent("Left click on a slot to add or increment a filter."));
         tooltip.add(new StringTextComponent("Right click on a slot to remove or decrement a filter."));
-        tooltip.add(new StringTextComponent("Sneak + click to add/remove 16 buckets."));
-        tooltip.add(new StringTextComponent("Sprint + click to add/remove 100 mB."));
-        tooltip.add(new StringTextComponent("Sprint + Sneak + click to add/remove 1 mB."));
+        tooltip.add(new StringTextComponent("Shift + click to add/remove 16 buckets."));
+        tooltip.add(new StringTextComponent("Ctrl + click to add/remove 100 mB."));
+        tooltip.add(new StringTextComponent("Shift + Ctrl + click to add/remove 1 mB."));
         tooltip.add(new StringTextComponent("Max quantity: 999 buckets"));
         infoTooltip.setText(tooltip);
         infoTooltip.setZ(1000.0f);

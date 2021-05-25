@@ -86,6 +86,7 @@ public class GuiPanel extends GuiWidget
             drawBackground(matrixStack, mouseX, mouseY, partialTicks);
     }
 
+    @SuppressWarnings("deprecation")
     protected void drawBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (m_backgroundTexture != null)
@@ -98,12 +99,6 @@ public class GuiPanel extends GuiWidget
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
             blit(matrixStack, this.x, this.y, 0, 0, this.width, this.height, this.width, this.height);
-            //renderBg(matrixStack, minecraft, mouseX, mouseY);
-            //if (isHovered())
-            //    renderToolTip(matrixStack, mouseX, mouseY);
-            //FontRenderer fontrenderer = minecraft.fontRenderer;
-            //int j = getFGColor();
-            //drawCenteredString(matrixStack, fontrenderer, getMessage(), x + width / 2, y + (height - 8) / 2, j | MathHelper.ceil(alpha * 255.0F) << 24);
         }
     }
 

@@ -38,8 +38,6 @@ public class GuiTextureButton extends GuiButton
 
     public void setMargin(int x, int y)
     {
-        // TODO: This might not work with how jank the texture stuff is; might need to have texture
-        // margins built into the GuiTexture class.
         m_foregroundTexture.x = x;
         m_foregroundTexture.y = y;
         m_foregroundTexture.setWidth(width - x * 2);

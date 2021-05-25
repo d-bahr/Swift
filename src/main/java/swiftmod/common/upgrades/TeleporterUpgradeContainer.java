@@ -9,11 +9,10 @@ import net.minecraft.network.PacketBuffer;
 import swiftmod.common.IDataCacheContainer;
 import swiftmod.common.SwiftContainers;
 import swiftmod.common.SwiftNetwork;
+import swiftmod.common.channels.BaseChannelManager;
 import swiftmod.common.channels.ChannelSpec;
-import swiftmod.common.channels.ItemChannelManager;
 import swiftmod.common.client.ChannelConfigurationPacket;
 
-// TODO: Need to figure out item vs. fluid when right-clicking a teleporter upgrade directly.
 public class TeleporterUpgradeContainer extends Container
         implements ChannelConfigurationPacket.Handler, IDataCacheContainer<ChannelConfigurationDataCache>
 {
@@ -74,7 +73,7 @@ public class TeleporterUpgradeContainer extends Container
 
     public static void encode(PlayerEntity player, ItemStack heldItem, PacketBuffer buffer)
     {
-        ChannelConfigurationDataCache cache = ChannelConfigurationDataCache.create(ItemChannelManager.getManager(),
+        ChannelConfigurationDataCache cache = ChannelConfigurationDataCache.create(BaseChannelManager.getManager(),
                 player, heldItem);
         cache.write(buffer);
     }
@@ -94,14 +93,14 @@ public class TeleporterUpgradeContainer extends Container
             {
             case Add:
                 {
-                    ItemChannelManager manager = ItemChannelManager.getManager();
+                    BaseChannelManager manager = BaseChannelManager.getManager();
                     manager.put(packet.channel);
                     manager.save();
                 }
                 break;
             case Delete:
                 {
-                    ItemChannelManager manager = ItemChannelManager.getManager();
+                    BaseChannelManager manager = BaseChannelManager.getManager();
                     manager.delete(packet.channel.spec);
                     manager.save();
                 }

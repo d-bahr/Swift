@@ -67,7 +67,7 @@ public class WildcardFilterUpgradeItem extends FilterUpgradeItem implements IIte
     }
 
     @Override
-    public void addSneakInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
     {
         tooltip.add(new StringTextComponent(SwiftTextUtils.color("Supported wildcard patterns:", SwiftTextUtils.AQUA)));
         tooltip.add(new StringTextComponent(SwiftTextUtils.color("*", SwiftTextUtils.ORANGE) + SwiftTextUtils.color(" - zero or more characters", SwiftTextUtils.AQUA)));
@@ -76,7 +76,7 @@ public class WildcardFilterUpgradeItem extends FilterUpgradeItem implements IIte
     }
 
     @Override
-    public boolean hasSneakInformation()
+    public boolean hasShiftInformation()
     {
         return true;
     }

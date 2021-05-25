@@ -6,6 +6,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import swiftmod.common.MouseButton;
+import swiftmod.common.SlotBase;
 import swiftmod.common.Swift;
 import swiftmod.common.client.SideConfigurationPacket;
 import swiftmod.common.gui.BasicItemFilterWidget;
@@ -25,6 +26,9 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
     public AdvancedPipeContainerScreen(T c, PlayerInventory inv, ITextComponent title)
     {
         super(c, inv, title);
+
+        menu.setFilterSlotChangedCallback(this::onFilterSlotChanged);
+        menu.setSideSlotChangedCallback(this::onSideSlotChanged);
 
         m_upgradePanel = new GuiPanel(this, UPGRADE_PANEL_X, UPGRADE_PANEL_Y, 36, 54);
         m_basicFilterConfigPanel = new GuiPanel(this, BASE_PANEL_X, BASE_PANEL_Y, width() - BASE_PANEL_X, 90);
@@ -97,27 +101,34 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
     }
 
     @Override
-    public void tick()
-    {
-        // TODO: This leads to some goofy artifacts. Need to instead somehow tap into
-        // the slot and change the button state when the item is actually added/removed.
-        if (m_selectedDirection != null)
-        {
-            m_filterSettingsButton.visible = menu.containsUpgradeInSlot(m_selectedDirection,
-                    UpgradeType.WildcardFilterUpgrade);
-            m_sideUpgradeSettingsButton.visible = menu.containsUpgradeInSlot(m_selectedDirection,
-                    UpgradeType.SideUpgrade);
-        }
-
-        super.tick();
-    }
-
-    @Override
     public void earlyInit()
     {
         super.earlyInit();
 
         add(m_upgradePanel);
+    }
+
+    @Override
+    public void lateInit()
+    {
+        super.lateInit();
+
+        m_filterSettingsButton.visible = menu.containsUpgradeInSlot(m_selectedDirection,
+                UpgradeType.WildcardFilterUpgrade);
+        m_sideUpgradeSettingsButton.visible = menu.containsUpgradeInSlot(m_selectedDirection,
+                UpgradeType.SideUpgrade);
+    }
+
+    protected void onFilterSlotChanged(SlotBase slot, Direction dir)
+    {
+        if (dir == m_selectedDirection)
+            m_filterSettingsButton.visible = slot.hasItem();
+    }
+
+    protected void onSideSlotChanged(SlotBase slot, Direction dir)
+    {
+        if (dir == m_selectedDirection)
+            m_sideUpgradeSettingsButton.visible = slot.hasItem();
     }
 
     @Override
@@ -154,6 +165,14 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
             if (m_upgradePanel != null)
                 m_upgradePanel.show();
         }
+    }
+
+    protected void onDirectionChanged(Direction direction)
+    {
+        m_filterSettingsButton.visible = menu.containsUpgradeInSlot(m_selectedDirection,
+                UpgradeType.WildcardFilterUpgrade);
+        m_sideUpgradeSettingsButton.visible = menu.containsUpgradeInSlot(m_selectedDirection,
+                UpgradeType.SideUpgrade);
     }
 
     protected abstract void fillBasicFiltersFromCache();

@@ -172,14 +172,14 @@ public class GhostFluidSlot extends GuiFluidTextureButton
             fluidStack = optionalFluidStack.get();
 
         boolean updated = false;
-        boolean isSneaking = SwiftKeyBindings.isSneakKeyPressed();
-        boolean isSprinting = SwiftKeyBindings.isSprintKeyPressed();
+        boolean shift = SwiftKeyBindings.isShiftKeyPressed();
+        boolean control = SwiftKeyBindings.isControlKeyPressed();
 
         // Left button = add
         // Right button = subtract
         if (button == MouseButton.Left)
         {
-            if (isSneaking && isSprinting)
+            if (shift && control)
             {
                 // Add 1 mB.
                 if (!m_fluidStack.isEmpty() && !fluidStack.isEmpty())
@@ -208,7 +208,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
                     updated = true;
                 }
             }
-            else if (isSneaking)
+            else if (shift)
             {
                 // Add 16 buckets.
                 if (!m_fluidStack.isEmpty() && !fluidStack.isEmpty())
@@ -237,7 +237,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
                     updated = true;
                 }
             }
-            else if (isSprinting)
+            else if (control)
             {
                 // Add 100 mB.
                 if (!m_fluidStack.isEmpty() && !fluidStack.isEmpty())
@@ -298,19 +298,19 @@ public class GhostFluidSlot extends GuiFluidTextureButton
         }
         else
         {
-            if (isSneaking && isSprinting)
+            if (shift && control)
             {
                 // Remove 1 mb.
                 decrQuantity(1);
                 updated = true;
             }
-            else if (isSneaking)
+            else if (shift)
             {
                 // Remove 16 buckets.
                 decrQuantity(16_000);
                 updated = true;
             }
-            else if (isSprinting)
+            else if (control)
             {
                 // Remove 100 mb.
                 decrQuantity(100);

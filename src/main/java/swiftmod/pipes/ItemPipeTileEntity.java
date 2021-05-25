@@ -12,8 +12,9 @@ import net.minecraftforge.items.IItemHandler;
 import swiftmod.common.Filter;
 import swiftmod.common.NeighboringItems;
 import swiftmod.common.SwiftUtils;
+import swiftmod.common.channels.BaseChannelManager;
 import swiftmod.common.channels.ChannelData;
-import swiftmod.common.channels.ItemChannelManager;
+import swiftmod.common.channels.ChannelSpec;
 import swiftmod.common.channels.OwnerBasedChannelManager;
 import swiftmod.common.upgrades.IItemFilterUpgradeItem;
 import swiftmod.common.upgrades.UpgradeInventory;
@@ -35,15 +36,16 @@ public abstract class ItemPipeTileEntity extends PipeTileEntity<PipeDataCache, I
             return null;
     }
 
-    public void serializeBufferForContainer(PacketBuffer buffer, PlayerEntity player)
+    public void serializeBufferForContainer(PacketBuffer buffer, PlayerEntity player, Direction startingDir)
     {
         NeighboringItems items = new NeighboringItems(level, worldPosition, ItemPipeBlock::canConnectTo);
+        items.setStartingDirection(startingDir);
         int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
         if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
             getCache().channelConfiguration.itemStack = m_baseUpgradeInventory.getItem(slot);
         else
             getCache().channelConfiguration.itemStack = ItemStack.EMPTY;
-        getCache().channelConfiguration.assignCurrentChannels(ItemChannelManager.getManager(), player);
+        getCache().channelConfiguration.assignCurrentChannels(BaseChannelManager.getManager(), player);
         getCache().serialize(buffer, items);
     }
 
@@ -119,7 +121,13 @@ public abstract class ItemPipeTileEntity extends PipeTileEntity<PipeDataCache, I
     @Override
     protected OwnerBasedChannelManager<ChannelData> getChannelManager()
     {
-        return ItemChannelManager.getManager();
+        return BaseChannelManager.getManager();
+    }
+
+    @Override
+    protected int getChannelTag()
+    {
+        return ChannelSpec.TAG_ITEMS;
     }
 
     @Override
