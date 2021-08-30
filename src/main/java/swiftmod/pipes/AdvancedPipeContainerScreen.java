@@ -5,6 +5,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.SlotBase;
 import swiftmod.common.Swift;
@@ -21,6 +23,7 @@ import swiftmod.common.upgrades.SideUpgradeDataCache;
 import swiftmod.common.upgrades.UpgradeType;
 import swiftmod.common.upgrades.WildcardFilterUpgradeDataCache;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> extends PipeContainerScreen<T>
 {
     public AdvancedPipeContainerScreen(T c, PlayerInventory inv, ITextComponent title)

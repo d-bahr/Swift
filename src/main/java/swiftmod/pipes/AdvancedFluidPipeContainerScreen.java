@@ -2,7 +2,10 @@ package swiftmod.pipes;
 
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class AdvancedFluidPipeContainerScreen extends AbstractAdvancedFluidPipeContainerScreen<AdvancedFluidPipeContainer>
 {
     public AdvancedFluidPipeContainerScreen(AdvancedFluidPipeContainer c, PlayerInventory inv, ITextComponent title)

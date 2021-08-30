@@ -3,6 +3,8 @@ package swiftmod.pipes;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
 import swiftmod.common.Swift;
 import swiftmod.common.WhiteListState;
@@ -14,6 +16,7 @@ import swiftmod.common.gui.GuiWidget;
 import swiftmod.common.gui.WhiteBlackListButton;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeDataCache;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class AbstractAdvancedFluidPipeContainerScreen<T extends FluidPipeContainer>
         extends AdvancedPipeContainerScreen<T>
 {

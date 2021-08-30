@@ -4,6 +4,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.RedstoneControl;
 import swiftmod.common.Swift;
 import swiftmod.common.TransferDirection;
@@ -16,6 +18,7 @@ import swiftmod.common.gui.RedstoneButton;
 import swiftmod.common.gui.SwiftGui;
 import swiftmod.common.gui.TransferDirectionButton;
 
+@OnlyIn(Dist.CLIENT)
 public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerScreen<T>
 {
     public PipeContainerScreen(T c, PlayerInventory inv, ITextComponent title)

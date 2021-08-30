@@ -74,7 +74,6 @@ public class SwiftItems
 
         s_chunkLoaderUpgradeItem = new ChunkLoaderUpgradeItem();
         registry.register(s_chunkLoaderUpgradeItem);
-        registry.register(s_sideUpgradeItem);
 
         s_wildcardFilterUpgradeItem = new WildcardFilterUpgradeItem();
         registry.register(s_wildcardFilterUpgradeItem);

@@ -8,10 +8,13 @@ import net.minecraft.util.text.Color;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftUtils;
 
+@OnlyIn(Dist.CLIENT)
 public class ColoredDirectionButton extends GuiTextureButton
 {
     @FunctionalInterface

@@ -18,6 +18,8 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeChunkManager;
@@ -99,6 +101,7 @@ public class Swift
     }
 
     @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
     public void onMouseEvent(MouseScrollEvent event)
     {
         Minecraft minecraft = Minecraft.getInstance();

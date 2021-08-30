@@ -4,6 +4,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 import swiftmod.common.WhiteListState;
 import swiftmod.common.client.ItemFilterConfigurationPacket;
@@ -14,6 +16,7 @@ import swiftmod.common.gui.GuiWidget;
 import swiftmod.common.gui.WhiteBlackListButton;
 import swiftmod.common.upgrades.BasicItemFilterUpgradeDataCache;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class AbstractAdvancedItemPipeContainerScreen<T extends ItemPipeContainer> extends AdvancedPipeContainerScreen<T>
 {
     public AbstractAdvancedItemPipeContainerScreen(T c, PlayerInventory inv, ITextComponent title)
