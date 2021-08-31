@@ -2,6 +2,6 @@
     "parent": "swift:block/pipe_model_base",
     "textures":
     {
-        "all": "swift:block/advanced_fluid_pipe"
+        "base": "swift:block/advanced_fluid_pipe"
     }
 }
