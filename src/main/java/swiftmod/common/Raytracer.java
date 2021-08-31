@@ -14,25 +14,22 @@ public class Raytracer
 {
     public static Optional<Integer> raytrace(IndexedVoxelShape[] shapes, PlayerEntity player, BlockPos pos)
     {
-        Minecraft minecraft = Minecraft.getInstance();
         Vector3d start = player.getEyePosition(1.0f);
-        Vector3d end = start.add(player.getViewVector(1.0f).scale(minecraft.gameMode.getPickRange() * 2));
+        Vector3d end = start.add(player.getViewVector(1.0f).scale(player.getPickRadius() * 2));
         return raytrace(shapes, start, end, pos);
     }
 
     public static Optional<Integer> raytrace(List<IndexedVoxelShape> shapes, PlayerEntity player, BlockPos pos)
     {
-        Minecraft minecraft = Minecraft.getInstance();
         Vector3d start = player.getEyePosition(1.0f);
-        Vector3d end = start.add(player.getViewVector(1.0f).scale(minecraft.gameMode.getPickRange() * 2));
+        Vector3d end = start.add(player.getViewVector(1.0f).scale(player.getPickRadius() * 2));
         return raytrace(shapes, start, end, pos);
     }
 
     public static int raytrace(VoxelShape[] shapes, PlayerEntity player, BlockPos pos)
     {
-        Minecraft minecraft = Minecraft.getInstance();
         Vector3d start = player.getEyePosition(1.0f);
-        Vector3d end = start.add(player.getViewVector(1.0f).scale(minecraft.gameMode.getPickRange() * 2));
+        Vector3d end = start.add(player.getViewVector(1.0f).scale(player.getPickRadius() * 2));
         return raytrace(shapes, start, end, pos);
     }
 
