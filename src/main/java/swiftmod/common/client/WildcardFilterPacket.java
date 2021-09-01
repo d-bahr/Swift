@@ -28,7 +28,7 @@ public class WildcardFilterPacket extends DirectionalPacket
     {
         super.decode(buffer);
         add = buffer.readBoolean();
-        filter = buffer.readUtf();
+        filter = buffer.readUtf(32767);
     }
 
     public void encode(PacketBuffer buffer)

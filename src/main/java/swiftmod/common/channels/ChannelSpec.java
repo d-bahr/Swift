@@ -61,7 +61,7 @@ public class ChannelSpec
     public void read(PacketBuffer buffer)
     {
         owner.read(buffer);
-        name = buffer.readUtf();
+        name = buffer.readUtf(32767);
         tag = buffer.readInt();
     }
 

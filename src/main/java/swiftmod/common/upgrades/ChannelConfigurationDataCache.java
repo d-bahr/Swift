@@ -123,11 +123,11 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
 
         int numPrivChannels = buffer.readInt();
         for (int i = 0; i < numPrivChannels; ++i)
-            privateChannels.add(buffer.readUtf());
+            privateChannels.add(buffer.readUtf(32767));
 
         int numPubChannels = buffer.readInt();
         for (int i = 0; i < numPubChannels; ++i)
-            publicChannels.add(buffer.readUtf());
+            publicChannels.add(buffer.readUtf(32767));
     }
 
     public void setChannel(ChannelSpec spec)
