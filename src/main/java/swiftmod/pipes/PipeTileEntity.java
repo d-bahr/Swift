@@ -109,17 +109,17 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         getCache().read(nbt);
         m_baseUpgradeInventory.deserializeNBT(nbt.getCompound(SwiftUtils.tagName("baseUpgradeSlots")));
 
-        int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
-        if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
+        if (hasLevel() && level instanceof ServerWorld)
         {
-            ItemStack stack = m_baseUpgradeInventory.getItem(slot);
-            ChannelSpec spec = getChannel(stack);
-            if (spec != null && hasLevel())
-                getChannelManager().attach(spec, this);
-        }
+            int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
+            if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
+            {
+                ItemStack stack = m_baseUpgradeInventory.getItem(slot);
+                ChannelSpec spec = getChannel(stack);
+                if (spec != null && hasLevel())
+                    getChannelManager().attach(spec, this);
+            }
 
-        if (level instanceof ServerWorld)
-        {
             slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.ChunkLoaderUpgrade);
             if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
             {
@@ -452,14 +452,14 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         // and reattach it in the world. This may happen the first time the tile
         // entity is loaded, as the world is set after the NBT is loaded, for some
         // kind of obscure reason.
-        if (hasLevel())
+        if (hasLevel() && level instanceof ServerWorld)
         {
             getChannelManager().detach(this);
         }
 
         super.setLevelAndPosition(world, pos);
 
-        if (hasLevel())
+        if (hasLevel() && level instanceof ServerWorld)
         {
             int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
             if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
@@ -943,7 +943,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
 
     private void onBaseUpgradesChanged(ContainerInventory cv)
     {
-        if (hasLevel())
+    	if (hasLevel() && level instanceof ServerWorld)
         {
             int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
             if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
@@ -957,28 +957,28 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
                     channelManager.detach(this);
             }
 
-            if (level instanceof ServerWorld)
+            slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.ChunkLoaderUpgrade);
+            if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
             {
-                slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.ChunkLoaderUpgrade);
-                if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
-                {
-                    ItemStack stack = m_baseUpgradeInventory.getItem(slot);
-                    ChunkPos chunk = new ChunkPos(worldPosition);
-                    ServerWorld serverWorld = (ServerWorld) level;
-                    boolean add = stack != null && !stack.isEmpty();
-                    ForgeChunkManager.forceChunk(serverWorld, Swift.MOD_NAME, worldPosition, chunk.x, chunk.z, add,
-                            true);
-                }
+                ItemStack stack = m_baseUpgradeInventory.getItem(slot);
+                ChunkPos chunk = new ChunkPos(worldPosition);
+                ServerWorld serverWorld = (ServerWorld) level;
+                boolean add = stack != null && !stack.isEmpty();
+                ForgeChunkManager.forceChunk(serverWorld, Swift.MOD_NAME, worldPosition, chunk.x, chunk.z, add,
+                        true);
             }
         }
     }
 
     protected void onChannelUpdate(ChannelSpec spec)
     {
-        if (spec != null)
-            getChannelManager().reattach(spec, this);
-        else
-            getChannelManager().detach(this);
+    	if (hasLevel() && level instanceof ServerWorld)
+    	{
+	        if (spec != null)
+	            getChannelManager().reattach(spec, this);
+	        else
+	            getChannelManager().detach(this);
+    	}
     }
 
     private ChannelSpec getChannel(ItemStack stack)
