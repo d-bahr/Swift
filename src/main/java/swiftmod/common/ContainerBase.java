@@ -69,7 +69,10 @@ public class ContainerBase<T extends DataCache> extends PlayerInventoryContainer
 
                 Slot slot = this.slots.get(i);
                 ItemStack itemstack = slot.getItem();
-                if (!itemstack.isEmpty() && slot.isActive() && consideredTheSameItem(stack, itemstack))
+                boolean isSlotEnabled = true;
+                if (slot instanceof EnableableSlot)
+                	isSlotEnabled = ((EnableableSlot)slot).enable;
+                if (!itemstack.isEmpty() && isSlotEnabled && consideredTheSameItem(stack, itemstack))
                 {
                     int j = itemstack.getCount() + stack.getCount();
                     int maxSize = Math.min(slot.getMaxStackSize(stack), stack.getMaxStackSize());
@@ -127,7 +130,10 @@ public class ContainerBase<T extends DataCache> extends PlayerInventoryContainer
 
                 Slot slot1 = this.slots.get(i);
                 ItemStack itemstack1 = slot1.getItem();
-                if (itemstack1.isEmpty() && slot1.isActive() && slot1.mayPlace(stack))
+                boolean isSlotEnabled = true;
+                if (slot1 instanceof EnableableSlot)
+                	isSlotEnabled = ((EnableableSlot)slot1).enable;
+                if (itemstack1.isEmpty() && isSlotEnabled && slot1.mayPlace(stack))
                 {
                     int limit = slot1.getMaxStackSize(stack);
                     if (stack.getCount() > limit)
