@@ -1,11 +1,16 @@
 package swiftmod.common;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -80,6 +85,30 @@ public class TankBlock extends Block implements ITileEntityProvider
             player.sendMessage(new StringTextComponent("Empty"), Util.NIL_UUID);
             return ActionResultType.SUCCESS;
         }
+    }
+    
+    @Override
+    public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity tile, ItemStack stack)
+    {
+    	TankTileEntity tileEntity = (TankTileEntity) tile;
+
+        float xOffset = world.random.nextFloat() * 0.8F + 0.1F;
+        float yOffset = world.random.nextFloat() * 0.8F + 0.1F;
+        float zOffset = world.random.nextFloat() * 0.8F + 0.1F;
+
+        ItemStack droppedStack = tileEntity.writeToItem();
+
+        ItemEntity entityitem = new ItemEntity(world, pos.getX() + xOffset, pos.getY() + yOffset, pos.getZ() + zOffset, droppedStack);
+        world.addFreshEntity(entityitem);
+    }
+
+    @Override
+    public void setPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack)
+    {
+        super.setPlacedBy(world, pos, state, entity, stack);
+        TankTileEntity tileEntity = (TankTileEntity) world.getBlockEntity(pos);
+        tileEntity.readFromItem(stack);
+        world.sendBlockUpdated(pos, state, state, 3);
     }
 
     private static final Properties PROPERTIES = Block.Properties.of(Material.STONE).strength(0.5f, 0.5f);

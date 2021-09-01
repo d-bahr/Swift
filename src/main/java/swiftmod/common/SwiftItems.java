@@ -42,7 +42,7 @@ public class SwiftItems
         s_ultimateFluidPipeBlockItem = createBlockItem("ultimate_fluid_pipe", 64, Swift.ITEM_GROUP, SwiftBlocks.s_ultimateFluidPipeBlock);
         registry.register(s_ultimateFluidPipeBlockItem);
 
-        s_tankBlockItem = createBlockItem("tank", 64, Swift.ITEM_GROUP, SwiftBlocks.s_tankBlock);
+        s_tankBlockItem = new TankItem();
         registry.register(s_tankBlockItem);
 
         s_speedUpgradeItem = new SpeedUpgradeItem();
@@ -96,7 +96,7 @@ public class SwiftItems
     public static BlockItem s_basicFluidPipeBlockItem;
     public static BlockItem s_advancedFluidPipeBlockItem;
     public static BlockItem s_ultimateFluidPipeBlockItem;
-    public static BlockItem s_tankBlockItem;
+    public static TankItem s_tankBlockItem;
     public static SpeedUpgradeItem s_speedUpgradeItem;
     public static StackUpgradeItem s_stackUpgradeItem;
     public static SpeedDowngradeItem s_speedDowngradeItem;

@@ -33,4 +33,9 @@ public class FluidTank extends net.minecraftforge.fluids.capability.templates.Fl
     {
         setFluid(FluidStack.readFromPacket(buffer));
     }
+    
+    public static FluidStack readFluidStack(CompoundNBT nbt)
+    {
+        return FluidStack.loadFluidStackFromNBT(nbt);
+    }
 }

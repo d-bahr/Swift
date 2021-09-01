@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -20,6 +21,22 @@ public class TankTileEntity extends TileEntityBase<FluidTank>
     public static String getRegistryName()
     {
         return "tank";
+    }
+
+    public void readFromItem(ItemStack stack)
+    {
+    	if (stack.hasTag())
+    		getCache().read(stack.getTag().getCompound(TankItem.NBT_TAG));
+    }
+
+    public ItemStack writeToItem()
+    {
+        CompoundNBT nbt = new CompoundNBT();
+        ItemStack stack = new ItemStack(SwiftBlocks.s_tankBlock, 1);
+        getCache().write(nbt);
+        stack.setTag(new CompoundNBT());
+        stack.getTag().put(TankItem.NBT_TAG, nbt);
+        return stack;
     }
 
     @Override
