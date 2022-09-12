@@ -212,7 +212,7 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
     protected void setSideIOStateChanged(Direction dir, byte state)
     {
         byte[] states = m_sideIOConfigWidget.getStates();
-        menu.getSideUpgradeCache(dir).setStates(states);
+        menu.getSideUpgradeCache(m_selectedDirection).setStates(states);
 
         SideConfigurationPacket updatePacket = new SideConfigurationPacket();
         updatePacket.direction = m_selectedDirection;

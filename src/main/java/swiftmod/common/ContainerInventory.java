@@ -145,10 +145,7 @@ public class ContainerInventory implements IInventory
 
     public ItemStack incrStackSize(int index, ItemStack itemStackToInsert)
     {
-        ItemStack x = m_contents.insertItem(index, itemStackToInsert, false);
-        if (x.getCount() != itemStackToInsert.getCount())
-            m_contentsChangedCallback.accept(this);
-        return x;
+    	return tryInsert(index, itemStackToInsert, false);
     }
 
     @Override
@@ -189,7 +186,10 @@ public class ContainerInventory implements IInventory
 
     public ItemStack tryInsert(int slot, ItemStack stack, boolean simulate)
     {
-        return m_contents.insertItem(slot, stack, simulate);
+        ItemStack x = m_contents.insertItem(slot, stack, simulate);
+        if (!simulate && x.getCount() != stack.getCount())
+            m_contentsChangedCallback.accept(this);
+        return x;
     }
 
     public int getStackLimit(int slot, ItemStack stack)

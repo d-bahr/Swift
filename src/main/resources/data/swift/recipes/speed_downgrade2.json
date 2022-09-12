@@ -1,19 +1,19 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        " C ",
-        "CDC",
-        " C "
+        "C C",
+        " D ",
+        "C C"
     ],
     "key": {
         "C": {
             "tag": "forge:rods/wooden"
         },
         "D": {
-            "tag": "forge:gems/lapis"
+            "tag": "forge:dusts/redstone"
         }
     },
     "result": {
-        "item": "swift:speed_upgrade"
+        "item": "swift:speed_downgrade"
     }
 }

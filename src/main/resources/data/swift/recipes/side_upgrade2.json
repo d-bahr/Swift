@@ -1,19 +1,19 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        " C ",
-        "CDC",
-        " C "
+        "C C",
+        " D ",
+        "C C"
     ],
     "key": {
         "C": {
-            "tag": "forge:ingots/gold"
+            "tag": "forge:stone"
         },
         "D": {
-            "tag": "forge:gems/emerald"
+            "item": "minecraft:piston"
         }
     },
     "result": {
-        "item": "swift:stack_upgrade"
+        "item": "swift:side_upgrade"
     }
 }
