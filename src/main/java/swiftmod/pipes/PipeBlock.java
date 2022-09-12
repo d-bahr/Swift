@@ -216,7 +216,7 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         return updateStateOnNeighborChange(world, thisState, direction, thisPos);
     }
 
-    private BlockState updateStateOnNeighborChange(IBlockReader world, BlockState state, Direction direction,
+    public BlockState updateStateOnNeighborChange(IBlockReader world, BlockState state, Direction direction,
             BlockPos pos)
     {
         boolean connect = canConnect(world, pos, direction);
