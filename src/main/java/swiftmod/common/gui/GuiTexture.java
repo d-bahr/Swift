@@ -1,12 +1,12 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -20,7 +20,8 @@ public class GuiTexture extends GuiWidget
 
     public GuiTexture(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation texture)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
+        m_requestFocusOnPress = false;
         m_texture = texture;
     }
 
@@ -29,7 +30,7 @@ public class GuiTexture extends GuiWidget
         m_texture = texture;
     }
 
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
 
@@ -37,46 +38,18 @@ public class GuiTexture extends GuiWidget
             drawTexture(m_texture, matrixStack, x, y, width, height);
     }
 
-    public static void drawTexture(ResourceLocation texture, MatrixStack matrixStack, int x, int y, int width,
+    public static void drawTexture(ResourceLocation texture, PoseStack matrixStack, int x, int y, int width,
             int height)
     {
-        Minecraft mc = Minecraft.getInstance();
-        drawTexture(mc.getTextureManager(), texture, matrixStack, x, y, width, height, 0, 0);
+        drawTexture(texture, matrixStack, x, y, width, height, 0, 0);
     }
 
-    public static void drawTexture(Minecraft mc, ResourceLocation texture, MatrixStack matrixStack, int x, int y,
-            int width, int height)
-    {
-        drawTexture(mc.getTextureManager(), texture, matrixStack, x, y, width, height, 0, 0);
-    }
-
-    public static void drawTexture(TextureManager textureManager, ResourceLocation texture, MatrixStack matrixStack,
-            int x, int y, int width, int height)
-    {
-        drawTexture(textureManager, texture, matrixStack, x, y, width, height, 0, 0);
-    }
-
-    public static void drawTexture(ResourceLocation texture, MatrixStack matrixStack, int x, int y, int width,
-            int height, int horizontalMargin, int verticalMargin)
-    {
-        Minecraft mc = Minecraft.getInstance();
-        drawTexture(mc.getTextureManager(), texture, matrixStack, x, y, width, height, horizontalMargin,
-                verticalMargin);
-    }
-
-    public static void drawTexture(Minecraft mc, ResourceLocation texture, MatrixStack matrixStack, int x, int y,
-            int width, int height, int horizontalMargin, int verticalMargin)
-    {
-        drawTexture(mc.getTextureManager(), texture, matrixStack, x, y, width, height, horizontalMargin,
-                verticalMargin);
-    }
-
-    public static void drawTexture(TextureManager textureManager, ResourceLocation texture, MatrixStack matrixStack,
+    public static void drawTexture(ResourceLocation texture, PoseStack matrixStack,
             int x, int y, int width, int height, int horizontalMargin, int verticalMargin)
     {
         if (texture != null)
         {
-            textureManager.bind(texture);
+        	RenderSystem.setShaderTexture(0, texture);
             RenderSystem.enableDepthTest();
             blit(matrixStack, x + horizontalMargin, y + verticalMargin, 0.0f, 0.0f, width, height,
                     width - horizontalMargin * 2, height - verticalMargin * 2);

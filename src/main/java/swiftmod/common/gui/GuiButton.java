@@ -2,13 +2,13 @@ package swiftmod.common.gui;
 
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -25,7 +25,8 @@ public class GuiButton extends GuiWidget
     public GuiButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
             ResourceLocation highlightedTexture)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
+        m_requestFocusOnPress = false;
         m_tooltip = new GuiTooltip(screen, 0, 0, width, height);
         addChild(m_tooltip);
         m_onClick = null;
@@ -43,7 +44,8 @@ public class GuiButton extends GuiWidget
     public GuiButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
             ResourceLocation highlightedTexture, IClickable onClick)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
+        m_requestFocusOnPress = false;
         m_tooltip = new GuiTooltip(screen, 0, 0, width, height);
         addChild(m_tooltip);
         m_onClick = onClick;
@@ -73,12 +75,12 @@ public class GuiButton extends GuiWidget
         m_inactiveTexture = texture;
     }
 
-    public void setTooltip(ITextComponent text)
+    public void setTooltip(Component text)
     {
         m_tooltip.setText(text);
     }
 
-    public void setTooltip(List<ITextComponent> text)
+    public void setTooltip(List<Component> text)
     {
         m_tooltip.setText(text);
     }
@@ -107,31 +109,29 @@ public class GuiButton extends GuiWidget
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
         if (m_drawBackground)
             drawBackground(matrixStack, mouseX, mouseY, partialTicks);
     }
 
-    @SuppressWarnings("deprecation")
-    protected void drawBackground(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    protected void drawBackground(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
-        Minecraft minecraft = Minecraft.getInstance();
         if (!active && m_inactiveTexture != null)
         {
-            minecraft.getTextureManager().bind(m_inactiveTexture);
+            RenderSystem.setShaderTexture(0, m_inactiveTexture);
         }
         else if (containsMouse(mouseX, mouseY))
         {
-            minecraft.getTextureManager().bind(m_highlightedTexture);
+        	RenderSystem.setShaderTexture(0, m_highlightedTexture);
         }
         else
         {
-            minecraft.getTextureManager().bind(m_baseTexture);
+        	RenderSystem.setShaderTexture(0, m_baseTexture);
         }
 
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
@@ -139,9 +139,9 @@ public class GuiButton extends GuiWidget
         //renderBg(matrixStack, minecraft, mouseX, mouseY);
         //if (isHovered())
         //    renderToolTip(matrixStack, mouseX, mouseY);
-        //FontRenderer fontrenderer = minecraft.fontRenderer;
+        //Font fontrenderer = minecraft.fontRenderer;
         //int j = getFGColor();
-        //drawCenteredString(matrixStack, fontrenderer, getMessage(), x + width / 2, y + (height - 8) / 2, j | MathHelper.ceil(alpha * 255.0F) << 24);
+        //drawCenteredString(matrixStack, fontrenderer, getMessage(), x + width / 2, y + (height - 8) / 2, j | Mth.ceil(alpha * 255.0F) << 24);
     }
 
     public static final ResourceLocation s_baseTexture = new ResourceLocation(Swift.MOD_NAME,

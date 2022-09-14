@@ -2,20 +2,19 @@ package swiftmod.common;
 
 import java.util.List;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import swiftmod.pipes.PipeTileEntity;
 
 public class CopyPastaItem extends ItemBase
@@ -36,48 +35,80 @@ public class CopyPastaItem extends ItemBase
     }
 
     @Override
-    public boolean doesSneakBypassUse(ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player)
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context)
     {
-        TileEntity entity = world.getBlockEntity(pos);
-        if (entity != null && entity instanceof PipeTileEntity)
-            return true;
-        else
-            return false;
+    	Level level = context.getLevel();
+    	BlockEntity entity = level.getBlockEntity(context.getClickedPos());
+    	if (entity instanceof PipeTileEntity<?,?,?>)
+    	{
+    		PipeTileEntity<?,?,?> pipeEntity = (PipeTileEntity<?,?,?>) entity;
+
+	    	Player player = context.getPlayer();
+	    	Direction dir = context.getClickedFace();
+	    	
+	        if (player.isShiftKeyDown())
+	        {
+	            if (CopyPastaItem.copyTileEntitySettings(stack, pipeEntity, dir))
+	            {
+	                player.displayClientMessage(new TextComponent("Copied"), true);
+	                return InteractionResult.SUCCESS;
+	            }
+	            else
+	            {
+	                player.displayClientMessage(new TextComponent("Cannot copy"), true);
+	                return InteractionResult.SUCCESS;
+	            }
+	        }
+	        else
+	        {
+	            if (CopyPastaItem.pasteTileEntitySettings(stack, pipeEntity, dir))
+	            {
+	                player.displayClientMessage(new TextComponent("Pasted"), true);
+	                return InteractionResult.SUCCESS;
+	            }
+	            else
+	            {
+	                player.displayClientMessage(new TextComponent("Cannot paste"), true);
+	                return InteractionResult.SUCCESS;
+	            }
+	        }
+    	}
+    	return InteractionResult.PASS;
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand)
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
     {
         ItemStack itemStack = player.getItemInHand(hand);
 
         if (world.isClientSide)
-            return new ActionResult<ItemStack>(ActionResultType.SUCCESS, itemStack);
+            return new InteractionResultHolder<ItemStack>(InteractionResult.SUCCESS, itemStack);
 
         if (player.isShiftKeyDown())
         {
             itemStack.removeTagKey(NBT_TAG);
-            player.displayClientMessage(new StringTextComponent("Cleared"), true);
+            player.displayClientMessage(new TextComponent("Cleared"), true);
         }
 
-        return new ActionResult<ItemStack>(ActionResultType.SUCCESS, itemStack);
+        return new InteractionResultHolder<ItemStack>(InteractionResult.SUCCESS, itemStack);
     }
 
     @Override
-    public void addStandardInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Copies settings from one pipe to another.", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Copies settings from one pipe to another.", SwiftTextUtils.AQUA)));
     }
 
     @Override
-    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
         CopyType type = getCopyType(stack);
         String str = copyTypeToString(type);
 
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Current mode: " + str, SwiftTextUtils.AQUA)));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Shift + Right Click = Copy", SwiftTextUtils.AQUA)));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Right Click = Paste", SwiftTextUtils.AQUA)));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Shift + Right Click Air = Clear", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Current mode: " + str, SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Shift + Right Click = Copy", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Right Click = Paste", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Shift + Right Click Air = Clear", SwiftTextUtils.AQUA)));
     }
 
     @Override
@@ -86,25 +117,25 @@ public class CopyPastaItem extends ItemBase
         return true;
     }
 
-    public static boolean copyTileEntitySettings(ItemStack itemStack, PipeTileEntity<?,?,?> tileEntity, Direction dir)
+    public static boolean copyTileEntitySettings(ItemStack itemStack, PipeTileEntity<?,?,?> blockEntity, Direction dir)
     {
         itemStack.removeTagKey(NBT_TAG);
-        CompoundNBT nbt = itemStack.getOrCreateTagElement(NBT_TAG);
-        return tileEntity.copyTileEntityUpgrades(nbt, dir, getCopyType(itemStack));
+        CompoundTag nbt = itemStack.getOrCreateTagElement(NBT_TAG);
+        return blockEntity.copyTileEntityUpgrades(nbt, dir, getCopyType(itemStack));
     }
 
-    public static boolean pasteTileEntitySettings(ItemStack itemStack, PipeTileEntity<?,?,?> tileEntity, Direction dir)
+    public static boolean pasteTileEntitySettings(ItemStack itemStack, PipeTileEntity<?,?,?> blockEntity, Direction dir)
     {
-        CompoundNBT nbt = itemStack.getTagElement(NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(NBT_TAG);
         if (nbt == null)
             return false;
         else
-            return tileEntity.pasteTileEntityUpgrades(nbt, dir, getCopyType(itemStack));
+            return blockEntity.pasteTileEntityUpgrades(nbt, dir, getCopyType(itemStack));
     }
 
     public static void incrementCopyType(ItemStack itemStack)
     {
-        CompoundNBT nbt = itemStack.getOrCreateTagElement(ITEM_NBT_TAG);
+        CompoundTag nbt = itemStack.getOrCreateTagElement(ITEM_NBT_TAG);
         int value = nbt.getInt(SwiftUtils.tagName("value"));
         CopyType type = intToCopyType(value);
 
@@ -133,7 +164,7 @@ public class CopyPastaItem extends ItemBase
 
     public static void decrementCopyType(ItemStack itemStack)
     {
-        CompoundNBT nbt = itemStack.getOrCreateTagElement(ITEM_NBT_TAG);
+        CompoundTag nbt = itemStack.getOrCreateTagElement(ITEM_NBT_TAG);
         int value = nbt.getInt(SwiftUtils.tagName("value"));
         CopyType type = intToCopyType(value);
 
@@ -160,16 +191,16 @@ public class CopyPastaItem extends ItemBase
         nbt.putInt(SwiftUtils.tagName("value"), copyTypeToInt(type));
     }
     
-    public static void messageCurrentType(PlayerEntity player)
+    public static void messageCurrentType(Player player)
     {
-        CopyType type = getCopyType(player.getItemInHand(Hand.MAIN_HAND));
+        CopyType type = getCopyType(player.getItemInHand(InteractionHand.MAIN_HAND));
         String str = copyTypeToString(type);
-        player.displayClientMessage(new StringTextComponent("Mode: " + str), true);
+        player.displayClientMessage(new TextComponent("Mode: " + str), true);
     }
 
     public static CopyType getCopyType(ItemStack stack)
     {
-        CompoundNBT nbt = stack.getOrCreateTagElement(ITEM_NBT_TAG);
+        CompoundTag nbt = stack.getOrCreateTagElement(ITEM_NBT_TAG);
         int value = nbt.getInt(SwiftUtils.tagName("value"));
         return intToCopyType(value);
     }

@@ -1,11 +1,11 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import swiftmod.common.IDataCacheContainer;
 import swiftmod.common.SwiftContainers;
 import swiftmod.common.SwiftNetwork;
@@ -13,8 +13,7 @@ import swiftmod.common.channels.BaseChannelManager;
 import swiftmod.common.channels.ChannelSpec;
 import swiftmod.common.client.ChannelConfigurationPacket;
 
-public class TeleporterUpgradeContainer extends Container
-        implements ChannelConfigurationPacket.Handler, IDataCacheContainer<ChannelConfigurationDataCache>
+public class TeleporterUpgradeContainer extends AbstractContainerMenu implements ChannelConfigurationPacket.Handler, IDataCacheContainer<ChannelConfigurationDataCache>
 {
     protected TeleporterUpgradeContainer(int windowID)
     {
@@ -22,7 +21,7 @@ public class TeleporterUpgradeContainer extends Container
         m_cache = new ChannelConfigurationDataCache();
     }
 
-    protected TeleporterUpgradeContainer(int windowID, PacketBuffer extraData)
+    protected TeleporterUpgradeContainer(int windowID, FriendlyByteBuf extraData)
     {
         super(SwiftContainers.s_teleporterUpgradeContainerType, windowID);
         m_cache = new ChannelConfigurationDataCache();
@@ -36,7 +35,7 @@ public class TeleporterUpgradeContainer extends Container
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player)
+    public boolean stillValid(Player player)
     {
         return true;
     }
@@ -71,20 +70,20 @@ public class TeleporterUpgradeContainer extends Container
         SwiftNetwork.mainChannel.sendToServer(updatePacket);
     }
 
-    public static void encode(PlayerEntity player, ItemStack heldItem, PacketBuffer buffer)
+    public static void encode(Player player, ItemStack heldItem, FriendlyByteBuf buffer)
     {
         ChannelConfigurationDataCache cache = ChannelConfigurationDataCache.create(BaseChannelManager.getManager(),
                 player, heldItem);
         cache.write(buffer);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         m_cache.read(buffer);
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, ChannelConfigurationPacket packet)
+    public void handle(ServerPlayer player, ChannelConfigurationPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() instanceof TeleporterUpgradeItem)
@@ -120,8 +119,8 @@ public class TeleporterUpgradeContainer extends Container
         return new TeleporterUpgradeContainer(windowID);
     }
 
-    public static TeleporterUpgradeContainer createContainerClientSide(int windowID, PlayerInventory playerInventory,
-            PacketBuffer extraData)
+    public static TeleporterUpgradeContainer createContainerClientSide(int windowID, Inventory playerInventory,
+            FriendlyByteBuf extraData)
     {
         return new TeleporterUpgradeContainer(windowID, extraData);
     }

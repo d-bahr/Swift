@@ -2,10 +2,10 @@ package swiftmod.common.upgrades;
 
 import java.util.ArrayList;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraftforge.fluids.FluidStack;
 import swiftmod.common.ItemStackDataCache;
 import swiftmod.common.SwiftUtils;
@@ -29,7 +29,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
             return WhiteListState.WhiteList;
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return WhiteListState.WhiteList;
-        CompoundNBT nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
         return nbt != null ? WhiteListState.read(nbt) : WhiteListState.WhiteList;
     }
 
@@ -42,7 +42,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundNBT nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
+            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
             WhiteListState.write(nbt, state);
         }
     }
@@ -53,7 +53,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
             return false;
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return false;
-        CompoundNBT nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
         return nbt != null ? nbt.getBoolean(TAG_MATCH_COUNT) : false;
     }
 
@@ -66,7 +66,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundNBT nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
+            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
             nbt.putBoolean(TAG_MATCH_COUNT, match);
         }
     }
@@ -77,7 +77,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
             return false;
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return false;
-        CompoundNBT nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
         return nbt != null ? nbt.getBoolean(TAG_MATCH_MOD) : false;
     }
 
@@ -90,7 +90,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundNBT nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
+            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
             nbt.putBoolean(TAG_MATCH_MOD, match);
         }
     }
@@ -101,7 +101,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
             return false;
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return false;
-        CompoundNBT nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
         return nbt != null ? nbt.getBoolean(TAG_MATCH_ORE_DICTIONARY) : false;
     }
 
@@ -114,7 +114,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundNBT nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
+            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
             nbt.putBoolean(TAG_MATCH_ORE_DICTIONARY, match);
         }
     }
@@ -133,10 +133,10 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
             return createNewFilters();
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return createNewFilters();
-        CompoundNBT nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
         if (nbt == null)
             return createNewFilters();
-        ListNBT filterNBT = nbt.getList(TAG_SLOTS, Constants.NBT.TAG_COMPOUND);
+        ListTag filterNBT = nbt.getList(TAG_SLOTS, Tag.TAG_COMPOUND);
         ArrayList<FluidStack> filters = new ArrayList<FluidStack>();
         if (filterNBT == null || filterNBT.isEmpty())
         {
@@ -146,7 +146,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
         {
             for (int i = 0; i < filterNBT.size(); ++i)
             {
-                CompoundNBT slotNBT = filterNBT.getCompound(i);
+                CompoundTag slotNBT = filterNBT.getCompound(i);
                 FluidStack stack = FluidStack.loadFluidStackFromNBT(slotNBT);
                 filters.add(stack);
             }
@@ -163,15 +163,15 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundNBT nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            ListNBT filterNBT = nbt.getList(TAG_SLOTS, Constants.NBT.TAG_COMPOUND);
+            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
+            ListTag filterNBT = nbt.getList(TAG_SLOTS, Tag.TAG_COMPOUND);
             if (filterNBT == null || filterNBT.isEmpty())
             {
-                filterNBT = new ListNBT();
+                filterNBT = new ListTag();
                 FluidStack empty = FluidStack.EMPTY;
                 for (int i = 0; i < BasicItemFilterUpgradeItem.NUM_SLOTS; ++i)
                 {
-                    CompoundNBT slotNBT = new CompoundNBT();
+                    CompoundTag slotNBT = new CompoundTag();
                     empty.writeToNBT(slotNBT);
                     filterNBT.add(slotNBT);
                 }
@@ -180,7 +180,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
 
             if (slot < filterNBT.size())
             {
-                CompoundNBT slotNBT = new CompoundNBT();
+                CompoundTag slotNBT = new CompoundTag();
                 filter.writeToNBT(slotNBT);
                 filterNBT.set(slot, slotNBT);
             }
@@ -196,7 +196,7 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty() && itemStack.hasTag())
         {
-            CompoundNBT nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
+            CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
             if (nbt != null)
                 nbt.remove(TAG_SLOTS);
         }

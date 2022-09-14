@@ -2,8 +2,8 @@ package swiftmod.common.channels;
 
 import java.util.function.Supplier;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class Channel<T extends ChannelData>
 {
@@ -25,27 +25,25 @@ public class Channel<T extends ChannelData>
         data = d;
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
         spec.write(nbt);
         data.write(nbt);
-        return nbt;
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
         spec.read(nbt);
         data.read(nbt);
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    public void write(FriendlyByteBuf buffer)
     {
         spec.write(buffer);
         data.write(buffer);
-        return buffer;
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         spec.read(buffer);
         data.read(buffer);

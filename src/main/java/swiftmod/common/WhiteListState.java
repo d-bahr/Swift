@@ -1,7 +1,7 @@
 package swiftmod.common;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public enum WhiteListState
 {
@@ -43,50 +43,50 @@ public enum WhiteListState
         return states;
     }
 
-    public static CompoundNBT write(CompoundNBT nbt, WhiteListState state)
+    public static CompoundTag write(CompoundTag nbt, WhiteListState state)
     {
         nbt.putInt(SwiftUtils.tagName("whiteListState"), state.getIndex());
         return nbt;
     }
 
-    public static CompoundNBT writeArray(CompoundNBT nbt, WhiteListState[] states)
+    public static CompoundTag writeArray(CompoundTag nbt, WhiteListState[] states)
     {
         int[] i = WhiteListState.toIntArray(states);
         nbt.putIntArray(SwiftUtils.tagName("whiteListStates"), i);
         return nbt;
     }
 
-    public static WhiteListState read(CompoundNBT nbt)
+    public static WhiteListState read(CompoundTag nbt)
     {
         int i = nbt.getInt(SwiftUtils.tagName("whiteListState"));
         return WhiteListState.fromIndex(i);
     }
 
-    public static WhiteListState[] readArray(CompoundNBT nbt)
+    public static WhiteListState[] readArray(CompoundTag nbt)
     {
         int[] i = nbt.getIntArray(SwiftUtils.tagName("whiteListStates"));
         return WhiteListState.fromIntArray(i);
     }
 
-    public static PacketBuffer write(PacketBuffer packetBuffer, WhiteListState state)
+    public static FriendlyByteBuf write(FriendlyByteBuf FriendlyByteBuf, WhiteListState state)
     {
-        packetBuffer.writeVarInt(state.getIndex());
-        return packetBuffer;
+        FriendlyByteBuf.writeVarInt(state.getIndex());
+        return FriendlyByteBuf;
     }
 
-    public static PacketBuffer writeArray(PacketBuffer packetBuffer, WhiteListState[] states)
+    public static FriendlyByteBuf writeArray(FriendlyByteBuf FriendlyByteBuf, WhiteListState[] states)
     {
-        packetBuffer.writeVarIntArray(WhiteListState.toIntArray(states));
-        return packetBuffer;
+        FriendlyByteBuf.writeVarIntArray(WhiteListState.toIntArray(states));
+        return FriendlyByteBuf;
     }
 
-    public static WhiteListState read(PacketBuffer packetBuffer)
+    public static WhiteListState read(FriendlyByteBuf FriendlyByteBuf)
     {
-        return WhiteListState.fromIndex(packetBuffer.readVarInt());
+        return WhiteListState.fromIndex(FriendlyByteBuf.readVarInt());
     }
 
-    public static WhiteListState[] readArray(PacketBuffer packetBuffer)
+    public static WhiteListState[] readArray(FriendlyByteBuf FriendlyByteBuf)
     {
-        return WhiteListState.fromIntArray(packetBuffer.readVarIntArray());
+        return WhiteListState.fromIntArray(FriendlyByteBuf.readVarIntArray());
     }
 }

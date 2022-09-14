@@ -5,17 +5,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import swiftmod.common.SwiftUtils;
 
 public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelManager<T>
 {
-    public OwnerBasedChannelManager(String name, Supplier<T> supplier, Decoder<T> decoder)
+    public OwnerBasedChannelManager(String id, Supplier<T> supplier, Decoder<T> decoder)
     {
-        super(name, supplier, decoder);
+    	super(id, supplier, decoder);
+
         m_channels = new HashMap<ChannelOwner, OwnedChannels<T>>();
         m_attachments = new HashMap<ChannelOwner, OwnedChannelAttachments>();
         m_blocks = new HashMap<ChannelAttachment, ChannelSpec>();
@@ -39,7 +40,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         }
     }
 
-    public void attach(ChannelSpec spec, TileEntity te)
+    public void attach(ChannelSpec spec, BlockEntity te)
     {
         attach(spec, new ChannelAttachment(te.getLevel(), te.getBlockPos()));
     }
@@ -50,7 +51,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         attach(spec, attachment);
     }
 
-    public void reattach(ChannelSpec spec, TileEntity te)
+    public void reattach(ChannelSpec spec, BlockEntity te)
     {
         ChannelAttachment attachment = new ChannelAttachment(te.getLevel(), te.getBlockPos());
         detach(attachment);
@@ -64,7 +65,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
             detachWorker(spec, attachment);
     }
 
-    public void detach(TileEntity te)
+    public void detach(BlockEntity te)
     {
         detach(new ChannelAttachment(te.getLevel(), te.getBlockPos()));
     }
@@ -75,7 +76,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         detachWorker(spec, attachment);
     }
 
-    public void detach(ChannelSpec spec, TileEntity te)
+    public void detach(ChannelSpec spec, BlockEntity te)
     {
         detach(spec, new ChannelAttachment(te.getLevel(), te.getBlockPos()));
     }
@@ -97,14 +98,14 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
     }
 
     @Override
-    public void load(CompoundNBT nbt)
+    public void load(CompoundTag nbt)
     {
         clear();
-        CompoundNBT parent = nbt.getCompound(getId());
-        ListNBT list = parent.getList(SwiftUtils.tagName("channels"), Constants.NBT.TAG_COMPOUND);
+        CompoundTag parent = nbt.getCompound(getId());
+        ListTag list = parent.getList(SwiftUtils.tagName("channels"), Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {
-            CompoundNBT tag = list.getCompound(i);
+            CompoundTag tag = list.getCompound(i);
             ChannelSpec spec = new ChannelSpec(tag);
             T data = decode(tag);
             put(spec, data);
@@ -112,16 +113,16 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt)
+    public CompoundTag save(CompoundTag nbt)
     {
-        CompoundNBT parent = new CompoundNBT();
-        ListNBT list = new ListNBT();
+        CompoundTag parent = new CompoundTag();
+        ListTag list = new ListTag();
         for (HashMap.Entry<ChannelOwner, OwnedChannels<T>> entry1 : m_channels.entrySet())
         {
             OwnedChannels<T> x = entry1.getValue();
             for (HashMap.Entry<String, T> entry2 : x.entrySet())
             {
-                CompoundNBT tag = new CompoundNBT();
+                CompoundTag tag = new CompoundTag();
                 ChannelSpec spec = new ChannelSpec(entry1.getKey(), entry2.getKey());
                 spec.write(tag);
                 entry2.getValue().write(tag);

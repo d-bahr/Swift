@@ -1,13 +1,13 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,18 +17,18 @@ public class GuiFontWidget extends GuiWidget
     @SuppressWarnings("resource")
     public GuiFontWidget(GuiContainerScreen<?> screen, int width, int height)
     {
-        super(screen, width, height, StringTextComponent.EMPTY);
+        super(screen, width, height, TextComponent.EMPTY);
         m_font = Minecraft.getInstance().font;
-        m_fontColor = Color.fromLegacyFormat(TextFormatting.DARK_GRAY);
+        m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
         m_drawDropShadow = false;
     }
 
-    public GuiFontWidget(GuiContainerScreen<?> screen, int width, int height, FontRenderer font)
+    public GuiFontWidget(GuiContainerScreen<?> screen, int width, int height, Font font)
     {
-        super(screen, width, height, StringTextComponent.EMPTY);
+        super(screen, width, height, TextComponent.EMPTY);
         m_font = font;
-        m_fontColor = Color.fromLegacyFormat(TextFormatting.DARK_GRAY);
+        m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
         m_drawDropShadow = false;
     }
@@ -36,38 +36,38 @@ public class GuiFontWidget extends GuiWidget
     @SuppressWarnings("resource")
     public GuiFontWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
         m_font = Minecraft.getInstance().font;
-        m_fontColor = Color.fromLegacyFormat(TextFormatting.DARK_GRAY);
+        m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
         m_drawDropShadow = false;
     }
 
-    public GuiFontWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, FontRenderer font)
+    public GuiFontWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, Font font)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
         m_font = font;
-        m_fontColor = Color.fromLegacyFormat(TextFormatting.DARK_GRAY);
+        m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
         m_drawDropShadow = false;
     }
 
-    public void setFont(FontRenderer font)
+    public void setFont(Font font)
     {
         m_font = font;
     }
 
-    public FontRenderer getFont()
+    public Font getFont()
     {
         return m_font;
     }
 
-    public void setFontColor(Color c)
+    public void setFontColor(TextColor c)
     {
         m_fontColor = c;
     }
 
-    public Color getFontColor()
+    public TextColor getFontColor()
     {
         return m_fontColor;
     }
@@ -92,32 +92,32 @@ public class GuiFontWidget extends GuiWidget
         return m_drawDropShadow;
     }
 
-    protected void drawText(MatrixStack matrixStack, String text, float x, float y)
+    protected void drawText(PoseStack matrixStack, String text, float x, float y)
     {
-        drawText(matrixStack, new StringTextComponent(text), x, y);
+        drawText(matrixStack, new TextComponent(text), x, y);
     }
 
-    protected void drawText(MatrixStack matrixStack, String text, float x, float y, Color color)
+    protected void drawText(PoseStack matrixStack, String text, float x, float y, TextColor color)
     {
-        drawText(matrixStack, new StringTextComponent(text), x, y, color);
+        drawText(matrixStack, new TextComponent(text), x, y, color);
     }
 
-    protected void drawText(MatrixStack matrixStack, String text, float x, float y, int color)
+    protected void drawText(PoseStack matrixStack, String text, float x, float y, int color)
     {
-        drawText(matrixStack, new StringTextComponent(text), x, y, color);
+        drawText(matrixStack, new TextComponent(text), x, y, color);
     }
 
-    protected void drawText(MatrixStack matrixStack, ITextComponent text, float x, float y)
+    protected void drawText(PoseStack matrixStack, Component text, float x, float y)
     {
         drawText(matrixStack, text, x, y, m_fontColor.getValue());
     }
 
-    protected void drawText(MatrixStack matrixStack, ITextComponent text, float x, float y, Color color)
+    protected void drawText(PoseStack matrixStack, Component text, float x, float y, TextColor color)
     {
         drawText(matrixStack, text, x, y, color.getValue());
     }
 
-    protected void drawText(MatrixStack matrixStack, ITextComponent text, float x, float y, int color)
+    protected void drawText(PoseStack matrixStack, Component text, float x, float y, int color)
     {
         if (m_drawDropShadow)
             m_font.drawShadow(matrixStack, text, x, y, color);
@@ -125,8 +125,8 @@ public class GuiFontWidget extends GuiWidget
             m_font.draw(matrixStack, text, x, y, color);
     }
 
-    protected FontRenderer m_font;
-    protected Color m_fontColor;
+    protected Font m_font;
+    protected TextColor m_fontColor;
     protected float m_fontScale;
     protected boolean m_drawDropShadow;
 }

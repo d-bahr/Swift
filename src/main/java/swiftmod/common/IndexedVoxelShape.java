@@ -1,6 +1,6 @@
 package swiftmod.common;
 
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class IndexedVoxelShape
 {

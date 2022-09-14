@@ -3,13 +3,13 @@ package swiftmod.common;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import swiftmod.common.gui.SwiftGui;
 
-public class ContainerInventory implements IInventory
+public class ContainerInventory implements Container
 {
     @FunctionalInterface
     public interface SlotStackPredicate
@@ -50,17 +50,17 @@ public class ContainerInventory implements IInventory
         m_contents = handler;
     }
 
-    public CompoundNBT serializeNBT()
+    public CompoundTag serializeNBT()
     {
         return m_contents.serializeNBT();
     }
 
-    public void deserializeNBT(CompoundNBT nbt)
+    public void deserializeNBT(CompoundTag nbt)
     {
         m_contents.deserializeNBT(nbt);
     }
 
-    public void setCanPlayerAccessInventoryCallback(Predicate<PlayerEntity> callback)
+    public void setCanPlayerAccessInventoryCallback(Predicate<Player> callback)
     {
         m_canPlayerAccessInventoryCallback = callback;
     }
@@ -91,7 +91,7 @@ public class ContainerInventory implements IInventory
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player)
+    public boolean stillValid(Player player)
     {
         return m_canPlayerAccessInventoryCallback.test(player);
     }
@@ -109,13 +109,13 @@ public class ContainerInventory implements IInventory
     }
 
     @Override
-    public void startOpen(PlayerEntity player)
+    public void startOpen(Player player)
     {
         m_openInventoryCallback.invoke();
     }
 
     @Override
-    public void stopOpen(PlayerEntity player)
+    public void stopOpen(Player player)
     {
         m_closeInventoryCallback.invoke();
     }
@@ -145,17 +145,15 @@ public class ContainerInventory implements IInventory
 
     public ItemStack incrStackSize(int index, ItemStack itemStackToInsert)
     {
-        ItemStack x = m_contents.insertItem(index, itemStackToInsert, false);
-        if (x.getCount() != itemStackToInsert.getCount())
-            m_contentsChangedCallback.accept(this);
-        return x;
+    	return tryInsert(index, itemStackToInsert, false);
     }
 
     @Override
     public ItemStack removeItem(int index, int count)
     {
         if (count < 0)
-            throw new IllegalArgumentException("count should be >= 0: " + count);
+        	// TODO: This really should be IllegalArgumentException, except for some reason that doesn't compile.
+            throw new IndexOutOfBoundsException("count should be >= 0: " + count);
         ItemStack x = m_contents.extractItem(index, count, false);
         if (x.getCount() > 0)
             m_contentsChangedCallback.accept(this);
@@ -189,7 +187,10 @@ public class ContainerInventory implements IInventory
 
     public ItemStack tryInsert(int slot, ItemStack stack, boolean simulate)
     {
-        return m_contents.insertItem(slot, stack, simulate);
+    	ItemStack x = m_contents.insertItem(slot, stack, simulate);
+    	if (!simulate && x.getCount() != stack.getCount())
+    		m_contentsChangedCallback.accept(this);
+    	return x;
     }
 
     public int getStackLimit(int slot, ItemStack stack)
@@ -225,7 +226,7 @@ public class ContainerInventory implements IInventory
         return slots;
     }
 
-    private Predicate<PlayerEntity> m_canPlayerAccessInventoryCallback;
+    private Predicate<Player> m_canPlayerAccessInventoryCallback;
     private SlotStackPredicate m_canInsertItemCallback;
     private Consumer<ContainerInventory> m_contentsChangedCallback;
     private Notification m_markDirtyCallback;

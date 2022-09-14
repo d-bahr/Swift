@@ -3,9 +3,9 @@ package swiftmod.common.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -36,7 +36,7 @@ public class BasicFluidFilterWidget extends GuiWidget
     public BasicFluidFilterWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height,
             ResourceLocation backgroundTexture)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
 
         m_backgroundTexture = new GuiTexture(screen, 0, 0, width, height, backgroundTexture);
         addChild(m_backgroundTexture);
@@ -50,8 +50,8 @@ public class BasicFluidFilterWidget extends GuiWidget
 
         m_matchCountButton = new MatchCountButton(screen, GUI_MATCH_AMOUNT_X, GUI_MATCH_AMOUNT_Y, MATCH_AMOUNT_TEXTURE,
                 IGNORE_AMOUNT_TEXTURE, this::onMatchCountChanged);
-        m_matchCountButton.setMatchTooltip(new StringTextComponent("Match fluid amount"));
-        m_matchCountButton.setIgnoreTooltip(new StringTextComponent("Ignore fluid amount"));
+        m_matchCountButton.setMatchTooltip(new TextComponent("Match fluid amount"));
+        m_matchCountButton.setIgnoreTooltip(new TextComponent("Ignore fluid amount"));
         m_matchCountButton.setZ(foregroundZ);
         addChild(m_matchCountButton);
 
@@ -68,20 +68,20 @@ public class BasicFluidFilterWidget extends GuiWidget
 
         GuiDeleteButton deleteButton = new GuiDeleteButton(screen, GUI_DELETE_X, GUI_DELETE_Y,
                 this::onDeleteButtonPressed);
-        deleteButton.setTooltip(new StringTextComponent("Remove all filters"));
+        deleteButton.setTooltip(new TextComponent("Remove all filters"));
         addChild(deleteButton);
 
         GuiTexture infoTexture = new GuiTexture(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16, INFO_TEXTURE);
         addChild(infoTexture);
 
         GuiTooltip infoTooltip = new GuiTooltip(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16);
-        List<ITextComponent> tooltip = new ArrayList<ITextComponent>();
-        tooltip.add(new StringTextComponent("Left click on a slot to add or increment a filter."));
-        tooltip.add(new StringTextComponent("Right click on a slot to remove or decrement a filter."));
-        tooltip.add(new StringTextComponent("Shift + click to add/remove 16 buckets."));
-        tooltip.add(new StringTextComponent("Ctrl + click to add/remove 100 mB."));
-        tooltip.add(new StringTextComponent("Shift + Ctrl + click to add/remove 1 mB."));
-        tooltip.add(new StringTextComponent("Max quantity: 999 buckets"));
+        List<Component> tooltip = new ArrayList<Component>();
+        tooltip.add(new TextComponent("Left click on a slot to add or increment a filter."));
+        tooltip.add(new TextComponent("Right click on a slot to remove or decrement a filter."));
+        tooltip.add(new TextComponent("Shift + click to add/remove 16 buckets."));
+        tooltip.add(new TextComponent("Ctrl + click to add/remove 100 mB."));
+        tooltip.add(new TextComponent("Shift + Ctrl + click to add/remove 1 mB."));
+        tooltip.add(new TextComponent("Max quantity: 999 buckets"));
         infoTooltip.setText(tooltip);
         infoTooltip.setZ(1000.0f);
         addChild(infoTooltip);

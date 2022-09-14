@@ -1,6 +1,6 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import swiftmod.common.ContainerInventory;
 
 public class UpgradeInventory extends ContainerInventory

@@ -1,25 +1,26 @@
 package swiftmod.common.channels;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.storage.DimensionSavedDataManager;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
-public abstract class ChannelManager<T extends ChannelData> extends WorldSavedData
+public abstract class ChannelManager<T extends ChannelData> extends SavedData
 {
     @FunctionalInterface
     public interface Decoder<T extends ChannelData>
     {
-        T decode(CompoundNBT nbt);
+        T decode(CompoundTag nbt);
     };
 
-    public ChannelManager(String name, Supplier<T> supplier, Decoder<T> decoder)
+    public ChannelManager(String id, Supplier<T> supplier, Decoder<T> decoder)
     {
-        super(name);
+    	m_id = id;
         m_channelSupplier = supplier;
         m_channelDecoder = decoder;
     }
@@ -29,35 +30,43 @@ public abstract class ChannelManager<T extends ChannelData> extends WorldSavedDa
         setDirty();
     }
 
+    protected abstract void load(CompoundTag nbt);
+
+    protected String getId()
+    {
+    	return m_id;
+    }
+
     protected T create()
     {
         return m_channelSupplier.get();
     }
 
-    protected T decode(CompoundNBT nbt)
+    protected T decode(CompoundTag nbt)
     {
         return m_channelDecoder.decode(nbt);
     }
 
-    public static <T extends ChannelManager<?>> T getManager(Supplier<T> supplier, String name)
+    public static <T extends ChannelManager<?>> T getManager(Function<CompoundTag, T> loader, Supplier<T> supplier, String name)
     {
-        return getManager(World.OVERWORLD, supplier, name);
+        return getManager(Level.OVERWORLD, loader, supplier, name);
     }
 
-    public static <T extends ChannelManager<?>> T getManager(World world, Supplier<T> supplier, String name)
+    public static <T extends ChannelManager<?>> T getManager(Level world, Function<CompoundTag, T> loader, Supplier<T> supplier, String name)
     {
         if (world.isClientSide)
             throw new RuntimeException("Server-side operation called from client");
 
-        return getManager(world.dimension(), supplier, name);
+        return getManager(world.dimension(), loader, supplier, name);
     }
 
-    public static <T extends ChannelManager<?>> T getManager(RegistryKey<World> world, Supplier<T> supplier, String name)
+    public static <T extends ChannelManager<?>> T getManager(ResourceKey<Level> world, Function<CompoundTag, T> loader, Supplier<T> supplier, String name)
     {
-        DimensionSavedDataManager storage = ServerLifecycleHooks.getCurrentServer().getLevel(world).getDataStorage();
-        return storage.computeIfAbsent(supplier, name);
+        DimensionDataStorage storage = ServerLifecycleHooks.getCurrentServer().getLevel(world).getDataStorage();
+        return storage.computeIfAbsent(loader, supplier, name);
     }
 
+    private String m_id;
     private Supplier<T> m_channelSupplier;
     private Decoder<T> m_channelDecoder;
 }

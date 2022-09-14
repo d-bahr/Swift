@@ -3,13 +3,13 @@ package swiftmod.common.upgrades;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.Tag;
 import swiftmod.common.ItemStackDataCache;
 import swiftmod.common.SwiftUtils;
 import swiftmod.common.channels.ChannelData;
@@ -33,59 +33,59 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
         publicChannels = new TreeSet<String>();
     }
 
-    public CompoundNBT write(CompoundNBT nbt, boolean serializeChannels)
+    public void write(CompoundTag nbt, boolean serializeChannels)
     {
         super.write(nbt);
 
         if (serializeChannels && privateChannels != null)
         {
-            ListNBT list = new ListNBT();
+            ListTag list = new ListTag();
             for (String name : privateChannels)
-                list.add(StringNBT.valueOf(name));
+                list.add(StringTag.valueOf(name));
             nbt.put(TAG_PRIVATE_CHANNELS, list);
         }
         else
         {
-            nbt.put(TAG_PRIVATE_CHANNELS, new ListNBT());
+            nbt.put(TAG_PRIVATE_CHANNELS, new ListTag());
         }
 
         if (serializeChannels && publicChannels != null)
         {
-            ListNBT list = new ListNBT();
+            ListTag list = new ListTag();
             for (String name : publicChannels)
-                list.add(StringNBT.valueOf(name));
+                list.add(StringTag.valueOf(name));
             nbt.put(TAG_PUBLIC_CHANNELS, list);
         }
         else
         {
-            nbt.put(TAG_PUBLIC_CHANNELS, new ListNBT());
+            nbt.put(TAG_PUBLIC_CHANNELS, new ListTag());
         }
-
-        return nbt;
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    @Override
+    public void write(CompoundTag nbt)
     {
-        return write(nbt, true);
+        write(nbt, true);
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
         super.read(nbt);
 
         privateChannels.clear();
         publicChannels.clear();
 
-        ListNBT privList = nbt.getList(TAG_PRIVATE_CHANNELS, Constants.NBT.TAG_STRING);
+        ListTag privList = nbt.getList(TAG_PRIVATE_CHANNELS, Tag.TAG_STRING);
         for (int i = 0; i < privList.size(); ++i)
             privateChannels.add(privList.getString(i));
 
-        ListNBT pubList = nbt.getList(TAG_PUBLIC_CHANNELS, Constants.NBT.TAG_STRING);
+        ListTag pubList = nbt.getList(TAG_PUBLIC_CHANNELS, Tag.TAG_STRING);
         for (int i = 0; i < pubList.size(); ++i)
             publicChannels.add(pubList.getString(i));
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    @Override
+    public void write(FriendlyByteBuf buffer)
     {
         super.write(buffer);
 
@@ -110,11 +110,9 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
         {
             buffer.writeInt(0);
         }
-
-        return buffer;
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         super.read(buffer);
 
@@ -137,7 +135,7 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
 
     public static void setChannel(ItemStack itemStack, ChannelSpec spec)
     {
-        CompoundNBT nbt = itemStack.getOrCreateTagElement(TeleporterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getOrCreateTagElement(TeleporterUpgradeItem.NBT_TAG);
         spec.write(nbt);
     }
 
@@ -162,7 +160,7 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
             return null;
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return null;
-        CompoundNBT nbt = itemStack.getTagElement(TeleporterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(TeleporterUpgradeItem.NBT_TAG);
         if (nbt == null)
             return null;
         else
@@ -185,7 +183,7 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
             publicChannels.remove(spec.name);
     }
 
-    public void assignCurrentChannels(OwnerBasedChannelManager<ChannelData> manager, PlayerEntity player)
+    public void assignCurrentChannels(OwnerBasedChannelManager<ChannelData> manager, Player player)
     {
         HashMap<String, ChannelData> privateChannels = manager.get(new ChannelOwner(player.getUUID()));
         HashMap<String, ChannelData> publicChannels = manager.get(ChannelOwner.Public);
@@ -206,12 +204,12 @@ public class ChannelConfigurationDataCache extends ItemStackDataCache
         }
     }
 
-    public static ChannelConfigurationDataCache create(OwnerBasedChannelManager<ChannelData> manager, PlayerEntity player)
+    public static ChannelConfigurationDataCache create(OwnerBasedChannelManager<ChannelData> manager, Player player)
     {
         return create(manager, player, ItemStack.EMPTY);
     }
 
-    public static ChannelConfigurationDataCache create(OwnerBasedChannelManager<ChannelData> manager, PlayerEntity player, ItemStack stack)
+    public static ChannelConfigurationDataCache create(OwnerBasedChannelManager<ChannelData> manager, Player player, ItemStack stack)
     {
         ChannelConfigurationDataCache cache = new ChannelConfigurationDataCache();
         cache.itemStack = stack;

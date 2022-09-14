@@ -1,7 +1,7 @@
 package swiftmod.common;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public enum TransferDirection
 {
@@ -43,50 +43,50 @@ public enum TransferDirection
         return directions;
     }
 
-    public static CompoundNBT write(CompoundNBT nbt, TransferDirection direction)
+    public static CompoundTag write(CompoundTag nbt, TransferDirection direction)
     {
         nbt.putInt(SwiftUtils.tagName("transferDirection"), direction.getIndex());
         return nbt;
     }
 
-    public static CompoundNBT writeArray(CompoundNBT nbt, TransferDirection[] directions)
+    public static CompoundTag writeArray(CompoundTag nbt, TransferDirection[] directions)
     {
         int[] i = TransferDirection.toIntArray(directions);
         nbt.putIntArray(SwiftUtils.tagName("transferDirections"), i);
         return nbt;
     }
 
-    public static TransferDirection read(CompoundNBT nbt)
+    public static TransferDirection read(CompoundTag nbt)
     {
         int i = nbt.getInt(SwiftUtils.tagName("transferDirection"));
         return TransferDirection.fromIndex(i);
     }
 
-    public static TransferDirection[] readArray(CompoundNBT nbt)
+    public static TransferDirection[] readArray(CompoundTag nbt)
     {
         int[] i = nbt.getIntArray(SwiftUtils.tagName("transferDirections"));
         return TransferDirection.fromIntArray(i);
     }
 
-    public static PacketBuffer write(PacketBuffer packetBuffer, TransferDirection direction)
+    public static FriendlyByteBuf write(FriendlyByteBuf FriendlyByteBuf, TransferDirection direction)
     {
-        packetBuffer.writeVarInt(direction.getIndex());
-        return packetBuffer;
+        FriendlyByteBuf.writeVarInt(direction.getIndex());
+        return FriendlyByteBuf;
     }
 
-    public static PacketBuffer writeArray(PacketBuffer packetBuffer, TransferDirection[] directions)
+    public static FriendlyByteBuf writeArray(FriendlyByteBuf FriendlyByteBuf, TransferDirection[] directions)
     {
-        packetBuffer.writeVarIntArray(TransferDirection.toIntArray(directions));
-        return packetBuffer;
+        FriendlyByteBuf.writeVarIntArray(TransferDirection.toIntArray(directions));
+        return FriendlyByteBuf;
     }
 
-    public static TransferDirection read(PacketBuffer packetBuffer)
+    public static TransferDirection read(FriendlyByteBuf FriendlyByteBuf)
     {
-        return TransferDirection.fromIndex(packetBuffer.readVarInt());
+        return TransferDirection.fromIndex(FriendlyByteBuf.readVarInt());
     }
 
-    public static TransferDirection[] readArray(PacketBuffer packetBuffer)
+    public static TransferDirection[] readArray(FriendlyByteBuf FriendlyByteBuf)
     {
-        return TransferDirection.fromIntArray(packetBuffer.readVarIntArray());
+        return TransferDirection.fromIntArray(FriendlyByteBuf.readVarIntArray());
     }
 }

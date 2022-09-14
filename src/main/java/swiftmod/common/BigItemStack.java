@@ -1,8 +1,8 @@
 package swiftmod.common;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 /**
  * An item stack with the capability to hold more than 255 items (which is the maximum a vanilla
@@ -27,12 +27,12 @@ public class BigItemStack
         itemStack = stack;
     }
 
-    public BigItemStack(CompoundNBT nbt)
+    public BigItemStack(CompoundTag nbt)
     {
         read(nbt);
     }
 
-    public BigItemStack(PacketBuffer buffer)
+    public BigItemStack(FriendlyByteBuf buffer)
     {
         read(buffer);
     }
@@ -43,27 +43,25 @@ public class BigItemStack
         itemStack = ItemStack.EMPTY;
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
         itemStack.save(nbt);
         nbt.putInt(SwiftUtils.tagName("bigCount"), count);
-        return nbt;
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
         itemStack = ItemStack.of(nbt);
         count = nbt.getInt(SwiftUtils.tagName("bigCount"));
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    public void write(FriendlyByteBuf buffer)
     {
         buffer.writeItemStack(itemStack, false);
         buffer.writeInt(count);
-        return buffer;
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         itemStack = buffer.readItem();
         count = buffer.readInt();

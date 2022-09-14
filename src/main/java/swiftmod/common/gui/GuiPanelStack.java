@@ -2,8 +2,8 @@ package swiftmod.common.gui;
 
 import java.util.Stack;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -19,20 +19,20 @@ public class GuiPanelStack extends GuiWidget
 
     public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y)
     {
-        this(screen, x, y, 0, 0, StringTextComponent.EMPTY);
+        this(screen, x, y, 0, 0, TextComponent.EMPTY);
     }
 
-    public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, ITextComponent title)
+    public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, Component title)
     {
         this(screen, x, y, 0, 0, title);
     }
 
     public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, int width, int height)
     {
-        this(screen, x, y, width, height, StringTextComponent.EMPTY);
+        this(screen, x, y, width, height, TextComponent.EMPTY);
     }
 
-    public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent title)
+    public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component title)
     {
         super(screen, x, y, width, height, title);
         m_stack = new Stack<GuiPanel>();

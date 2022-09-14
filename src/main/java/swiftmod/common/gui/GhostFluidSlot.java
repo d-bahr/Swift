@@ -3,21 +3,21 @@ package swiftmod.common.gui;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import swiftmod.common.MouseButton;
-import swiftmod.common.SwiftKeyBindings;
 
 @OnlyIn(Dist.CLIENT)
 public class GhostFluidSlot extends GuiFluidTextureButton
@@ -155,7 +155,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
     }
 
     @Override
-    public void playDownSound(SoundHandler handler)
+    public void playDownSound(SoundManager manager)
     {
         // Don't call super -- suppress all normal button sounds.
     }
@@ -163,7 +163,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
     @Override
     public boolean onMousePress(MouseButton button, double mouseX, double mouseY)
     {
-        ItemStack itemInCursor = getPlayer().inventory.getCarried();
+        ItemStack itemInCursor = this.getScreen().getMenu().getCarried();
 
         FluidStack fluidStack = FluidStack.EMPTY;
 
@@ -172,8 +172,8 @@ public class GhostFluidSlot extends GuiFluidTextureButton
             fluidStack = optionalFluidStack.get();
 
         boolean updated = false;
-        boolean shift = SwiftKeyBindings.isShiftKeyPressed();
-        boolean control = SwiftKeyBindings.isControlKeyPressed();
+        boolean shift = Screen.hasShiftDown();
+        boolean control = Screen.hasControlDown();
 
         // Left button = add
         // Right button = subtract
@@ -344,11 +344,11 @@ public class GhostFluidSlot extends GuiFluidTextureButton
                 quantityStr = Integer.toString(quantity / 1000) + "." + Integer.toString(quantity % 1000) + " B";
             else
                 quantityStr = Integer.toString(quantity) + " mB";
-            m_tooltip.setText(new StringTextComponent("Quantity: " + quantityStr));
+            m_tooltip.setText(new TextComponent("Quantity: " + quantityStr));
         }
     }
 
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
 
@@ -357,11 +357,11 @@ public class GhostFluidSlot extends GuiFluidTextureButton
             int left = leftAbsolute();
             int top = topAbsolute();
 
-            MatrixStack matrix = new MatrixStack();
+            PoseStack matrix = new PoseStack();
             if (m_showQuantity)
             {
                 Minecraft minecraft = Minecraft.getInstance();
-                FontRenderer fr = minecraft.font;
+                Font fr = minecraft.font;
 
                 String s;
                 int amount = m_fluidStack.getAmount();
@@ -376,7 +376,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
                     matrix.scale(r, r, 1.0f);
                 }
                 matrix.translate(0.0, 0.0, 200.0);
-                IRenderTypeBuffer.Impl b = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+                MultiBufferSource.BufferSource b = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
                 fr.drawInBatch(s, (float) (left + 17) / r - fr.width(s), (float) (top + 16) / r - 7, 0x00FFFFFF,
                         true, matrix.last().pose(), b, false, 0, 15728880);
                 b.endBatch();

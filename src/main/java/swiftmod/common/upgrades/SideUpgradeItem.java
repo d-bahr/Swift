@@ -2,15 +2,15 @@ package swiftmod.common.upgrades;
 
 import java.util.List;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import swiftmod.common.Color;
 import swiftmod.common.ItemContainerProvider;
 import swiftmod.common.SwiftTextUtils;
@@ -24,21 +24,21 @@ public class SideUpgradeItem extends UpgradeItem
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand)
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
     {
         return ItemContainerProvider.openContainerGui(world, player, hand,
                 SideUpgradeContainer::createContainerServerSide, SideUpgradeContainer::encode);
     }
 
     @Override
-    public void addStandardInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Allows inserting or extracting from any", SwiftTextUtils.AQUA)));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("face of an attached inventory.", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Allows inserting or extracting from any", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("face of an attached inventory.", SwiftTextUtils.AQUA)));
     }
 
     @Override
-    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
         byte[] states = SideUpgradeDataCache.getStates(stack);
         if (states.length == 0)
@@ -55,22 +55,22 @@ public class SideUpgradeItem extends UpgradeItem
         tooltip.add(getTooltip("Down: ", states[SwiftUtils.dirToIndex(Direction.DOWN)]));
     }
 
-    private ITextComponent getTooltip(String direction, byte state)
+    private Component getTooltip(String direction, byte state)
     {
         if (state == 0)
         {
-            return new StringTextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
+            return new TextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
                     + SwiftTextUtils.color("Disabled", SwiftTextUtils.RED));
         }
         else if (state == 17)
         {
-            return new StringTextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
+            return new TextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
                     + SwiftTextUtils.color("Any", SwiftTextUtils.WHITE));
         }
         else
         {
             Color c = Color.fromIndex((int)state);
-            return new StringTextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
+            return new TextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
                     + SwiftTextUtils.color(c.getName(), c));
         }
     }

@@ -1,11 +1,11 @@
 package swiftmod.common;
 
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.network.IContainerFactory;
+import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.registries.IForgeRegistry;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeContainer;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeContainerScreen;
@@ -21,9 +21,9 @@ import swiftmod.pipes.*;
 
 public class SwiftContainers
 {
-    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event)
+    public static void registerContainers(final RegistryEvent.Register<MenuType<?>> event)
     {
-        IForgeRegistry<ContainerType<?>> registry = event.getRegistry();
+        IForgeRegistry<MenuType<?>> registry = event.getRegistry();
 
         s_basicItemPipeContainerType = createContainer("basic_item_pipe", BasicItemPipeContainer::createContainerClientSide);
         registry.register(s_basicItemPipeContainerType);
@@ -61,35 +61,35 @@ public class SwiftContainers
 
     public static void registerScreenTypes()
     {
-        ScreenManager.register(s_basicItemPipeContainerType, BasicItemPipeContainerScreen::new);
-        ScreenManager.register(s_advancedItemPipeContainerType, AdvancedItemPipeContainerScreen::new);
-        ScreenManager.register(s_ultimateItemPipeContainerType, UltimateItemPipeContainerScreen::new);
-        ScreenManager.register(s_basicFluidPipeContainerType, BasicFluidPipeContainerScreen::new);
-        ScreenManager.register(s_advancedFluidPipeContainerType, AdvancedFluidPipeContainerScreen::new);
-        ScreenManager.register(s_ultimateFluidPipeContainerType, UltimateFluidPipeContainerScreen::new);
-        ScreenManager.register(s_basicItemFilterContainerType, BasicItemFilterUpgradeContainerScreen::new);
-        ScreenManager.register(s_basicFluidFilterContainerType, BasicFluidFilterUpgradeContainerScreen::new);
-        ScreenManager.register(s_teleporterUpgradeContainerType, TeleporterUpgradeContainerScreen::new);
-        ScreenManager.register(s_sideUpgradeContainerType, SideUpgradeContainerScreen::new);
-        ScreenManager.register(s_wildcardFilterContainertype, WildcardFilterUpgradeContainerScreen::new);
+    	MenuScreens.register(s_basicItemPipeContainerType, BasicItemPipeContainerScreen::new);
+    	MenuScreens.register(s_advancedItemPipeContainerType, AdvancedItemPipeContainerScreen::new);
+        MenuScreens.register(s_ultimateItemPipeContainerType, UltimateItemPipeContainerScreen::new);
+        MenuScreens.register(s_basicFluidPipeContainerType, BasicFluidPipeContainerScreen::new);
+        MenuScreens.register(s_advancedFluidPipeContainerType, AdvancedFluidPipeContainerScreen::new);
+        MenuScreens.register(s_ultimateFluidPipeContainerType, UltimateFluidPipeContainerScreen::new);
+        MenuScreens.register(s_basicItemFilterContainerType, BasicItemFilterUpgradeContainerScreen::new);
+        MenuScreens.register(s_basicFluidFilterContainerType, BasicFluidFilterUpgradeContainerScreen::new);
+        MenuScreens.register(s_teleporterUpgradeContainerType, TeleporterUpgradeContainerScreen::new);
+        MenuScreens.register(s_sideUpgradeContainerType, SideUpgradeContainerScreen::new);
+        MenuScreens.register(s_wildcardFilterContainertype, WildcardFilterUpgradeContainerScreen::new);
     }
 
-    private static <T extends Container> ContainerType<T> createContainer(String registryName, IContainerFactory<T> factory)
+    private static <T extends AbstractContainerMenu> MenuType<T> createContainer(String registryName, IContainerFactory<T> factory)
     {
-        ContainerType<T> t = IForgeContainerType.create(factory);
+        MenuType<T> t = IForgeMenuType.create(factory);
         t.setRegistryName(Swift.MOD_NAME, registryName);
         return t;
     }
 
-    public static ContainerType<BasicItemPipeContainer> s_basicItemPipeContainerType;
-    public static ContainerType<AdvancedItemPipeContainer> s_advancedItemPipeContainerType;
-    public static ContainerType<UltimateItemPipeContainer> s_ultimateItemPipeContainerType;
-    public static ContainerType<BasicFluidPipeContainer> s_basicFluidPipeContainerType;
-    public static ContainerType<AdvancedFluidPipeContainer> s_advancedFluidPipeContainerType;
-    public static ContainerType<UltimateFluidPipeContainer> s_ultimateFluidPipeContainerType;
-    public static ContainerType<BasicItemFilterUpgradeContainer> s_basicItemFilterContainerType;
-    public static ContainerType<BasicFluidFilterUpgradeContainer> s_basicFluidFilterContainerType;
-    public static ContainerType<TeleporterUpgradeContainer> s_teleporterUpgradeContainerType;
-    public static ContainerType<SideUpgradeContainer> s_sideUpgradeContainerType;
-    public static ContainerType<WildcardFilterUpgradeContainer> s_wildcardFilterContainertype;
+    public static MenuType<BasicItemPipeContainer> s_basicItemPipeContainerType;
+    public static MenuType<AdvancedItemPipeContainer> s_advancedItemPipeContainerType;
+    public static MenuType<UltimateItemPipeContainer> s_ultimateItemPipeContainerType;
+    public static MenuType<BasicFluidPipeContainer> s_basicFluidPipeContainerType;
+    public static MenuType<AdvancedFluidPipeContainer> s_advancedFluidPipeContainerType;
+    public static MenuType<UltimateFluidPipeContainer> s_ultimateFluidPipeContainerType;
+    public static MenuType<BasicItemFilterUpgradeContainer> s_basicItemFilterContainerType;
+    public static MenuType<BasicFluidFilterUpgradeContainer> s_basicFluidFilterContainerType;
+    public static MenuType<TeleporterUpgradeContainer> s_teleporterUpgradeContainerType;
+    public static MenuType<SideUpgradeContainer> s_sideUpgradeContainerType;
+    public static MenuType<WildcardFilterUpgradeContainer> s_wildcardFilterContainertype;
 }

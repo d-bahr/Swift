@@ -1,8 +1,8 @@
 package swiftmod.common.client;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.simple.SimpleChannel;
 import swiftmod.common.channels.Channel;
 import swiftmod.common.channels.ChannelData;
 import swiftmod.common.channels.ChannelSpec;
@@ -11,7 +11,7 @@ public class ChannelConfigurationPacket extends Packet
 {
     public interface Handler
     {
-        public void handle(ServerPlayerEntity player, ChannelConfigurationPacket packet);
+        public void handle(ServerPlayer player, ChannelConfigurationPacket packet);
     }
 
     public enum Type
@@ -62,25 +62,25 @@ public class ChannelConfigurationPacket extends Packet
         this(new Channel<ChannelData>(spec, ChannelData::new), t);
     }
 
-    public ChannelConfigurationPacket(PacketBuffer buffer)
+    public ChannelConfigurationPacket(FriendlyByteBuf buffer)
     {
         this();
         decode(buffer);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         type = Type.fromInt(buffer.readByte());
         channel.read(buffer);
     }
 
-    public void encode(PacketBuffer buffer)
+    public void encode(FriendlyByteBuf buffer)
     {
         buffer.writeByte((byte)type.toInt());
         channel.write(buffer);
     }
 
-    public void process(ServerPlayerEntity player)
+    public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
         {

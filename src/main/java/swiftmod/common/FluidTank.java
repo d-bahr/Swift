@@ -1,7 +1,7 @@
 package swiftmod.common;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 
@@ -12,29 +12,27 @@ public class FluidTank extends net.minecraftforge.fluids.capability.templates.Fl
         super(capacity);
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
         writeToNBT(nbt);
-        return nbt;
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
         readFromNBT(nbt);
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    public void write(FriendlyByteBuf buffer)
     {
         fluid.writeToPacket(buffer);
-        return buffer;
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         setFluid(FluidStack.readFromPacket(buffer));
     }
     
-    public static FluidStack readFluidStack(CompoundNBT nbt)
+    public static FluidStack readFluidStack(CompoundTag nbt)
     {
         return FluidStack.loadFluidStackFromNBT(nbt);
     }

@@ -1,15 +1,15 @@
 package swiftmod.common.client;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.simple.SimpleChannel;
 import swiftmod.common.WhiteListState;
 
 public class ItemFilterConfigurationPacket extends DirectionalPacket
 {
     public interface Handler
     {
-        public void handle(ServerPlayerEntity player, ItemFilterConfigurationPacket packet);
+        public void handle(ServerPlayer player, ItemFilterConfigurationPacket packet);
     }
 
     public ItemFilterConfigurationPacket()
@@ -33,12 +33,12 @@ public class ItemFilterConfigurationPacket extends DirectionalPacket
         matchOreDictionary = oreDict;
     }
 
-    public ItemFilterConfigurationPacket(PacketBuffer buffer)
+    public ItemFilterConfigurationPacket(FriendlyByteBuf buffer)
     {
         decode(buffer);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         super.decode(buffer);
         whiteListState = WhiteListState.fromIndex(buffer.readInt());
@@ -49,7 +49,7 @@ public class ItemFilterConfigurationPacket extends DirectionalPacket
         matchOreDictionary = buffer.readBoolean();
     }
 
-    public void encode(PacketBuffer buffer)
+    public void encode(FriendlyByteBuf buffer)
     {
         super.encode(buffer);
         buffer.writeInt(whiteListState.getIndex());
@@ -60,7 +60,7 @@ public class ItemFilterConfigurationPacket extends DirectionalPacket
         buffer.writeBoolean(matchOreDictionary);
     }
 
-    public void process(ServerPlayerEntity player)
+    public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
         {

@@ -1,10 +1,10 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -26,7 +26,7 @@ import swiftmod.common.upgrades.WildcardFilterUpgradeDataCache;
 @OnlyIn(Dist.CLIENT)
 public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> extends PipeContainerScreen<T>
 {
-    public AdvancedPipeContainerScreen(T c, PlayerInventory inv, ITextComponent title)
+    public AdvancedPipeContainerScreen(T c, Inventory inv, Component title)
     {
         super(c, inv, title);
 
@@ -87,7 +87,7 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
         m_filterSettingsButton = new GuiSettingsButton(this, SIDE_UPGRADE_PANEL_SLOT_START_X + SIDE_UPGRADE_PANEL_SLOT_WIDTH + 1,
                 SIDE_UPGRADE_PANEL_SLOT_START_Y + 1);
         m_filterSettingsButton.setClickCallback(this::openFilterSettings);
-        m_filterSettingsButton.setTooltip(new StringTextComponent("Change filter settings"));
+        m_filterSettingsButton.setTooltip(new TextComponent("Change filter settings"));
 
         GuiTexture sideUpgradeSlotTexture = new GuiTexture(this,
                 SIDE_UPGRADE_PANEL_SLOT_START_X + SIDE_UPGRADE_PANEL_SLOT_OFFSET_X, SIDE_UPGRADE_PANEL_SLOT_START_Y, 18,
@@ -96,7 +96,7 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
         m_sideUpgradeSettingsButton = new GuiSettingsButton(this, sideUpgradeSlotTexture.right() + 1,
                 sideUpgradeSlotTexture.top() + 1);
         m_sideUpgradeSettingsButton.setClickCallback(this::openSideConfigSettings);
-        m_sideUpgradeSettingsButton.setTooltip(new StringTextComponent("Change side I/O settings"));
+        m_sideUpgradeSettingsButton.setTooltip(new TextComponent("Change side I/O settings"));
 
         m_directionalConfigPanel.addChild(m_filterSettingsButton);
         m_directionalConfigPanel.addChild(sideUpgradeSlotTexture);
@@ -187,6 +187,7 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
             WildcardFilterUpgradeDataCache cache = menu.getWildcardFilterCache(m_selectedDirection);
             m_wildcardFilterWidget.setFilters(cache.getFilters());
             m_panelStack.push(m_wildcardFilterConfigPanel);
+            m_wildcardFilterWidget.requestTextFieldFocus();
         }
         else
         {
@@ -212,7 +213,7 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
     protected void setSideIOStateChanged(Direction dir, byte state)
     {
         byte[] states = m_sideIOConfigWidget.getStates();
-        menu.getSideUpgradeCache(dir).setStates(states);
+        menu.getSideUpgradeCache(m_selectedDirection).setStates(states);
 
         SideConfigurationPacket updatePacket = new SideConfigurationPacket();
         updatePacket.direction = m_selectedDirection;

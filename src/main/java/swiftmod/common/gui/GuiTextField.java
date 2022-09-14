@@ -7,32 +7,30 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Matrix4f;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.IRenderable;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SharedConstants;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -43,7 +41,7 @@ import swiftmod.common.SwiftKeyBindings;
  * Ripped lots of code from the Vanilla TextFieldWidget class.
  */
 @OnlyIn(Dist.CLIENT)
-public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEventListener
+public class GuiTextField extends GuiTextWidget
 {
     /** Has the current text being edited on the textbox. */
     private String text = "";
@@ -64,17 +62,17 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
     private Consumer<String> guiResponder;
     /** Called to check if the text is valid */
     private Predicate<String> validator = Objects::nonNull;
-    private BiFunction<String, Integer, IReorderingProcessor> textFormatter = (p_195610_0_, p_195610_1_) ->
+    private BiFunction<String, Integer, FormattedCharSequence> textFormatter = (p_195610_0_, p_195610_1_) ->
     {
-        return IReorderingProcessor.forward(p_195610_0_, Style.EMPTY);
+        return FormattedCharSequence.forward(p_195610_0_, Style.EMPTY);
     };
 
-    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text)
+    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text)
     {
         this(screen, x, y, width, height, text, BACKGROUND_TEXTURE);
     }
 
-    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text,
+    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text,
             ResourceLocation background)
     {
         super(screen, x, y, width, height, text);
@@ -86,14 +84,14 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
         m_lastMouseClickPos = Integer.MIN_VALUE;
     }
 
-    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text,
-            FontRenderer font)
+    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text,
+            Font font)
     {
         this(screen, x, y, width, height, text, font, BACKGROUND_TEXTURE);
     }
 
-    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text,
-            FontRenderer font, ResourceLocation background)
+    public GuiTextField(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text,
+            Font font, ResourceLocation background)
     {
         super(screen, x, y, width, height, text, font);
         m_background = background;
@@ -109,7 +107,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
         this.guiResponder = rssponderIn;
     }
 
-    public void setTextFormatter(BiFunction<String, Integer, IReorderingProcessor> textFormatterIn)
+    public void setTextFormatter(BiFunction<String, Integer, FormattedCharSequence> textFormatterIn)
     {
         this.textFormatter = textFormatterIn;
     }
@@ -134,10 +132,10 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
             cursorCounter = 0;
     }
 
-    protected IFormattableTextComponent getNarrationMessage()
+    protected Component getNarrationMessage()
     {
-        ITextComponent itextcomponent = this.getMessage();
-        return new TranslationTextComponent("gui.narrate.editBox", itextcomponent, this.text);
+        Component itextcomponent = this.getMessage();
+        return new TranslatableComponent("gui.narrate.editBox", itextcomponent, this.text);
     }
 
     /**
@@ -166,7 +164,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
      * Sets the text of the textbox, and moves the cursor to the end. TODO: Clean this up; this is
      * probably all wrong.
      */
-    public void setText(ITextComponent text)
+    public void setText(Component text)
     {
         setText(text.getString());
     }
@@ -174,9 +172,9 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
     /**
      * Returns the contents of the textbox TODO: Clean this up; this is probably all wrong.
      */
-    public ITextComponent getText()
+    public Component getText()
     {
-        return new StringTextComponent(text);
+        return new TextComponent(text);
     }
 
     /**
@@ -228,7 +226,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
             this.guiResponder.accept(newText);
         }
 
-        this.nextNarration = Util.getMillis() + 500L;
+        //this.nextNarration = Util.getMillis() + 500L;
     }
 
     private void delete(int p_212950_1_)
@@ -374,7 +372,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
     public void setCursorPosition(int pos)
     {
         this.clampCursorPosition(pos);
-        if (!SwiftKeyBindings.isShiftKeyPressed() || suppressShift)
+        if (!Screen.hasShiftDown() || suppressShift)
             this.setSelectionPos(this.cursorPosition);
 
         this.onTextChanged(this.text);
@@ -383,7 +381,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
 
     public void clampCursorPosition(int pos)
     {
-        this.cursorPosition = MathHelper.clamp(pos, 0, this.text.length());
+        this.cursorPosition = Mth.clamp(pos, 0, this.text.length());
     }
 
     /**
@@ -467,7 +465,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
                     // Suppress closing the window when the key bind for the inventory button is pressed
                     // while the text field has focus.
                     return getMinecraft().options.keyInventory
-                            .isActiveAndMatches(InputMappings.getKey(keyCode, scanCode));
+                            .isActiveAndMatches(InputConstants.getKey(keyCode, scanCode));
                 case 261:
                     if (this.isEnabled)
                     {
@@ -552,7 +550,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
             long elapsedMouseClickTime = timeNow - m_lastMouseClick;
             m_lastMouseClick = timeNow;
 
-            int i = MathHelper.floor(mouseX) - leftAbsolute();
+            int i = Mth.floor(mouseX) - leftAbsolute();
             i /= m_scale;
             i += 1;
             if (enableBackgroundDrawing)
@@ -597,12 +595,11 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
 
-        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-        textureManager.bind(m_background);
+        RenderSystem.setShaderTexture(0, m_background);
 
         RenderSystem.enableDepthTest();
         blit(matrixStack, x, y, 0.0f, 0.0f, width, height, width, height);
@@ -625,7 +622,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
         }
     }
 
-    private void drawWorker(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    private void drawWorker(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (this.getEnableBackgroundDrawing())
         {
@@ -682,7 +679,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
         {
             if (flag2)
             {
-                AbstractGui.fill(matrixStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
+                GuiComponent.fill(matrixStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
             }
             else
             {
@@ -701,7 +698,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
      * Draws the blue selection box.
      */
     @SuppressWarnings("deprecation")
-    private void drawSelectionBox(MatrixStack matrixStack, int startX, int startY, int endX, int endY)
+    private void drawSelectionBox(PoseStack matrixStack, int startX, int startY, int endX, int endY)
     {
         if (startX < endX)
         {
@@ -727,14 +724,14 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
             startX = this.x + this.width;
         }
 
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
-        RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
+        RenderSystem.setShaderColor(0.0F, 0.0F, 255.0F, 255.0F);
         RenderSystem.disableTexture();
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         Matrix4f pose = matrixStack.last().pose();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
         bufferbuilder.vertex(pose, (float) startX, (float) endY, 0.0f).endVertex();
         bufferbuilder.vertex(pose, (float) endX, (float) endY, 0.0f).endVertex();
         bufferbuilder.vertex(pose, (float) endX, (float) startY, 0.0f).endVertex();
@@ -857,7 +854,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
     public void setSelectionPos(int position)
     {
         int i = this.text.length();
-        this.selectionEnd = MathHelper.clamp(position, 0, i);
+        this.selectionEnd = Mth.clamp(position, 0, i);
         if (m_font != null)
         {
             if (this.lineScrollOffset > i)
@@ -882,7 +879,7 @@ public class GuiTextField extends GuiTextWidget implements IRenderable, IGuiEven
                 this.lineScrollOffset -= this.lineScrollOffset - this.selectionEnd;
             }
 
-            this.lineScrollOffset = MathHelper.clamp(this.lineScrollOffset, 0, i);
+            this.lineScrollOffset = Mth.clamp(this.lineScrollOffset, 0, i);
         }
     }
 

@@ -2,13 +2,17 @@ package swiftmod.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 
-public abstract class WildcardFilter<T> implements Filter<T>
+public abstract class WildcardFilter<T, U> implements Filter<T>
 {
     public WildcardFilter()
     {
@@ -53,30 +57,59 @@ public abstract class WildcardFilter<T> implements Filter<T>
         return false;
     }
 
-    public FilterMatchResult<Filter<T>> filter(Set<ResourceLocation> tags)
+    public FilterMatchResult<Filter<T>> filter(ResourceKey<U> tag)
     {
-        return filter(tags, false);
+    	return filter(tag, false);
     }
 
-    public FilterMatchResult<Filter<T>> filter(Set<ResourceLocation> tags, boolean reduceFilter)
+    public FilterMatchResult<Filter<T>> filter(ResourceKey<U> tag, boolean reduceFilter)
     {
         if (regexes.isEmpty())
             return new FilterMatchResult<Filter<T>>(this, true);
 
+        String tagName = tag.location().toString();
         for (Pattern regex : regexes)
         {
-            for (ResourceLocation tag : tags)
-            {
-                Matcher m = regex.matcher(tag.toString());
-                if (m.matches())
-                    return new FilterMatchResult<Filter<T>>(createReducedFilter(regex), true);
-            }
+            Matcher m = regex.matcher(tagName);
+            if (m.matches())
+                return new FilterMatchResult<Filter<T>>(createReducedFilter(regex), true);
         }
 
         return new FilterMatchResult<Filter<T>>(this, false);
     }
 
-    protected abstract WildcardFilter<T> createReducedFilter(Pattern regex);
+    public FilterMatchResult<Filter<T>> filter(Stream<TagKey<U>> tags)
+    {
+        return filter(tags, false);
+    }
+
+    public FilterMatchResult<Filter<T>> filter(Stream<TagKey<U>> tags, boolean reduceFilter)
+    {
+        if (regexes.isEmpty())
+            return new FilterMatchResult<Filter<T>>(this, true);
+
+    	Iterator<TagKey<U>> iter = tags.iterator();
+    	while (iter.hasNext())
+        {
+    		TagKey<U> tagKey = iter.next();
+    		ResourceKey<? extends Registry<U>> tag = tagKey.registry();
+    		String tagName1 = tag.location().toString();
+    		String tagName2 = tagKey.location().toString();
+	        for (Pattern regex : regexes)
+	        {
+                Matcher m = regex.matcher(tagName1);
+                if (m.matches())
+                    return new FilterMatchResult<Filter<T>>(createReducedFilter(regex), true);
+                m = regex.matcher(tagName2);
+                if (m.matches())
+                    return new FilterMatchResult<Filter<T>>(createReducedFilter(regex), true);
+	        }
+	    }
+
+        return new FilterMatchResult<Filter<T>>(this, false);
+    }
+
+    protected abstract WildcardFilter<T, U> createReducedFilter(Pattern regex);
 
     /**
      * Converts a standard POSIX Shell globbing pattern into a regular expression pattern. The result

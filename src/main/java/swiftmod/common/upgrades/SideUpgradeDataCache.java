@@ -1,8 +1,8 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import swiftmod.common.ItemStackDataCache;
 import swiftmod.common.SwiftUtils;
 
@@ -28,7 +28,7 @@ public class SideUpgradeDataCache extends ItemStackDataCache
         if (itemStack != null && !itemStack.isEmpty())
         {
             // TODO: Cleanup? Don't need multiple tag names here.
-            CompoundNBT nbt = itemStack.getOrCreateTagElement(SideUpgradeItem.NBT_TAG);
+            CompoundTag nbt = itemStack.getOrCreateTagElement(SideUpgradeItem.NBT_TAG);
             nbt.putByteArray(TAG_SIDES, states);
         }
     }
@@ -44,10 +44,10 @@ public class SideUpgradeDataCache extends ItemStackDataCache
             return new byte[0];
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return new byte[0];
-        CompoundNBT nbt = itemStack.getTagElement(SideUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(SideUpgradeItem.NBT_TAG);
         if (nbt == null)
             return new byte[0];
-        if (nbt.getTagType(TAG_SIDES) == Constants.NBT.TAG_BYTE_ARRAY)
+        if (nbt.getTagType(TAG_SIDES) == Tag.TAG_BYTE_ARRAY)
         {
             return nbt.getByteArray(TAG_SIDES);
         }

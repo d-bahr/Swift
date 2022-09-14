@@ -1,9 +1,9 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -21,7 +21,7 @@ import swiftmod.common.upgrades.UpgradeType;
 @OnlyIn(Dist.CLIENT)
 public class UltimateFluidPipeContainerScreen extends AbstractAdvancedFluidPipeContainerScreen<UltimateFluidPipeContainer>
 {
-    public UltimateFluidPipeContainerScreen(UltimateFluidPipeContainer c, PlayerInventory inv, ITextComponent title)
+    public UltimateFluidPipeContainerScreen(UltimateFluidPipeContainer c, Inventory inv, Component title)
     {
         super(c, inv, title);
         
@@ -54,15 +54,15 @@ public class UltimateFluidPipeContainerScreen extends AbstractAdvancedFluidPipeC
         m_teleportSettingsButton = new GuiSettingsButton(this, m_upgradePanel.width() - SwiftGui.BUTTON_WIDTH - 1,
                 m_upgradePanel.height() - SwiftGui.BUTTON_HEIGHT - 1);
         m_teleportSettingsButton.setClickCallback(this::openTeleportSettings);
-        m_teleportSettingsButton.setTooltip(new StringTextComponent("Change channel settings"));
+        m_teleportSettingsButton.setTooltip(new TextComponent("Change channel settings"));
 
         m_upgradePanel.addChild(m_teleportSettingsButton);
     }
 
     @Override
-    public void tick()
+    public void containerTick()
     {
-        super.tick();
+        super.containerTick();
     }
 
     @Override
@@ -100,6 +100,8 @@ public class UltimateFluidPipeContainerScreen extends AbstractAdvancedFluidPipeC
         m_channelSelectionWidget.setCurrentChannel(menu.getCurrentChannelConfiguration(), true);
 
         m_panelStack.push(m_teleportSettingsPanel);
+
+        m_channelSelectionWidget.requestTextFieldFocus();
     }
 
     protected GuiSettingsButton m_teleportSettingsButton;

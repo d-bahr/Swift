@@ -1,12 +1,12 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -18,7 +18,7 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
     @FunctionalInterface
     public interface ItemSelectedHandler
     {
-        void select(int index, ITextComponent name);
+        void select(int index, Component name);
     }
 
     public GuiTextScrollPanel(GuiContainerScreen<?> screen, int x, int y, int width, int numRows)
@@ -241,16 +241,15 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
             scroll = 0;
     }
 
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         // Draw the background
-        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-        textureManager.bind(BACKGROUND);
+        RenderSystem.setShaderTexture(0, BACKGROUND);
 
         RenderSystem.enableDepthTest();
         blit(matrixStack, x, y, 0.0f, 0.0f, width, height, width, height);
 
-        textureManager.bind(SCROLL_LIST);
+        RenderSystem.setShaderTexture(0, SCROLL_LIST);
         // Draw Scroll
         // Top border
         blit(matrixStack, barX - 1, barY - 1, 0, 0, SCROLL_BAR_WIDTH, 1, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
@@ -284,7 +283,7 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
         }
     }
 
-    public void drawElements(MatrixStack matrix, int mouseX, int mouseY, float partialTicks)
+    public void drawElements(PoseStack matrix, int mouseX, int mouseY, float partialTicks)
     {
         // Draw Selected
         int scrollIndex = getIndexAtStartOfScroll();
@@ -295,7 +294,7 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
         }
     }
 
-    public void drawScaledTextScaledBound(MatrixStack matrix, ITextComponent text, float x, float y, int color,
+    public void drawScaledTextScaledBound(PoseStack matrix, Component text, float x, float y, int color,
             float maxX, float textScale)
     {
         float width = getStringWidth(text) * textScale;
@@ -303,8 +302,7 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
         drawTextWithScale(matrix, text, x, y, color, scale);
     }
 
-    @SuppressWarnings("deprecation")
-    private void drawTextWithScale(MatrixStack matrix, ITextComponent text, float x, float y, int color, float scale)
+    private void drawTextWithScale(PoseStack matrix, Component text, float x, float y, int color, float scale)
     {
         float yAdd = 4 - (scale * 8) / 2F;
         matrix.pushPose();
@@ -312,16 +310,16 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
         matrix.scale(scale, scale, scale);
         drawString(matrix, text, 0, 0, color);
         matrix.popPose();
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    private int getStringWidth(ITextComponent component)
+    private int getStringWidth(Component component)
     {
         Minecraft mc = Minecraft.getInstance();
         return mc.font.width(component);
     }
 
-    private int drawString(MatrixStack matrix, ITextComponent component, int x, int y, int color)
+    private int drawString(PoseStack matrix, Component component, int x, int y, int color)
     {
         Minecraft mc = Minecraft.getInstance();
         return mc.font.draw(matrix, component, x, y, color);

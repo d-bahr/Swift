@@ -2,8 +2,8 @@ package swiftmod.common.channels;
 
 import java.util.UUID;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import swiftmod.common.SwiftUtils;
 
 public class ChannelOwner
@@ -18,12 +18,12 @@ public class ChannelOwner
         uuid = u;
     }
 
-    public ChannelOwner(CompoundNBT nbt)
+    public ChannelOwner(CompoundTag nbt)
     {
         read(nbt);
     }
 
-    public ChannelOwner(PacketBuffer buffer)
+    public ChannelOwner(FriendlyByteBuf buffer)
     {
         read(buffer);
     }
@@ -48,15 +48,14 @@ public class ChannelOwner
         return uuid;
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
         nbt.putBoolean(SwiftUtils.tagName("channel_private"), isPrivate());
         if (isPrivate())
             nbt.putUUID(SwiftUtils.tagName("channel_owner"), get());
-        return nbt;
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
         boolean isPrivate = nbt.getBoolean(SwiftUtils.tagName("channel_private"));
         if (isPrivate)
@@ -65,15 +64,14 @@ public class ChannelOwner
             setPublic();
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    public void write(FriendlyByteBuf buffer)
     {
         buffer.writeBoolean(isPrivate());
         if (isPrivate())
             buffer.writeUUID(get());
-        return buffer;
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         boolean isPrivate = buffer.readBoolean();
         if (isPrivate)

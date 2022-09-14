@@ -1,9 +1,11 @@
 package swiftmod.common;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 public class BasicFluidFilter implements Filter<FluidStack>
@@ -82,6 +84,7 @@ public class BasicFluidFilter implements Filter<FluidStack>
         return createReturnValue(!hasAnyFilter);
     }
 
+    @SuppressWarnings("deprecation")
     private FilterMatchResult<Filter<FluidStack>> filter(FluidStack fluidStack, FluidStack filterStack, boolean reduceFilter)
     {
         if (fluidStack.isEmpty())
@@ -97,17 +100,14 @@ public class BasicFluidFilter implements Filter<FluidStack>
 
             if (matchOreDictionary)
             {
-                Set<ResourceLocation> tags = fluidStack.getFluid().getTags();
-                if (tags.isEmpty())
-                    return createReturnValue(false);
-                Set<ResourceLocation> filterTags = fluidStack.getFluid().getTags();
-                if (filterTags.isEmpty())
-                    return createReturnValue(false);
-                for (ResourceLocation tag : tags)
-                {
-                    if (filterTags.contains(tag))
-                        return createReturnValue(reduceFilter, filterStack);
-                }
+            	Stream<TagKey<Fluid>> filterTags = filterStack.getFluid().builtInRegistryHolder().tags();
+            	Iterator<TagKey<Fluid>> iter = filterTags.iterator();
+            	while (iter.hasNext())
+            	{
+            		TagKey<Fluid> tag = iter.next();
+            		if (fluidStack.getFluid().is(tag))
+            			return createReturnValue(reduceFilter, filterStack);
+            	}
             }
 
             return createReturnValue(false);

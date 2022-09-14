@@ -1,9 +1,9 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.RedstoneControl;
@@ -21,7 +21,7 @@ import swiftmod.common.gui.TransferDirectionButton;
 @OnlyIn(Dist.CLIENT)
 public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerScreen<T>
 {
-    public PipeContainerScreen(T c, PlayerInventory inv, ITextComponent title)
+    public PipeContainerScreen(T c, Inventory inv, Component title)
     {
         super(c, inv, title, 176, 179, BACKGROUND_TEXTURE);
 
@@ -50,7 +50,7 @@ public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerSc
         m_init = true;
     }
 
-    protected void initBasePanel(ITextComponent title)
+    protected void initBasePanel(Component title)
     {
         m_directonSelectionWidget = new DirectionSelectionWidget(this, 55, 18);
         m_directonSelectionWidget.setDirectionButtonPressCallback(this::onDirectionButtonPressed);

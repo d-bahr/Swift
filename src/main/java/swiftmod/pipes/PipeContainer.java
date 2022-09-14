@@ -6,14 +6,14 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 import swiftmod.common.ContainerBase;
 import swiftmod.common.NeighboringItem;
 import swiftmod.common.NeighboringItems;
@@ -66,8 +66,8 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         void onChanged(SlotBase slot, Direction dir);
     };
 
-    protected PipeContainer(@Nullable ContainerType<?> type, int windowID, PlayerInventory playerInventory,
-            PacketBuffer extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
+    protected PipeContainer(@Nullable MenuType<?> type, int windowID, Inventory playerInventory,
+            FriendlyByteBuf extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
             Supplier<UpgradeInventory> sideUpgradeInventorySupplier, int x, int y)
     {
         super(type, windowID, new PipeDataCache(), playerInventory, x, y);
@@ -108,8 +108,8 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         initSideUpgradeSlots();
     }
 
-    protected PipeContainer(@Nullable ContainerType<?> type, TileEntity tileEntity, int windowID,
-            PlayerInventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
+    protected PipeContainer(@Nullable MenuType<?> type, BlockEntity blockEntity, int windowID,
+            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories, int x, int y)
     {
@@ -469,19 +469,19 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, TransferDirectionConfigurationPacket packet)
+    public void handle(ServerPlayer player, TransferDirectionConfigurationPacket packet)
     {
         m_cache.transferDirections[SwiftUtils.dirToIndex(packet.direction)] = packet.transferDirection;
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, RedstoneControlConfigurationPacket packet)
+    public void handle(ServerPlayer player, RedstoneControlConfigurationPacket packet)
     {
         m_cache.redstoneControls[SwiftUtils.dirToIndex(packet.direction)] = packet.redstoneControl;
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, SlotConfigurationPacket packet)
+    public void handle(ServerPlayer player, SlotConfigurationPacket packet)
     {
         for (int i = 0; i < packet.slots.size(); ++i)
         {
@@ -495,7 +495,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, WildcardFilterPacket packet)
+    public void handle(ServerPlayer player, WildcardFilterPacket packet)
     {
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
         int slot = inventory.getSlotForUpgrade(UpgradeType.WildcardFilterUpgrade);
@@ -516,7 +516,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, SideConfigurationPacket packet)
+    public void handle(ServerPlayer player, SideConfigurationPacket packet)
     {
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
         int slot = inventory.getSlotForUpgrade(UpgradeType.SideUpgrade);

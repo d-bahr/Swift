@@ -1,29 +1,29 @@
 package swiftmod.common;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkHooks;
 
-public class ItemContainerProvider<T extends Container> implements INamedContainerProvider
+public class ItemContainerProvider<T extends AbstractContainerMenu> implements MenuProvider
 {
     @FunctionalInterface
-    public interface ContainerSupplier<T extends Container>
+    public interface ContainerSupplier<T extends AbstractContainerMenu>
     {
-        T createContainerServerSide(int windowID, PlayerInventory playerInventory, PlayerEntity playerEntity);
+        T createContainerServerSide(int windowID, Inventory playerInventory, Player playerEntity);
     }
 
     @FunctionalInterface
-    public interface SimpleContainerSupplier<T extends Container>
+    public interface SimpleContainerSupplier<T extends AbstractContainerMenu>
     {
         T createContainerServerSide(int windowID);
     }
@@ -31,7 +31,7 @@ public class ItemContainerProvider<T extends Container> implements INamedContain
     @FunctionalInterface
     public interface ContainerGuiEncoder
     {
-        void encode(PlayerEntity player, ItemStack itemStack, PacketBuffer packetBuffer);
+        void encode(Player player, ItemStack itemStack, FriendlyByteBuf FriendlyByteBuf);
     }
 
     public ItemContainerProvider(ItemStack itemStack, ContainerSupplier<T> supplier)
@@ -49,13 +49,13 @@ public class ItemContainerProvider<T extends Container> implements INamedContain
     }
 
     @Override
-    public ITextComponent getDisplayName()
+    public Component getDisplayName()
     {
         return itemStack.getDisplayName();
     }
 
     @Override
-    public T createMenu(int windowID, PlayerInventory playerInventory, PlayerEntity playerEntity)
+    public T createMenu(int windowID, Inventory playerInventory, Player playerEntity)
     {
         if (supplier != null)
             return supplier.createContainerServerSide(windowID, playerInventory, playerEntity);
@@ -63,44 +63,44 @@ public class ItemContainerProvider<T extends Container> implements INamedContain
             return simpleSupplier.createContainerServerSide(windowID);
     }
 
-    public static <T extends Container> ActionResult<ItemStack> openContainerGui(World world, PlayerEntity player,
-            Hand hand, ContainerSupplier<T> supplier, ContainerGuiEncoder encoder)
+    public static <T extends AbstractContainerMenu> InteractionResultHolder<ItemStack> openContainerGui(Level world, Player player,
+            InteractionHand hand, ContainerSupplier<T> supplier, ContainerGuiEncoder encoder)
     {
         ItemStack itemStack = player.getItemInHand(hand);
 
-        if (hand == Hand.OFF_HAND)
-            return new ActionResult<ItemStack>(ActionResultType.SUCCESS, itemStack);
+        if (hand == InteractionHand.OFF_HAND)
+            return new InteractionResultHolder<ItemStack>(InteractionResult.SUCCESS, itemStack);
 
         if (!world.isClientSide)
         {
-            INamedContainerProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
-            NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, (packetBuffer) ->
+            MenuProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
+            NetworkHooks.openGui((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
             {
-                encoder.encode(player, itemStack, packetBuffer);
+                encoder.encode(player, itemStack, FriendlyByteBuf);
             });
         }
 
-        return new ActionResult<ItemStack>(ActionResultType.SUCCESS, itemStack);
+        return new InteractionResultHolder<ItemStack>(InteractionResult.SUCCESS, itemStack);
     }
 
-    public static <T extends Container> ActionResult<ItemStack> openContainerGui(World world, PlayerEntity player,
-            Hand hand, SimpleContainerSupplier<T> supplier, ContainerGuiEncoder encoder)
+    public static <T extends AbstractContainerMenu> InteractionResultHolder<ItemStack> openContainerGui(Level world, Player player,
+            InteractionHand hand, SimpleContainerSupplier<T> supplier, ContainerGuiEncoder encoder)
     {
         ItemStack itemStack = player.getItemInHand(hand);
 
-        if (hand == Hand.OFF_HAND)
-            return new ActionResult<ItemStack>(ActionResultType.SUCCESS, itemStack);
+        if (hand == InteractionHand.OFF_HAND)
+            return new InteractionResultHolder<ItemStack>(InteractionResult.SUCCESS, itemStack);
 
         if (!world.isClientSide)
         {
-            INamedContainerProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
-            NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, (packetBuffer) ->
+            MenuProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
+            NetworkHooks.openGui((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
             {
-                encoder.encode(player, itemStack, packetBuffer);
+                encoder.encode(player, itemStack, FriendlyByteBuf);
             });
         }
 
-        return new ActionResult<ItemStack>(ActionResultType.SUCCESS, itemStack);
+        return new InteractionResultHolder<ItemStack>(InteractionResult.SUCCESS, itemStack);
     }
 
     private ItemStack itemStack;

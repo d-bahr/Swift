@@ -1,10 +1,12 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftTileEntities;
 import swiftmod.common.upgrades.AdvancedSideItemUpgradeItemStackHandler;
@@ -13,9 +15,9 @@ import swiftmod.common.upgrades.UpgradeInventory;
 
 public class UltimateItemPipeTileEntity extends ItemPipeTileEntity
 {
-    public UltimateItemPipeTileEntity()
+    public UltimateItemPipeTileEntity(BlockPos pos, BlockState state)
     {
-        super(SwiftTileEntities.s_ultimateItemPipeTileEntityType, createUpgradeInventory(),
+        super(SwiftTileEntities.s_ultimateItemPipeTileEntityType, pos, state, createUpgradeInventory(),
                 UltimateItemPipeTileEntity::createSideUpgradeInventory);
     }
 
@@ -44,9 +46,9 @@ public class UltimateItemPipeTileEntity extends ItemPipeTileEntity
     }
 
     @Override
-    public ITextComponent getDisplayName()
+    public Component getDisplayName()
     {
-        return new TranslationTextComponent(DISPLAY_NAME);
+        return new TranslatableComponent(DISPLAY_NAME);
     }
 
     public static String getRegistryName()
@@ -64,7 +66,7 @@ public class UltimateItemPipeTileEntity extends ItemPipeTileEntity
      * @return
      */
     @Override
-    public Container createMenu(int windowID, PlayerInventory playerInventory, PlayerEntity playerEntity)
+    public AbstractContainerMenu createMenu(int windowID, Inventory playerInventory, Player player)
     {
         return UltimateItemPipeContainer.createContainerServerSide(this, windowID, playerInventory, m_cache,
                 this::refreshFilter, this::onChannelUpdate, m_baseUpgradeInventory, m_sideUpgradeInventories);

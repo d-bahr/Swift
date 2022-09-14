@@ -1,19 +1,17 @@
 package swiftmod.common;
 
-import java.util.function.Supplier;
-
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import swiftmod.pipes.*;
 
 public class SwiftTileEntities
 {
-    public static void registerTileEntities(final RegistryEvent.Register<TileEntityType<?>> event)
+    public static void registerTileEntities(final RegistryEvent.Register<BlockEntityType<?>> event)
     {
-        IForgeRegistry<TileEntityType<?>> registry = event.getRegistry();
+        IForgeRegistry<BlockEntityType<?>> registry = event.getRegistry();
 
         s_basicItemPipeTileEntityType = createTileEntityType(
                 BasicItemPipeTileEntity.getRegistryName(), BasicItemPipeTileEntity::new, SwiftBlocks.s_basicItemPipeBlock);
@@ -44,18 +42,18 @@ public class SwiftTileEntities
         registry.register(s_tankTileEntityType);
     }
 
-    private static <T extends TileEntity> TileEntityType<T> createTileEntityType(String registryName, Supplier<T> factory, Block... blocks)
+    private static <T extends BlockEntity> BlockEntityType<T> createTileEntityType(String registryName, BlockEntityType.BlockEntitySupplier<T> factory, Block... blocks)
     {
-        TileEntityType<T> type = TileEntityType.Builder.of(factory, blocks).build(null);
+        BlockEntityType<T> type = BlockEntityType.Builder.of(factory, blocks).build(null);
         type.setRegistryName(Swift.MOD_NAME, registryName);
         return type;
     }
 
-    public static TileEntityType<BasicItemPipeTileEntity> s_basicItemPipeTileEntityType;
-    public static TileEntityType<AdvancedItemPipeTileEntity> s_advancedItemPipeTileEntityType;
-    public static TileEntityType<UltimateItemPipeTileEntity> s_ultimateItemPipeTileEntityType;
-    public static TileEntityType<BasicFluidPipeTileEntity> s_basicFluidPipeTileEntityType;
-    public static TileEntityType<AdvancedFluidPipeTileEntity> s_advancedFluidPipeTileEntityType;
-    public static TileEntityType<UltimateFluidPipeTileEntity> s_ultimateFluidPipeTileEntityType;
-    public static TileEntityType<TankTileEntity> s_tankTileEntityType;
+    public static BlockEntityType<BasicItemPipeTileEntity> s_basicItemPipeTileEntityType;
+    public static BlockEntityType<AdvancedItemPipeTileEntity> s_advancedItemPipeTileEntityType;
+    public static BlockEntityType<UltimateItemPipeTileEntity> s_ultimateItemPipeTileEntityType;
+    public static BlockEntityType<BasicFluidPipeTileEntity> s_basicFluidPipeTileEntityType;
+    public static BlockEntityType<AdvancedFluidPipeTileEntity> s_advancedFluidPipeTileEntityType;
+    public static BlockEntityType<UltimateFluidPipeTileEntity> s_ultimateFluidPipeTileEntityType;
+    public static BlockEntityType<TankTileEntity> s_tankTileEntityType;
 }

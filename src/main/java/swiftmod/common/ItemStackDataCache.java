@@ -1,8 +1,8 @@
 package swiftmod.common;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ItemStackDataCache implements DataCache
 {
@@ -16,25 +16,24 @@ public class ItemStackDataCache implements DataCache
         this.itemStack = itemStack;
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
-        CompoundNBT child = itemStack.serializeNBT();
+        CompoundTag child = itemStack.serializeNBT();
         nbt.put(SwiftUtils.tagName("cacheItemStack"), child);
-        return nbt;
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
-        CompoundNBT child = nbt.getCompound(SwiftUtils.tagName("cacheItemStack"));
+        CompoundTag child = nbt.getCompound(SwiftUtils.tagName("cacheItemStack"));
         itemStack = ItemStack.of(child);
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    public void write(FriendlyByteBuf buffer)
     {
-        return buffer.writeItemStack(itemStack, false);
+        buffer.writeItemStack(itemStack, false);
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         itemStack = buffer.readItem();
     }

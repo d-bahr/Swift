@@ -1,10 +1,10 @@
 package swiftmod.common.channels;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class ChannelAttachment
 {
@@ -14,13 +14,13 @@ public class ChannelAttachment
         pos = null;
     }
 
-    public ChannelAttachment(World w, BlockPos p)
+    public ChannelAttachment(Level w, BlockPos p)
     {
         world = w;
         pos = p;
     }
 
-    public TileEntity getTileEntity()
+    public BlockEntity getTileEntity()
     {
         return world.getBlockEntity(pos);
     }
@@ -30,7 +30,7 @@ public class ChannelAttachment
         return world.hasNeighborSignal(pos);
     }
 
-    public TileEntity getNeighbor(Direction dir)
+    public BlockEntity getNeighbor(Direction dir)
     {
         return world.getBlockEntity(pos.relative(dir));
     }
@@ -38,7 +38,7 @@ public class ChannelAttachment
     @Override
     public int hashCode()
     {
-        RegistryKey<World> key = world.dimension();
+        ResourceKey<Level> key = world.dimension();
         return key.getRegistryName().hashCode() ^ key.location().hashCode() ^ pos.hashCode();
     }
 
@@ -51,6 +51,6 @@ public class ChannelAttachment
         return world.dimension().compareTo(other.world.dimension()) == 0 && pos.equals(other.pos);
     }
 
-    public World world;
+    public Level world;
     public BlockPos pos;
 }

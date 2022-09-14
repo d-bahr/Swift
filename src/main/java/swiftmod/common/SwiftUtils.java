@@ -2,12 +2,12 @@ package swiftmod.common;
 
 import java.util.Optional;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -71,11 +71,11 @@ public final class SwiftUtils
         }
     }
 
-    public static boolean isItemHandler(TileEntity tileEntity, Direction side)
+    public static boolean isItemHandler(BlockEntity blockEntity, Direction side)
     {
-        if (tileEntity == null)
+        if (blockEntity == null)
             return false;
-        LazyOptional<IItemHandler> capability = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+        LazyOptional<IItemHandler> capability = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
         if (capability == null)
             return false;
         Optional<IItemHandler> resolved = capability.resolve();
@@ -84,11 +84,11 @@ public final class SwiftUtils
         return resolved.isPresent();
     }
 
-    public static IItemHandler getItemHandler(TileEntity tileEntity, Direction side)
+    public static IItemHandler getItemHandler(BlockEntity blockEntity, Direction side)
     {
-        if (tileEntity == null)
+        if (blockEntity == null)
             return null;
-        LazyOptional<IItemHandler> capability = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+        LazyOptional<IItemHandler> capability = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
         if (capability == null)
             return null;
         Optional<IItemHandler> resolved = capability.resolve();
@@ -97,11 +97,11 @@ public final class SwiftUtils
         return resolved.isPresent() ? resolved.get() : null;
     }
 
-    public static boolean isFluidHandler(TileEntity tileEntity, Direction side)
+    public static boolean isFluidHandler(BlockEntity blockEntity, Direction side)
     {
-        if (tileEntity == null)
+        if (blockEntity == null)
             return false;
-        LazyOptional<IFluidHandler> capability = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
+        LazyOptional<IFluidHandler> capability = blockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
         if (capability == null)
             return false;
         Optional<IFluidHandler> resolved = capability.resolve();
@@ -110,11 +110,11 @@ public final class SwiftUtils
         return resolved.isPresent();
     }
 
-    public static IFluidHandler getFluidHandler(TileEntity tileEntity, Direction side)
+    public static IFluidHandler getFluidHandler(BlockEntity blockEntity, Direction side)
     {
-        if (tileEntity == null)
+        if (blockEntity == null)
             return null;
-        LazyOptional<IFluidHandler> capability = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
+        LazyOptional<IFluidHandler> capability = blockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
         if (capability == null)
             return null;
         Optional<IFluidHandler> resolved = capability.resolve();
@@ -136,11 +136,11 @@ public final class SwiftUtils
         return resolved.isPresent() ? resolved.get() : null;
     }
 
-    public static boolean isEnergyHandler(TileEntity tileEntity, Direction side)
+    public static boolean isEnergyHandler(BlockEntity blockEntity, Direction side)
     {
-        if (tileEntity == null)
+        if (blockEntity == null)
             return false;
-        LazyOptional<IEnergyStorage> capability = tileEntity.getCapability(CapabilityEnergy.ENERGY, side);
+        LazyOptional<IEnergyStorage> capability = blockEntity.getCapability(CapabilityEnergy.ENERGY, side);
         if (capability == null)
             return false;
         Optional<IEnergyStorage> resolved = capability.resolve();
@@ -149,7 +149,7 @@ public final class SwiftUtils
         return resolved.isPresent();
     }
     
-    public static void putBooleanArray(CompoundNBT nbt, String key, boolean[] bools)
+    public static void putBooleanArray(CompoundTag nbt, String key, boolean[] bools)
     {
         byte[] bytes = new byte[bools.length];
         for (int i = 0; i < bools.length; ++i)
@@ -157,7 +157,7 @@ public final class SwiftUtils
         nbt.putByteArray(key, bytes);
     }
 
-    public static boolean[] getBooleanArray(CompoundNBT nbt, String key)
+    public static boolean[] getBooleanArray(CompoundTag nbt, String key)
     {
         byte[] bytes = nbt.getByteArray(key);
         boolean[] bools = new boolean[bytes.length];
@@ -166,7 +166,7 @@ public final class SwiftUtils
         return bools;
     }
 
-    public static void writeBooleanArray(PacketBuffer buffer, boolean[] bools)
+    public static void writeBooleanArray(FriendlyByteBuf buffer, boolean[] bools)
     {
         byte[] bytes = new byte[bools.length];
         for (int i = 0; i < bools.length; ++i)
@@ -174,7 +174,7 @@ public final class SwiftUtils
         buffer.writeByteArray(bytes);
     }
 
-    public static boolean[] readBooleanArray(PacketBuffer buffer)
+    public static boolean[] readBooleanArray(FriendlyByteBuf buffer)
     {
         byte[] bytes = buffer.readByteArray();
         boolean[] bools = new boolean[bytes.length];

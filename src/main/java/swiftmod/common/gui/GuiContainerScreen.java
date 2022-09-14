@@ -2,38 +2,39 @@ package swiftmod.common.gui;
 
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class GuiContainerScreen<T extends Container> extends ContainerScreen<T>
+public class GuiContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T>
 {
-    public GuiContainerScreen(T container, PlayerInventory inv, ITextComponent title)
+    public GuiContainerScreen(T container, Inventory inv, Component title)
     {
         this(container, inv, title, null);
     }
 
-    public GuiContainerScreen(T container, PlayerInventory inv, ITextComponent title,
+    public GuiContainerScreen(T container, Inventory inv, Component title,
             ResourceLocation backgroundTexture)
     {
         super(container, inv, title);
         createBaseComponents(inv, width, height, backgroundTexture);
     }
 
-    public GuiContainerScreen(T container, PlayerInventory inv, ITextComponent title, int width, int height)
+    public GuiContainerScreen(T container, Inventory inv, Component title, int width, int height)
     {
         this(container, inv, title, width, height, null);
     }
 
-    public GuiContainerScreen(T container, PlayerInventory inv, ITextComponent title, int width, int height,
+    public GuiContainerScreen(T container, Inventory inv, Component title, int width, int height,
             ResourceLocation backgroundTexture)
     {
         super(container, inv, title);
@@ -42,7 +43,7 @@ public class GuiContainerScreen<T extends Container> extends ContainerScreen<T>
         createBaseComponents(inv, width, height, backgroundTexture);
     }
 
-    private void createBaseComponents(PlayerInventory inv, int width, int height, ResourceLocation backgroundTexture)
+    private void createBaseComponents(Inventory inv, int width, int height, ResourceLocation backgroundTexture)
     {
         m_playerInventory = new GuiPlayerInventory(this, 7, 0);
         m_playerInventory.y = height - m_playerInventory.height() - 8;
@@ -56,14 +57,13 @@ public class GuiContainerScreen<T extends Container> extends ContainerScreen<T>
 
     public void add(GuiWidget widget)
     {
-        addButton(widget);
+    	addRenderableWidget(widget);
     }
 
     public void remove(GuiWidget widget)
     {
         unfocusWorker(widget);
-        buttons.remove(widget);
-        children.remove(widget);
+        removeWidget(widget);
     }
 
     private void unfocusWorker(GuiWidget widget)
@@ -88,9 +88,9 @@ public class GuiContainerScreen<T extends Container> extends ContainerScreen<T>
 
         earlyInit();
 
-        for (int i = 0; i < buttons.size(); ++i)
+        for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = buttons.get(i);
+            Widget w = renderables.get(i);
             if (w instanceof GuiWidget)
                 ((GuiWidget) w).init();
         }
@@ -170,41 +170,46 @@ public class GuiContainerScreen<T extends Container> extends ContainerScreen<T>
     {
         return height;
     }
+    
+    public ItemRenderer getItemRenderer()
+    {
+    	return itemRenderer;
+    }
 
     @Override
-    public void tick()
+    public void containerTick()
     {
-        for (int i = 0; i < buttons.size(); ++i)
+        for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = buttons.get(i);
+            Widget w = renderables.get(i);
             if (w instanceof GuiWidget)
                 ((GuiWidget) w).tick();
         }
     }
 
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         renderTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY)
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY)
     {
         m_backgroundTexture.draw(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY)
+    protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY)
     {
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY)
     {
-        for (int i = 0; i < buttons.size(); ++i)
+        for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = buttons.get(i);
+            Widget w = renderables.get(i);
             if (w instanceof GuiWidget)
             {
                 if (((GuiWidget) w).mouseDragged(mouseX, mouseY, button, dragX, dragY))
@@ -249,9 +254,9 @@ public class GuiContainerScreen<T extends Container> extends ContainerScreen<T>
 
     public void requestFocus(GuiWidget widget)
     {
-        for (int i = 0; i < buttons.size(); ++i)
+        for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = buttons.get(i);
+            Widget w = renderables.get(i);
             if (w instanceof GuiWidget)
                 requestFocusWorker(widget, (GuiWidget)w);
         }

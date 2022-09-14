@@ -2,12 +2,14 @@ package swiftmod.pipes;
 
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
@@ -24,13 +26,13 @@ import swiftmod.common.upgrades.UpgradeType;
 
 public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, IFluidHandler, FluidStack>
 {
-    public FluidPipeTileEntity(TileEntityType<?> type, UpgradeInventory upgradeInventory,
+    public FluidPipeTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, UpgradeInventory upgradeInventory,
             Supplier<UpgradeInventory> sideUpgradeInventorySupplier)
     {
-        super(type, new PipeDataCache(), upgradeInventory, sideUpgradeInventorySupplier);
+        super(type, pos, state, new PipeDataCache(), upgradeInventory, sideUpgradeInventorySupplier);
     }
 
-    protected PipeTileEntity<PipeDataCache, IFluidHandler, FluidStack> castToSelf(TileEntity entity)
+    protected PipeTileEntity<PipeDataCache, IFluidHandler, FluidStack> castToSelf(BlockEntity entity)
     {
         if (entity instanceof FluidPipeTileEntity)
             return (FluidPipeTileEntity) entity;
@@ -38,7 +40,7 @@ public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, 
             return null;
     }
 
-    public void serializeBufferForContainer(PacketBuffer buffer, PlayerEntity player, Direction startingDir)
+    public void serializeBufferForContainer(FriendlyByteBuf buffer, Player player, Direction startingDir)
     {
         NeighboringItems items = new NeighboringItems(level, worldPosition, FluidPipeBlock::canConnectTo);
         items.setStartingDirection(startingDir);
@@ -75,9 +77,9 @@ public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, 
     }
 
     @Override
-    protected IFluidHandler getHandler(TileEntity tileEntity, Direction dir)
+    protected IFluidHandler getHandler(BlockEntity blockEntity, Direction dir)
     {
-        return SwiftUtils.getFluidHandler(tileEntity, dir);
+        return SwiftUtils.getFluidHandler(blockEntity, dir);
     }
 
     @Override

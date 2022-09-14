@@ -3,15 +3,15 @@ package swiftmod.common.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class SlotConfigurationPacket extends Packet
 {
     public interface Handler
     {
-        public void handle(ServerPlayerEntity player, SlotConfigurationPacket packet);
+        public void handle(ServerPlayer player, SlotConfigurationPacket packet);
     }
 
     public SlotConfigurationPacket()
@@ -33,12 +33,12 @@ public class SlotConfigurationPacket extends Packet
         this.enable = enable;
     }
 
-    public SlotConfigurationPacket(PacketBuffer buffer)
+    public SlotConfigurationPacket(FriendlyByteBuf buffer)
     {
         decode(buffer);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         int[] vals = buffer.readVarIntArray();
         slots = new ArrayList<Integer>(vals.length);
@@ -47,7 +47,7 @@ public class SlotConfigurationPacket extends Packet
         enable = buffer.readBoolean();
     }
 
-    public void encode(PacketBuffer buffer)
+    public void encode(FriendlyByteBuf buffer)
     {
         int[] vals = new int[slots.size()];
         for (int i = 0; i < slots.size(); ++i)
@@ -56,7 +56,7 @@ public class SlotConfigurationPacket extends Packet
         buffer.writeBoolean(enable);
     }
 
-    public void process(ServerPlayerEntity player)
+    public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
         {

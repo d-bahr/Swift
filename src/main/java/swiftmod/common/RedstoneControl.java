@@ -1,7 +1,7 @@
 package swiftmod.common;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public enum RedstoneControl
 {
@@ -45,50 +45,50 @@ public enum RedstoneControl
         return rc;
     }
 
-    public static CompoundNBT write(CompoundNBT nbt, RedstoneControl redstoneControl)
+    public static CompoundTag write(CompoundTag nbt, RedstoneControl redstoneControl)
     {
         nbt.putInt(SwiftUtils.tagName("redstoneControl"), redstoneControl.getIndex());
         return nbt;
     }
 
-    public static CompoundNBT writeArray(CompoundNBT nbt, RedstoneControl[] redstoneControls)
+    public static CompoundTag writeArray(CompoundTag nbt, RedstoneControl[] redstoneControls)
     {
         int[] i = RedstoneControl.toIntArray(redstoneControls);
         nbt.putIntArray(SwiftUtils.tagName("redstoneControls"), i);
         return nbt;
     }
 
-    public static RedstoneControl read(CompoundNBT nbt)
+    public static RedstoneControl read(CompoundTag nbt)
     {
         int i = nbt.getInt(SwiftUtils.tagName("redstoneControl"));
         return RedstoneControl.fromIndex(i);
     }
 
-    public static RedstoneControl[] readArray(CompoundNBT nbt)
+    public static RedstoneControl[] readArray(CompoundTag nbt)
     {
         int[] i = nbt.getIntArray(SwiftUtils.tagName("redstoneControls"));
         return RedstoneControl.fromIntArray(i);
     }
 
-    public static PacketBuffer write(PacketBuffer packetBuffer, RedstoneControl redstoneControl)
+    public static FriendlyByteBuf write(FriendlyByteBuf FriendlyByteBuf, RedstoneControl redstoneControl)
     {
-        packetBuffer.writeVarInt(redstoneControl.getIndex());
-        return packetBuffer;
+        FriendlyByteBuf.writeVarInt(redstoneControl.getIndex());
+        return FriendlyByteBuf;
     }
 
-    public static PacketBuffer writeArray(PacketBuffer packetBuffer, RedstoneControl[] redstoneControls)
+    public static FriendlyByteBuf writeArray(FriendlyByteBuf FriendlyByteBuf, RedstoneControl[] redstoneControls)
     {
-        packetBuffer.writeVarIntArray(RedstoneControl.toIntArray(redstoneControls));
-        return packetBuffer;
+        FriendlyByteBuf.writeVarIntArray(RedstoneControl.toIntArray(redstoneControls));
+        return FriendlyByteBuf;
     }
 
-    public static RedstoneControl read(PacketBuffer packetBuffer)
+    public static RedstoneControl read(FriendlyByteBuf FriendlyByteBuf)
     {
-        return RedstoneControl.fromIndex(packetBuffer.readVarInt());
+        return RedstoneControl.fromIndex(FriendlyByteBuf.readVarInt());
     }
 
-    public static RedstoneControl[] readArray(PacketBuffer packetBuffer)
+    public static RedstoneControl[] readArray(FriendlyByteBuf FriendlyByteBuf)
     {
-        return RedstoneControl.fromIntArray(packetBuffer.readVarIntArray());
+        return RedstoneControl.fromIntArray(FriendlyByteBuf.readVarIntArray());
     }
 }

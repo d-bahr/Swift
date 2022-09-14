@@ -3,43 +3,45 @@ package swiftmod.common;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.core.BlockPos;
 
 public class Raytracer
 {
-    public static Optional<Integer> raytrace(IndexedVoxelShape[] shapes, PlayerEntity player, BlockPos pos)
+    public static Optional<Integer> raytrace(IndexedVoxelShape[] shapes, Player player, BlockPos pos)
     {
-        Vector3d start = player.getEyePosition(1.0f);
-        Vector3d end = start.add(player.getViewVector(1.0f).scale(player.getPickRadius() * 2));
+    	Vec3 start = player.getEyePosition(1.0f);
+        double raycastLength = start.distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 2;
+        Vec3 end = start.add(player.getViewVector(1.0f).scale(raycastLength));
         return raytrace(shapes, start, end, pos);
     }
 
-    public static Optional<Integer> raytrace(List<IndexedVoxelShape> shapes, PlayerEntity player, BlockPos pos)
+    public static Optional<Integer> raytrace(List<IndexedVoxelShape> shapes, Player player, BlockPos pos)
     {
-        Vector3d start = player.getEyePosition(1.0f);
-        Vector3d end = start.add(player.getViewVector(1.0f).scale(player.getPickRadius() * 2));
+    	Vec3 start = player.getEyePosition(1.0f);
+        double raycastLength = start.distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 2;
+        Vec3 end = start.add(player.getViewVector(1.0f).scale(raycastLength));
         return raytrace(shapes, start, end, pos);
     }
 
-    public static int raytrace(VoxelShape[] shapes, PlayerEntity player, BlockPos pos)
+    public static int raytrace(VoxelShape[] shapes, Player player, BlockPos pos)
     {
-        Vector3d start = player.getEyePosition(1.0f);
-        Vector3d end = start.add(player.getViewVector(1.0f).scale(player.getPickRadius() * 2));
+    	Vec3 start = player.getEyePosition(1.0f);
+        double raycastLength = start.distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 2;
+        Vec3 end = start.add(player.getViewVector(1.0f).scale(raycastLength));
         return raytrace(shapes, start, end, pos);
     }
 
-    public static Optional<Integer> raytrace(IndexedVoxelShape[] shapes, Vector3d start, Vector3d end, BlockPos pos)
+    public static Optional<Integer> raytrace(IndexedVoxelShape[] shapes, Vec3 start, Vec3 end, BlockPos pos)
     {
         Optional<Integer> index = Optional.empty();
         double dist = Double.MAX_VALUE;
         for (int i = 0; i < shapes.length; ++i)
         {
-            BlockRayTraceResult hit = shapes[i].shape.clip(start, end, pos);
+            BlockHitResult hit = shapes[i].shape.clip(start, end, pos);
             if (hit != null)
             {
                 double hitDistance = distanceBetweenSqr(hit, start);
@@ -54,13 +56,13 @@ public class Raytracer
         return index;
     }
 
-    public static Optional<Integer> raytrace(List<IndexedVoxelShape> shapes, Vector3d start, Vector3d end, BlockPos pos)
+    public static Optional<Integer> raytrace(List<IndexedVoxelShape> shapes, Vec3 start, Vec3 end, BlockPos pos)
     {
         Optional<Integer> index = Optional.empty();
         double dist = Double.MAX_VALUE;
         for (int i = 0; i < shapes.size(); ++i)
         {
-            BlockRayTraceResult hit = shapes.get(i).shape.clip(start, end, pos);
+            BlockHitResult hit = shapes.get(i).shape.clip(start, end, pos);
             if (hit != null)
             {
                 double hitDistance = distanceBetweenSqr(hit, start);
@@ -75,13 +77,13 @@ public class Raytracer
         return index;
     }
 
-    public static int raytrace(VoxelShape[] shapes, Vector3d start, Vector3d end, BlockPos pos)
+    public static int raytrace(VoxelShape[] shapes, Vec3 start, Vec3 end, BlockPos pos)
     {
         int index = -1;
         double dist = Double.MAX_VALUE;
         for (int i = 0; i < shapes.length; ++i)
         {
-            BlockRayTraceResult hit = shapes[i].clip(start, end, pos);
+            BlockHitResult hit = shapes[i].clip(start, end, pos);
             if (hit != null)
             {
                 double hitDistance = distanceBetweenSqr(hit, start);
@@ -96,15 +98,15 @@ public class Raytracer
         return index;
     }
 
-    public static double distanceBetween(BlockRayTraceResult raytrace, Vector3d position)
+    public static double distanceBetween(BlockHitResult raytrace, Vec3 position)
     {
-        Vector3d location = raytrace.getLocation();
+        Vec3 location = raytrace.getLocation();
         return position.distanceTo(location);
     }
 
-    public static double distanceBetweenSqr(BlockRayTraceResult raytrace, Vector3d position)
+    public static double distanceBetweenSqr(BlockHitResult raytrace, Vec3 position)
     {
-        Vector3d location = raytrace.getLocation();
+        Vec3 location = raytrace.getLocation();
         return position.distanceToSqr(location);
     }
 }

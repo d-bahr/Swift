@@ -3,19 +3,20 @@ package swiftmod.common;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
 public class TankTileEntity extends TileEntityBase<FluidTank>
 {
-    public TankTileEntity()
+    public TankTileEntity(BlockPos pos, BlockState state)
     {
-        super(SwiftTileEntities.s_tankTileEntityType, new FluidTank(1_000_000));
+        super(SwiftTileEntities.s_tankTileEntityType, pos, state, new FluidTank(1_000_000));
     }
 
     public static String getRegistryName()
@@ -31,28 +32,26 @@ public class TankTileEntity extends TileEntityBase<FluidTank>
 
     public ItemStack writeToItem()
     {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         ItemStack stack = new ItemStack(SwiftBlocks.s_tankBlock, 1);
         getCache().write(nbt);
-        stack.setTag(new CompoundNBT());
+        stack.setTag(new CompoundTag());
         stack.getTag().put(TankItem.NBT_TAG, nbt);
         return stack;
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
-        super.read(state, nbt);
+        super.read(nbt);
         getCache().read(nbt);
     }
 
     @Override
-    @Nonnull
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
         super.write(nbt);
         getCache().write(nbt);
-        return nbt;
     }
 
     @Nonnull

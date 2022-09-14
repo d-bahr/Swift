@@ -1,14 +1,14 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import swiftmod.common.SwiftContainers;
 import swiftmod.common.upgrades.UpgradeInventory;
 
 public class AdvancedFluidPipeContainer extends FluidPipeContainer
 {
-    private AdvancedFluidPipeContainer(int windowID, PlayerInventory playerInventory, PacketBuffer extraData)
+    private AdvancedFluidPipeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
         super(SwiftContainers.s_advancedFluidPipeContainerType, windowID, playerInventory, extraData,
                 AdvancedFluidPipeTileEntity::createUpgradeInventory,
@@ -17,28 +17,28 @@ public class AdvancedFluidPipeContainer extends FluidPipeContainer
                 AdvancedFluidPipeContainerScreen.PLAYER_INVENTORY_OFFSET_Y);
     }
 
-    private AdvancedFluidPipeContainer(TileEntity tileEntity, int windowID, PlayerInventory playerInventory,
+    private AdvancedFluidPipeContainer(BlockEntity blockEntity, int windowID, Inventory playerInventory,
             PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories)
     {
-        super(SwiftContainers.s_advancedFluidPipeContainerType, tileEntity, windowID, playerInventory, cache,
+        super(SwiftContainers.s_advancedFluidPipeContainerType, blockEntity, windowID, playerInventory, cache,
                 refreshFilterCallback, channelManagerCallback, upgradeInventory, sideUpgradeInventories,
                 AdvancedFluidPipeContainerScreen.PLAYER_INVENTORY_OFFSET_X,
                 AdvancedFluidPipeContainerScreen.PLAYER_INVENTORY_OFFSET_Y);
     }
 
-    public static AdvancedFluidPipeContainer createContainerServerSide(TileEntity tileEntity, int windowID,
-            PlayerInventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
+    public static AdvancedFluidPipeContainer createContainerServerSide(BlockEntity blockEntity, int windowID,
+            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories)
     {
-        return new AdvancedFluidPipeContainer(tileEntity, windowID, playerInventory, cache, refreshFilterCallback,
+        return new AdvancedFluidPipeContainer(blockEntity, windowID, playerInventory, cache, refreshFilterCallback,
                 channelManagerCallback, upgradeInventory, sideUpgradeInventories);
     }
 
-    public static AdvancedFluidPipeContainer createContainerClientSide(int windowID, PlayerInventory playerInventory,
-            PacketBuffer extraData)
+    public static AdvancedFluidPipeContainer createContainerClientSide(int windowID, Inventory playerInventory,
+            FriendlyByteBuf extraData)
     {
         return new AdvancedFluidPipeContainer(windowID, playerInventory, extraData);
     }

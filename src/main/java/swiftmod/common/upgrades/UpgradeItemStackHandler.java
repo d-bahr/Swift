@@ -2,8 +2,8 @@ package swiftmod.common.upgrades;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import swiftmod.common.ContainerItemStackHandler;
 
 public abstract class UpgradeItemStackHandler extends ContainerItemStackHandler

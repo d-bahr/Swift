@@ -1,90 +1,90 @@
 package swiftmod.common.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiLabeledPanel extends GuiPanel
 {
-    public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, ITextComponent label)
+    public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, Component label)
     {
-        super(screen, width, height, StringTextComponent.EMPTY);
+        super(screen, width, height, TextComponent.EMPTY);
         createLabel(label);
     }
 
-    public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, ITextComponent label, FontRenderer font)
+    public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, Component label, Font font)
     {
-        super(screen, width, height, StringTextComponent.EMPTY);
+        super(screen, width, height, TextComponent.EMPTY);
         createLabel(label, font);
     }
 
-    public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent label)
+    public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component label)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
         createLabel(label);
     }
 
-    public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent label,
-            FontRenderer font)
+    public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component label,
+            Font font)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
         createLabel(label, font);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, ResourceLocation backgroundTexture,
-            ITextComponent label)
+            Component label)
     {
-        super(screen, width, height, StringTextComponent.EMPTY);
+        super(screen, width, height, TextComponent.EMPTY);
         createLabel(label);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, ResourceLocation backgroundTexture,
-            ITextComponent label, FontRenderer font)
+            Component label, Font font)
     {
-        super(screen, width, height, StringTextComponent.EMPTY);
+        super(screen, width, height, TextComponent.EMPTY);
         createLabel(label, font);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height,
-            ResourceLocation backgroundTexture, ITextComponent label)
+            ResourceLocation backgroundTexture, Component label)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
         createLabel(label);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height,
-            ResourceLocation backgroundTexture, ITextComponent label, FontRenderer font)
+            ResourceLocation backgroundTexture, Component label, Font font)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
         createLabel(label, font);
     }
 
-    public void createLabel(ITextComponent text)
+    public void createLabel(Component text)
     {
         Minecraft mc = Minecraft.getInstance();
         createLabel(text, mc.font);
     }
 
-    public void createLabel(ITextComponent text, FontRenderer font)
+    public void createLabel(Component text, Font font)
     {
         m_label = new GuiLabel(getScreen(), 0, 0, width, height, text, font);
         m_label.setAlignment(GuiVerticalAlignment.Top, GuiHorizontalAlignment.Left);
         addChild(m_label);
     }
 
-    public void setText(ITextComponent text)
+    public void setText(Component text)
     {
         m_label.setText(text);
         onTextChanged();
     }
 
-    public ITextComponent getText()
+    public Component getText()
     {
         return m_label.getText();
     }
@@ -98,22 +98,22 @@ public class GuiLabeledPanel extends GuiPanel
         m_label.setPosition(x, y);
     }
 
-    public void setFont(FontRenderer font)
+    public void setFont(Font font)
     {
         m_label.setFont(font);
     }
 
-    public FontRenderer getFont()
+    public Font getFont()
     {
         return m_label.getFont();
     }
 
-    public void setFontColor(Color c)
+    public void setFontColor(TextColor c)
     {
         m_label.setFontColor(c);
     }
 
-    public Color getFontColor()
+    public TextColor getFontColor()
     {
         return m_label.getFontColor();
     }

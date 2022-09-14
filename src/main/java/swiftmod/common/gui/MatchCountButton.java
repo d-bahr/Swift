@@ -1,8 +1,8 @@
 package swiftmod.common.gui;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -39,8 +39,8 @@ public class MatchCountButton extends GuiBooleanStateButton
 
     private void initTooltip()
     {
-        m_matchTextComponent = new StringTextComponent("Match item count");
-        m_ignoreTextComponent = new StringTextComponent("Ignore item count");
+        m_matchTextComponent = new TextComponent("Match item count");
+        m_ignoreTextComponent = new TextComponent("Ignore item count");
     }
 
     private void setTooltip()
@@ -57,18 +57,18 @@ public class MatchCountButton extends GuiBooleanStateButton
         setTooltip();
     }
 
-    public void setMatchTooltip(ITextComponent text)
+    public void setMatchTooltip(Component text)
     {
         m_matchTextComponent = text;
     }
 
-    public void setIgnoreTooltip(ITextComponent text)
+    public void setIgnoreTooltip(Component text)
     {
         m_ignoreTextComponent = text;
     }
 
-    private ITextComponent m_matchTextComponent;
-    private ITextComponent m_ignoreTextComponent;
+    private Component m_matchTextComponent;
+    private Component m_ignoreTextComponent;
 
     public static final ResourceLocation MATCH_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
             "textures/gui/match_count.png");
