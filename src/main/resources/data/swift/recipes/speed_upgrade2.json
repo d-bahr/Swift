@@ -1,19 +1,19 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        " C ",
-        "CDC",
-        " C "
+        "C C",
+        " D ",
+        "C C"
     ],
     "key": {
         "C": {
-            "tag": "forge:ingots/gold"
+            "tag": "forge:rods/wooden"
         },
         "D": {
-            "tag": "forge:gems/emerald"
+            "tag": "forge:gems/lapis"
         }
     },
     "result": {
-        "item": "swift:stack_upgrade"
+        "item": "swift:speed_upgrade"
     }
 }

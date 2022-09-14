@@ -13,25 +13,25 @@ public class Raytracer
 {
     public static Optional<Integer> raytrace(IndexedVoxelShape[] shapes, Player player, BlockPos pos)
     {
-    	Vec3 start = player.getEyePosition(1.0f);
-        double raycastLength = start.distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 2;
-        Vec3 end = start.add(player.getViewVector(1.0f).scale(raycastLength));
+        Vector3d start = player.getEyePosition(1.0f);
+        double raycastLength = start.distanceTo(new Vector3d(pos.getX(), pos.getY(), pos.getZ())) * 2;
+        Vector3d end = start.add(player.getViewVector(1.0f).scale(raycastLength));
         return raytrace(shapes, start, end, pos);
     }
 
     public static Optional<Integer> raytrace(List<IndexedVoxelShape> shapes, Player player, BlockPos pos)
     {
-    	Vec3 start = player.getEyePosition(1.0f);
-        double raycastLength = start.distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 2;
-        Vec3 end = start.add(player.getViewVector(1.0f).scale(raycastLength));
+        Vector3d start = player.getEyePosition(1.0f);
+        double raycastLength = start.distanceTo(new Vector3d(pos.getX(), pos.getY(), pos.getZ())) * 2;
+        Vector3d end = start.add(player.getViewVector(1.0f).scale(raycastLength));
         return raytrace(shapes, start, end, pos);
     }
 
     public static int raytrace(VoxelShape[] shapes, Player player, BlockPos pos)
     {
-    	Vec3 start = player.getEyePosition(1.0f);
-        double raycastLength = start.distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) * 2;
-        Vec3 end = start.add(player.getViewVector(1.0f).scale(raycastLength));
+        Vector3d start = player.getEyePosition(1.0f);
+        double raycastLength = start.distanceTo(new Vector3d(pos.getX(), pos.getY(), pos.getZ())) * 2;
+        Vector3d end = start.add(player.getViewVector(1.0f).scale(raycastLength));
         return raytrace(shapes, start, end, pos);
     }
 

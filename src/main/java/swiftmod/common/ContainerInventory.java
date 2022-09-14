@@ -187,10 +187,10 @@ public class ContainerInventory implements Container
 
     public ItemStack tryInsert(int slot, ItemStack stack, boolean simulate)
     {
-    	ItemStack x = m_contents.insertItem(slot, stack, simulate);
-    	if (!simulate && x.getCount() != stack.getCount())
-    		m_contentsChangedCallback.accept(this);
-    	return x;
+        ItemStack x = m_contents.insertItem(slot, stack, simulate);
+        if (!simulate && x.getCount() != stack.getCount())
+            m_contentsChangedCallback.accept(this);
+        return x;
     }
 
     public int getStackLimit(int slot, ItemStack stack)
