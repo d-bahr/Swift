@@ -3,11 +3,11 @@ package swiftmod.common;
 import java.util.List;
 
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import swiftmod.pipes.PipeTileEntity;
 
 public class CopyPastaItem extends ItemBase
@@ -35,45 +36,13 @@ public class CopyPastaItem extends ItemBase
     }
 
     @Override
-    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context)
+    public boolean doesSneakBypassUse(ItemStack stack, LevelReader world, BlockPos pos, Player player)
     {
-    	Level level = context.getLevel();
-    	BlockEntity entity = level.getBlockEntity(context.getClickedPos());
-    	if (entity instanceof PipeTileEntity<?,?,?>)
-    	{
-    		PipeTileEntity<?,?,?> pipeEntity = (PipeTileEntity<?,?,?>) entity;
-
-	    	Player player = context.getPlayer();
-	    	Direction dir = context.getClickedFace();
-	    	
-	        if (player.isShiftKeyDown())
-	        {
-	            if (CopyPastaItem.copyTileEntitySettings(stack, pipeEntity, dir))
-	            {
-	                player.displayClientMessage(new TextComponent("Copied"), true);
-	                return InteractionResult.SUCCESS;
-	            }
-	            else
-	            {
-	                player.displayClientMessage(new TextComponent("Cannot copy"), true);
-	                return InteractionResult.SUCCESS;
-	            }
-	        }
-	        else
-	        {
-	            if (CopyPastaItem.pasteTileEntitySettings(stack, pipeEntity, dir))
-	            {
-	                player.displayClientMessage(new TextComponent("Pasted"), true);
-	                return InteractionResult.SUCCESS;
-	            }
-	            else
-	            {
-	                player.displayClientMessage(new TextComponent("Cannot paste"), true);
-	                return InteractionResult.SUCCESS;
-	            }
-	        }
-    	}
-    	return InteractionResult.PASS;
+        BlockEntity entity = world.getBlockEntity(pos);
+        if (entity != null && entity instanceof PipeTileEntity)
+            return true;
+        else
+            return false;
     }
 
     @Override

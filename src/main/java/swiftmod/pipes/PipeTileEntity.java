@@ -485,17 +485,6 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         pb.updateStateOnNeighborChange(level, getBlockState(), Direction.SOUTH, worldPosition);
         pb.updateStateOnNeighborChange(level, getBlockState(), Direction.WEST, worldPosition);
         pb.updateStateOnNeighborChange(level, getBlockState(), Direction.EAST, worldPosition);
-
-        // TODO: Take a look at how mechanism handles their block updates on pipes. Callbacks on their
-        // own don't seem to work correctly; I think they might just be doing some calculations every
-        // tick, similar to the below logic.
-        PipeBlock pb = (PipeBlock)getBlockState().getBlock();
-        pb.updateStateOnNeighborChange(level, getBlockState(), Direction.UP, worldPosition);
-        pb.updateStateOnNeighborChange(level, getBlockState(), Direction.DOWN, worldPosition);
-        pb.updateStateOnNeighborChange(level, getBlockState(), Direction.NORTH, worldPosition);
-        pb.updateStateOnNeighborChange(level, getBlockState(), Direction.SOUTH, worldPosition);
-        pb.updateStateOnNeighborChange(level, getBlockState(), Direction.WEST, worldPosition);
-        pb.updateStateOnNeighborChange(level, getBlockState(), Direction.EAST, worldPosition);
         
         int numSpeedUpgrades = 0;
         int numStackUpgrades = 0;

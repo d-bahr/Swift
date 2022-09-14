@@ -2,12 +2,10 @@ package swiftmod.common;
 
 import java.util.Collection;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Holder.Reference;
-import net.minecraft.tags.TagKey;
 
 public class WildcardItemFilter extends WildcardFilter<ItemStack, Item>
 {

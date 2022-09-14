@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -60,6 +59,7 @@ public class GuiItemTextureButton extends GuiButton
         renderItem(getItemRenderer(), m_itemStack, leftAbsolute(), topAbsolute(), width - m_xTexMargin, height - m_yTexMargin);
     }
 
+    @SuppressWarnings("deprecation")
     public static void renderItem(ItemRenderer renderer, ItemStack stack, int x, int y, int xScale, int yScale)
     {
     	Minecraft minecraft = Minecraft.getInstance();

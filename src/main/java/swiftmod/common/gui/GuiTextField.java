@@ -22,7 +22,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +34,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
-import swiftmod.common.SwiftKeyBindings;
 
 /**
  * Ripped lots of code from the Vanilla TextFieldWidget class.
@@ -697,7 +695,6 @@ public class GuiTextField extends GuiTextWidget
     /**
      * Draws the blue selection box.
      */
-    @SuppressWarnings("deprecation")
     private void drawSelectionBox(PoseStack matrixStack, int startX, int startY, int endX, int endY)
     {
         if (startX < endX)

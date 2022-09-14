@@ -2,12 +2,8 @@ package swiftmod.common;
 
 import java.util.Collection;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import net.minecraft.core.Holder.Reference;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
