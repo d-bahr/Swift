@@ -1,13 +1,13 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -35,8 +35,8 @@ public class ColoredDirectionButton extends GuiTextureButton
         m_rainbowTickCounter = 0;
         m_handler = handler;
         m_disabledTexture = new ResourceLocation(Swift.MOD_NAME, "textures/gui/disabled_button.png");
-        m_textOverlay = new GuiLabel(screen, 0, 0, width + 1, height + 1, StringTextComponent.EMPTY);
-        m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_GRAY));
+        m_textOverlay = new GuiLabel(screen, 0, 0, width + 1, height + 1, TextComponent.EMPTY);
+        m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
         m_textOverlay.setAlignment(GuiVerticalAlignment.Middle, GuiHorizontalAlignment.Center);
         m_textOverlay.setFontScale(1.4f);
         addChild(m_textOverlay);
@@ -101,7 +101,7 @@ public class ColoredDirectionButton extends GuiTextureButton
     }
     
     @Override
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
     }
@@ -126,12 +126,12 @@ public class ColoredDirectionButton extends GuiTextureButton
         if (m_state == 0)
         {
             setForegroundTexture(m_disabledTexture);
-            m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_GRAY));
+            m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
         }
         else if (m_state == 17)
         {
             setForegroundTexture(null);
-            m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_GRAY));
+            m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
         }
         else
         {
@@ -142,109 +142,109 @@ public class ColoredDirectionButton extends GuiTextureButton
             {
             case 0:
             default:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_GRAY));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
                 break;
             case 1:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.BLACK));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.BLACK));
                 break;
             case 2:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_GRAY));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
                 break;
             case 3:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.GRAY));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.GRAY));
                 break;
             case 4:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.WHITE));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.WHITE));
                 break;
             case 5:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.RED));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.RED));
                 break;
             case 6:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_RED));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_RED));
                 break;
             case 7:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.GOLD));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.GOLD));
                 break;
             case 8:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.YELLOW));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.YELLOW));
                 break;
             case 9:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.GREEN));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.GREEN));
                 break;
             case 10:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_GREEN));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN));
                 break;
             case 11:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.AQUA));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.AQUA));
                 break;
             case 12:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_AQUA));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_AQUA));
                 break;
             case 13:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_BLUE));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_BLUE));
                 break;
             case 14:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.LIGHT_PURPLE));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.LIGHT_PURPLE));
                 break;
             case 15:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.DARK_PURPLE));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_PURPLE));
                 break;
             case 16:
-                m_textOverlay.setFontColor(Color.fromLegacyFormat(TextFormatting.GOLD));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.GOLD));
                 break;
             }
         }
     }
 
-    private static ITextComponent[] createDirectionLabels()
+    private static Component[] createDirectionLabels()
     {
         Direction[] dirs = Direction.values();
-        ITextComponent[] strs = new ITextComponent[dirs.length];
+        Component[] strs = new Component[dirs.length];
         for (int i = 0; i < dirs.length; ++i)
         {
-            strs[i] = new StringTextComponent(dirs[i].getName().substring(0, 1).toUpperCase()).withStyle(TextFormatting.BOLD);
+            strs[i] = new TextComponent(dirs[i].getName().substring(0, 1).toUpperCase()).withStyle(ChatFormatting.BOLD);
         }
         return strs;
     }
 
-    private static Color[] createRainbowColors()
+    private static TextColor[] createRainbowColors()
     {
-        Color[] colors = new Color[30];
-        colors[0] = Color.fromLegacyFormat(TextFormatting.RED);
-        colors[1] = Color.fromLegacyFormat(TextFormatting.RED);
-        colors[2] = Color.fromLegacyFormat(TextFormatting.RED);
-        colors[3] = Color.fromLegacyFormat(TextFormatting.DARK_RED);
-        colors[4] = Color.fromLegacyFormat(TextFormatting.DARK_RED);
-        colors[5] = Color.fromLegacyFormat(TextFormatting.DARK_RED);
-        colors[6] = Color.fromLegacyFormat(TextFormatting.GOLD);
-        colors[7] = Color.fromLegacyFormat(TextFormatting.GOLD);
-        colors[8] = Color.fromLegacyFormat(TextFormatting.GOLD);
-        colors[9] = Color.fromLegacyFormat(TextFormatting.YELLOW);
-        colors[10] = Color.fromLegacyFormat(TextFormatting.YELLOW);
-        colors[11] = Color.fromLegacyFormat(TextFormatting.YELLOW);
-        colors[12] = Color.fromLegacyFormat(TextFormatting.GREEN);
-        colors[13] = Color.fromLegacyFormat(TextFormatting.GREEN);
-        colors[14] = Color.fromLegacyFormat(TextFormatting.GREEN);
-        colors[15] = Color.fromLegacyFormat(TextFormatting.DARK_GREEN);
-        colors[16] = Color.fromLegacyFormat(TextFormatting.DARK_GREEN);
-        colors[17] = Color.fromLegacyFormat(TextFormatting.DARK_GREEN);
-        colors[18] = Color.fromLegacyFormat(TextFormatting.BLUE);
-        colors[19] = Color.fromLegacyFormat(TextFormatting.BLUE);
-        colors[20] = Color.fromLegacyFormat(TextFormatting.BLUE);
-        colors[21] = Color.fromLegacyFormat(TextFormatting.DARK_BLUE);
-        colors[22] = Color.fromLegacyFormat(TextFormatting.DARK_BLUE);
-        colors[23] = Color.fromLegacyFormat(TextFormatting.DARK_BLUE);
-        colors[24] = Color.fromLegacyFormat(TextFormatting.DARK_PURPLE);
-        colors[25] = Color.fromLegacyFormat(TextFormatting.DARK_PURPLE);
-        colors[26] = Color.fromLegacyFormat(TextFormatting.DARK_PURPLE);
-        colors[27] = Color.fromLegacyFormat(TextFormatting.LIGHT_PURPLE);
-        colors[28] = Color.fromLegacyFormat(TextFormatting.LIGHT_PURPLE);
-        colors[29] = Color.fromLegacyFormat(TextFormatting.LIGHT_PURPLE);
+    	TextColor[] colors = new TextColor[30];
+        colors[0] = TextColor.fromLegacyFormat(ChatFormatting.RED);
+        colors[1] = TextColor.fromLegacyFormat(ChatFormatting.RED);
+        colors[2] = TextColor.fromLegacyFormat(ChatFormatting.RED);
+        colors[3] = TextColor.fromLegacyFormat(ChatFormatting.DARK_RED);
+        colors[4] = TextColor.fromLegacyFormat(ChatFormatting.DARK_RED);
+        colors[5] = TextColor.fromLegacyFormat(ChatFormatting.DARK_RED);
+        colors[6] = TextColor.fromLegacyFormat(ChatFormatting.GOLD);
+        colors[7] = TextColor.fromLegacyFormat(ChatFormatting.GOLD);
+        colors[8] = TextColor.fromLegacyFormat(ChatFormatting.GOLD);
+        colors[9] = TextColor.fromLegacyFormat(ChatFormatting.YELLOW);
+        colors[10] = TextColor.fromLegacyFormat(ChatFormatting.YELLOW);
+        colors[11] = TextColor.fromLegacyFormat(ChatFormatting.YELLOW);
+        colors[12] = TextColor.fromLegacyFormat(ChatFormatting.GREEN);
+        colors[13] = TextColor.fromLegacyFormat(ChatFormatting.GREEN);
+        colors[14] = TextColor.fromLegacyFormat(ChatFormatting.GREEN);
+        colors[15] = TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN);
+        colors[16] = TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN);
+        colors[17] = TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN);
+        colors[18] = TextColor.fromLegacyFormat(ChatFormatting.BLUE);
+        colors[19] = TextColor.fromLegacyFormat(ChatFormatting.BLUE);
+        colors[20] = TextColor.fromLegacyFormat(ChatFormatting.BLUE);
+        colors[21] = TextColor.fromLegacyFormat(ChatFormatting.DARK_BLUE);
+        colors[22] = TextColor.fromLegacyFormat(ChatFormatting.DARK_BLUE);
+        colors[23] = TextColor.fromLegacyFormat(ChatFormatting.DARK_BLUE);
+        colors[24] = TextColor.fromLegacyFormat(ChatFormatting.DARK_PURPLE);
+        colors[25] = TextColor.fromLegacyFormat(ChatFormatting.DARK_PURPLE);
+        colors[26] = TextColor.fromLegacyFormat(ChatFormatting.DARK_PURPLE);
+        colors[27] = TextColor.fromLegacyFormat(ChatFormatting.LIGHT_PURPLE);
+        colors[28] = TextColor.fromLegacyFormat(ChatFormatting.LIGHT_PURPLE);
+        colors[29] = TextColor.fromLegacyFormat(ChatFormatting.LIGHT_PURPLE);
         return colors;
     }
 
-    private static final ITextComponent[] DirectionLabels = createDirectionLabels();
-    private static final Color[] RainbowColors = createRainbowColors();
+    private static final Component[] DirectionLabels = createDirectionLabels();
+    private static final TextColor[] RainbowColors = createRainbowColors();
     private byte m_state;
     private int m_rainbowTickCounter;
     private StateChangeHandler m_handler;

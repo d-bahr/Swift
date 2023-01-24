@@ -1,10 +1,10 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.core.Direction;
 import swiftmod.common.SwiftUtils;
 
 public abstract class FluidPipeBlock extends PipeBlock
@@ -15,28 +15,28 @@ public abstract class FluidPipeBlock extends PipeBlock
     }
 
     @Override
-    protected void openGui(ServerPlayerEntity player, INamedContainerProvider namedContainerProvider,
-            PipeTileEntity<?, ?, ?> tileEntity, Direction startingDir)
+    protected void openGui(ServerPlayer player, MenuProvider menuProvider,
+            PipeTileEntity<?, ?, ?> blockEntity, Direction startingDir)
     {
-        if (tileEntity instanceof FluidPipeTileEntity)
+        if (blockEntity instanceof FluidPipeTileEntity)
         {
-            FluidPipeTileEntity fluidPipeTE = (FluidPipeTileEntity) tileEntity;
-            NetworkHooks.openGui((ServerPlayerEntity) player, namedContainerProvider, (packetBuffer) ->
+            FluidPipeTileEntity fluidPipeTE = (FluidPipeTileEntity) blockEntity;
+            NetworkHooks.openGui((ServerPlayer) player, menuProvider, (FriendlyByteBuf) ->
             {
-                fluidPipeTE.serializeBufferForContainer(packetBuffer, player, startingDir);
+                fluidPipeTE.serializeBufferForContainer(FriendlyByteBuf, player, startingDir);
             });
         }
     }
 
-    public boolean canConnect(TileEntity tileEntity, Direction direction)
+    public boolean canConnect(BlockEntity blockEntity, Direction direction)
     {
-        return canConnectTo(tileEntity, direction);
+        return canConnectTo(blockEntity, direction);
     }
 
-    public static boolean canConnectTo(TileEntity tileEntity, Direction direction)
+    public static boolean canConnectTo(BlockEntity blockEntity, Direction direction)
     {
-        if (tileEntity != null)
-            return SwiftUtils.isFluidHandler(tileEntity, direction);
+        if (blockEntity != null)
+            return SwiftUtils.isFluidHandler(blockEntity, direction);
         return false;
     }
 }

@@ -4,21 +4,21 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class ContainerBase<T extends DataCache> extends PlayerInventoryContainer implements IDataCacheContainer<T>
 {
-    protected ContainerBase(@Nullable ContainerType<?> type, int id, PlayerInventory playerInventory, int x, int y)
+    protected ContainerBase(@Nullable MenuType<?> type, int id, Inventory playerInventory, int x, int y)
     {
         super(type, id, playerInventory, x, y);
         m_cache = null;
     }
 
-    protected ContainerBase(@Nullable ContainerType<?> type, int id, T cache, PlayerInventory playerInventory, int x, int y)
+    protected ContainerBase(@Nullable MenuType<?> type, int id, T cache, Inventory playerInventory, int x, int y)
     {
         super(type, id, playerInventory, x, y);
         m_cache = cache;
@@ -72,7 +72,7 @@ public class ContainerBase<T extends DataCache> extends PlayerInventoryContainer
                 boolean isSlotEnabled = true;
                 if (slot instanceof EnableableSlot)
                 	isSlotEnabled = ((EnableableSlot)slot).enable;
-                if (!itemstack.isEmpty() && isSlotEnabled && consideredTheSameItem(stack, itemstack))
+                if (!itemstack.isEmpty() && isSlotEnabled && ItemStack.isSameItemSameTags(stack, itemstack))
                 {
                     int j = itemstack.getCount() + stack.getCount();
                     int maxSize = Math.min(slot.getMaxStackSize(stack), stack.getMaxStackSize());
@@ -165,7 +165,7 @@ public class ContainerBase<T extends DataCache> extends PlayerInventoryContainer
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn)
+    public boolean stillValid(Player playerIn)
     {
         return true;
     }

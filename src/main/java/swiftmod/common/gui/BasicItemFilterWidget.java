@@ -3,10 +3,10 @@ package swiftmod.common.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.BigItemStack;
@@ -36,7 +36,7 @@ public class BasicItemFilterWidget extends GuiWidget
 
     public BasicItemFilterWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation backgroundTexture)
     {
-        super(screen, x, y, width, height, StringTextComponent.EMPTY);
+        super(screen, x, y, width, height, TextComponent.EMPTY);
 
         m_backgroundTexture = new GuiTexture(screen, 0, 0, width, height, backgroundTexture);
         addChild(m_backgroundTexture);
@@ -72,19 +72,19 @@ public class BasicItemFilterWidget extends GuiWidget
         m_filterSlots = new ArrayList<GhostItemSlot>();
 
         GuiDeleteButton deleteButton = new GuiDeleteButton(screen, GUI_DELETE_X, GUI_DELETE_Y, this::onDeleteButtonPressed);
-        deleteButton.setTooltip(new StringTextComponent("Remove all filters"));
+        deleteButton.setTooltip(new TextComponent("Remove all filters"));
         addChild(deleteButton);
         
         GuiTexture infoTexture = new GuiTexture(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16, INFO_TEXTURE);
         addChild(infoTexture);
         
         GuiTooltip infoTooltip = new GuiTooltip(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16);
-        List<ITextComponent> tooltip = new ArrayList<ITextComponent>();
-        tooltip.add(new StringTextComponent("Left click on a slot to add or increment a filter."));
-        tooltip.add(new StringTextComponent("Right click on a slot to remove or decrement a filter."));
-        tooltip.add(new StringTextComponent("Shift + click to add/remove one stack."));
-        tooltip.add(new StringTextComponent("Ctrl + click to add/remove one item."));
-        tooltip.add(new StringTextComponent("Max quantity: 9999 items"));
+        List<Component> tooltip = new ArrayList<Component>();
+        tooltip.add(new TextComponent("Left click on a slot to add or increment a filter."));
+        tooltip.add(new TextComponent("Right click on a slot to remove or decrement a filter."));
+        tooltip.add(new TextComponent("Shift + click to add/remove one stack."));
+        tooltip.add(new TextComponent("Ctrl + click to add/remove one item."));
+        tooltip.add(new TextComponent("Max quantity: " + MAX_SLOT_QUANTITY + " items"));
         infoTooltip.setText(tooltip);
         infoTooltip.setZ(1000.0f);
         addChild(infoTooltip);
@@ -241,7 +241,7 @@ public class BasicItemFilterWidget extends GuiWidget
                     filterSlot.setFilterUpdatedCallback(this::onFilterChanged);
                     filterSlot.setZ(1.0);
                     filterSlot.setSlot(slot);
-                    filterSlot.setMaxQuantity(9999);
+                    filterSlot.setMaxQuantity(MAX_SLOT_QUANTITY);
                     filterSlot.showQuantity(m_matchCountButton.getState());
                     if (i < filters.size())
                     {
@@ -264,10 +264,26 @@ public class BasicItemFilterWidget extends GuiWidget
                 continue;
 
             ItemStack s = m_filterSlots.get(i).getItemStack();
-            if (stack.getItem() == s.getItem())
+            if (m_matchNBTButton.getState() || m_matchDamageButton.getState())
             {
-                // Item already exists; abort.
-                return false;
+            	// When matching any sort of NBT, allow multiple items of the same
+            	// type but with different NBT; this allows sorting e.g. items
+            	// of different durabilities.
+	            if (ItemStack.isSameItemSameTags(s, stack))
+	            {
+	                // Item already exists; abort.
+	                return false;
+	            }
+            }
+            else
+            {
+            	// When ignoring NBT, check item type only, since durability
+            	// and such doesn't matter.
+                if (stack.getItem() == s.getItem())
+	            {
+	                // Item already exists; abort.
+	                return false;
+	            }
             }
         }
 
@@ -330,6 +346,8 @@ public class BasicItemFilterWidget extends GuiWidget
     protected static final int GUI_FILTER_Y = 18;
     
     protected static final int FILTER_SLOTS_PER_ROW = 9;
+
+    protected static final int MAX_SLOT_QUANTITY = 99999;
 
     protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
             "textures/gui/basic_filter_upgrade.png");

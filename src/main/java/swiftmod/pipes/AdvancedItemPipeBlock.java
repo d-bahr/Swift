@@ -1,7 +1,11 @@
 package swiftmod.pipes;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import swiftmod.common.SwiftTileEntities;
+import net.minecraft.core.BlockPos;
 
 public class AdvancedItemPipeBlock extends ItemPipeBlock
 {
@@ -11,8 +15,14 @@ public class AdvancedItemPipeBlock extends ItemPipeBlock
     }
 
     @Override
-    public TileEntity newBlockEntity(IBlockReader world)
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
     {
-        return new AdvancedItemPipeTileEntity();
+        return new AdvancedItemPipeTileEntity(pos, state);
     }
+
+	@Override
+	protected <T extends BlockEntity> BlockEntityTicker<T> createTicker(BlockState state, BlockEntityType<T> type)
+	{
+		return createTickerHelper(type, SwiftTileEntities.s_advancedItemPipeTileEntityType, AdvancedItemPipeTileEntity::serverTick);
+	}
 }

@@ -3,27 +3,30 @@ package swiftmod.common.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 
 @OnlyIn(Dist.CLIENT)
-public class GuiWidget extends Widget implements IDrawable
+public class GuiWidget extends AbstractWidget implements IDrawable
 {
-    public GuiWidget(GuiContainerScreen<?> screen, int width, int height, ITextComponent title)
+    public GuiWidget(GuiContainerScreen<?> screen, int width, int height, Component title)
     {
         this(screen, 0, 0, width, height, title);
     }
 
-    public GuiWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent title)
+    public GuiWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component title)
     {
         super(x, y, width, height, title);
+        m_requestFocusOnPress = true;
         m_playClickOnPress = true;
         m_screen = screen;
         m_parent = null;
@@ -162,8 +165,13 @@ public class GuiWidget extends Widget implements IDrawable
         return m_screen.getMinecraft();
     }
 
+    public ItemRenderer getItemRenderer()
+    {
+    	return m_screen.getItemRenderer();
+    }
+
     @SuppressWarnings("resource")
-    public ClientPlayerEntity getPlayer()
+    public LocalPlayer getPlayer()
     {
         return m_screen.getMinecraft().player;
     }
@@ -318,7 +326,8 @@ public class GuiWidget extends Widget implements IDrawable
             boolean handled = onMousePress(button, mouseX, mouseY);
             if (handled)
             {
-                requestFocus();
+            	if (m_requestFocusOnPress)
+            		requestFocus();
                 if (m_playClickOnPress)
                     playDownSound(Minecraft.getInstance().getSoundManager());
             }
@@ -513,12 +522,12 @@ public class GuiWidget extends Widget implements IDrawable
         return button == 0 || button == 1 || button == 2;
     }
 
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
 
     }
 
-    private final void drawWorker(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    private final void drawWorker(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (visible)
         {
@@ -532,7 +541,7 @@ public class GuiWidget extends Widget implements IDrawable
     }
 
     @Override
-    public final void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public final void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         if (visible)
         {
@@ -622,6 +631,13 @@ public class GuiWidget extends Widget implements IDrawable
         return active && visible && containsMouse(mouseX, mouseY);
     }
 
+	@Override
+	public void updateNarration(NarrationElementOutput output)
+	{
+		//defaultButtonNarrationText(output);
+	}
+
+	protected boolean m_requestFocusOnPress;
     protected boolean m_playClickOnPress;
     private GuiContainerScreen<?> m_screen;
     private GuiWidget m_parent;

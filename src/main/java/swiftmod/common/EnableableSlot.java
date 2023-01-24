@@ -1,7 +1,7 @@
 package swiftmod.common;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Slot;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 public class EnableableSlot extends Slot
 {
-    public EnableableSlot(IInventory inventory, int index, int x, int y)
+    public EnableableSlot(Container inventory, int index, int x, int y)
     {
         super(inventory, index, x, y);
         enable = true;

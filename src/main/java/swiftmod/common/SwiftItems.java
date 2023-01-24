@@ -1,9 +1,9 @@
 package swiftmod.common;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeItem;
@@ -82,7 +82,7 @@ public class SwiftItems
         registry.register(s_copyPastaItem);
     }
 
-    private static BlockItem createBlockItem(String registryName, int maxStackSize, ItemGroup itemGroup, Block block)
+    private static BlockItem createBlockItem(String registryName, int maxStackSize, CreativeModeTab itemGroup, Block block)
     {
         Item.Properties properties = new Item.Properties().stacksTo(maxStackSize).tab(itemGroup);
         BlockItem item = new BlockItem(block, properties);

@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -24,9 +24,9 @@ public class MatchDamageButton extends GuiBooleanStateButton
     private void setTooltip()
     {
         if (getState())
-            setTooltip(new StringTextComponent("Match item damage value"));
+            setTooltip(new TextComponent("Match item damage value"));
         else
-            setTooltip(new StringTextComponent("Ignore item damage value"));
+            setTooltip(new TextComponent("Ignore item damage value"));
     }
 
     protected void onStateChanged()

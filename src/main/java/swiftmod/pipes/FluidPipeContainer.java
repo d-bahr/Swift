@@ -4,13 +4,13 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 import net.minecraftforge.fluids.FluidStack;
 import swiftmod.common.SwiftItems;
 import swiftmod.common.SwiftNetwork;
@@ -30,19 +30,19 @@ import swiftmod.common.upgrades.UpgradeType;
 public class FluidPipeContainer extends PipeContainer implements FluidFilterConfigurationPacket.Handler,
         FluidFilterSlotPacket.Handler, ClearFilterPacket.Handler, ChannelConfigurationPacket.Handler
 {
-    protected FluidPipeContainer(@Nullable ContainerType<?> type, int windowID, PlayerInventory playerInventory,
-            PacketBuffer extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
+    protected FluidPipeContainer(@Nullable MenuType<?> type, int windowID, Inventory playerInventory,
+            FriendlyByteBuf extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
             Supplier<UpgradeInventory> sideUpgradeInventorySupplier, int x, int y)
     {
         super(type, windowID, playerInventory, extraData, upgradeInventorySupplier, sideUpgradeInventorySupplier, x, y);
     }
 
-    protected FluidPipeContainer(@Nullable ContainerType<?> type, TileEntity tileEntity, int windowID,
-            PlayerInventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
+    protected FluidPipeContainer(@Nullable MenuType<?> type, BlockEntity blockEntity, int windowID,
+            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories, int x, int y)
     {
-        super(type, tileEntity, windowID, playerInventory, cache, refreshFilterCallback, channelManagerCallback,
+        super(type, blockEntity, windowID, playerInventory, cache, refreshFilterCallback, channelManagerCallback,
                 upgradeInventory, sideUpgradeInventories, x, y);
     }
 
@@ -84,7 +84,7 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, FluidFilterConfigurationPacket packet)
+    public void handle(ServerPlayer player, FluidFilterConfigurationPacket packet)
     {
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
@@ -104,7 +104,7 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, FluidFilterSlotPacket packet)
+    public void handle(ServerPlayer player, FluidFilterSlotPacket packet)
     {
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
@@ -121,7 +121,7 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, ClearFilterPacket packet)
+    public void handle(ServerPlayer player, ClearFilterPacket packet)
     {
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
@@ -138,7 +138,7 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, ChannelConfigurationPacket packet)
+    public void handle(ServerPlayer player, ChannelConfigurationPacket packet)
     {
         int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
         if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())

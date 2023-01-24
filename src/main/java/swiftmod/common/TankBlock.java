@@ -2,29 +2,27 @@ package swiftmod.common;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.Util;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 
-@SuppressWarnings("deprecation")
-public class TankBlock extends Block implements ITileEntityProvider
+public class TankBlock extends BaseEntityBlock
 {
     public TankBlock()
     {
@@ -32,82 +30,70 @@ public class TankBlock extends Block implements ITileEntityProvider
     }
 
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world)
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
     {
-        return newBlockEntity(world);
-    }
-
-    @Override
-    public TileEntity newBlockEntity(IBlockReader world)
-    {
-        return new TankTileEntity();
-    }
-
-    @Override
-    public boolean hasTileEntity(BlockState state)
-    {
-        return true;
+        return new TankTileEntity(pos, state);
     }
 
     // render using a BakedModel (mbe01_block_simple.json --> mbe01_block_simple_model.json)
     // not strictly required because the default (super method) is MODEL.
     @Override
-    public BlockRenderType getRenderShape(BlockState blockState)
+    public RenderShape getRenderShape(BlockState blockState)
     {
-        return BlockRenderType.MODEL;
+        return RenderShape.MODEL;
     }
 
     @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult traceResult)
+    public InteractionResult use(BlockState blockState, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult traceResult)
     {
         if (world.isClientSide)
-            return ActionResultType.SUCCESS; // on client side, don't do anything
+            return InteractionResult.SUCCESS; // on client side, don't do anything
 
         if (FluidUtil.interactWithFluidHandler(player, hand, world, pos, traceResult.getDirection()))
         {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         else
         {
-            TileEntity tileEntity = world.getBlockEntity(pos);
-            if (tileEntity != null && tileEntity instanceof TankTileEntity)
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity != null && blockEntity instanceof TankTileEntity)
             {
-                FluidStack stack = ((TankTileEntity) tileEntity).getCache().getFluid();
+                FluidStack stack = ((TankTileEntity) blockEntity).getCache().getFluid();
                 if (stack != null && !stack.isEmpty())
                 {
                     String fluidName = Integer.toString(stack.getAmount()) + " mb "
                             + stack.getDisplayName().getString();
-                    player.sendMessage(new StringTextComponent(fluidName), Util.NIL_UUID);
-                    return ActionResultType.SUCCESS;
+                    player.sendMessage(new TextComponent(fluidName), Util.NIL_UUID);
+                    return InteractionResult.SUCCESS;
                 }
             }
 
-            player.sendMessage(new StringTextComponent("Empty"), Util.NIL_UUID);
-            return ActionResultType.SUCCESS;
+            player.sendMessage(new TextComponent("Empty"), Util.NIL_UUID);
+            return InteractionResult.SUCCESS;
         }
     }
     
     @Override
-    public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity tile, ItemStack stack)
+    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity tile, ItemStack stack)
     {
-    	TankTileEntity tileEntity = (TankTileEntity) tile;
+    	TankTileEntity blockEntity = (TankTileEntity) tile;
 
         float xOffset = world.random.nextFloat() * 0.8F + 0.1F;
         float yOffset = world.random.nextFloat() * 0.8F + 0.1F;
         float zOffset = world.random.nextFloat() * 0.8F + 0.1F;
 
-        ItemStack droppedStack = tileEntity.writeToItem();
+        ItemStack droppedStack = blockEntity.writeToItem();
 
         ItemEntity entityitem = new ItemEntity(world, pos.getX() + xOffset, pos.getY() + yOffset, pos.getZ() + zOffset, droppedStack);
         world.addFreshEntity(entityitem);
     }
 
     @Override
-    public void setPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack)
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack)
     {
         super.setPlacedBy(world, pos, state, entity, stack);
-        TankTileEntity tileEntity = (TankTileEntity) world.getBlockEntity(pos);
-        tileEntity.readFromItem(stack);
+        TankTileEntity blockEntity = (TankTileEntity) world.getBlockEntity(pos);
+        blockEntity.readFromItem(stack);
         world.sendBlockUpdated(pos, state, state, 3);
     }
 

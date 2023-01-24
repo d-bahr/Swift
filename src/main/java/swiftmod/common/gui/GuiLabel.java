@@ -1,26 +1,28 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiLabel extends GuiTextWidget
 {
-    public GuiLabel(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text)
+    public GuiLabel(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text)
     {
         super(screen, x, y, width, height, text);
+        m_requestFocusOnPress = false;
         m_verticalAlignment = GuiVerticalAlignment.Top;
         m_horizontalAlignment = GuiHorizontalAlignment.Left;
     }
 
-    public GuiLabel(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text, FontRenderer font)
+    public GuiLabel(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text, Font font)
     {
         super(screen, x, y, width, height, text, font);
+        m_requestFocusOnPress = false;
         m_verticalAlignment = GuiVerticalAlignment.Top;
         m_horizontalAlignment = GuiHorizontalAlignment.Left;
     }
@@ -52,7 +54,7 @@ public class GuiLabel extends GuiTextWidget
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
 

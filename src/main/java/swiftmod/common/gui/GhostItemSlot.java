@@ -2,21 +2,25 @@ package swiftmod.common.gui;
 
 import java.util.function.BiPredicate;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
-import swiftmod.common.SwiftKeyBindings;
 
 @OnlyIn(Dist.CLIENT)
 public class GhostItemSlot extends GuiItemTextureButton
@@ -145,7 +149,7 @@ public class GhostItemSlot extends GuiItemTextureButton
     }
 
     @Override
-    public void playDownSound(SoundHandler handler)
+    public void playDownSound(SoundManager manager)
     {
         // Don't call super -- suppress all normal button sounds.
     }
@@ -153,10 +157,10 @@ public class GhostItemSlot extends GuiItemTextureButton
     @Override
     public boolean onMousePress(MouseButton button, double mouseX, double mouseY)
     {
-        ItemStack itemInCursor = getPlayer().inventory.getCarried();
+        ItemStack itemInCursor = this.getScreen().getMenu().getCarried();
         boolean updated = false;
-        boolean shift = SwiftKeyBindings.isShiftKeyPressed();
-        boolean control = SwiftKeyBindings.isControlKeyPressed();
+        boolean shift = Screen.hasShiftDown();
+        boolean control = Screen.hasControlDown();
 
         // Left button = add
         // Right button = subtract
@@ -287,8 +291,7 @@ public class GhostItemSlot extends GuiItemTextureButton
         return true;
     }
 
-    @SuppressWarnings("deprecation")
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
 
@@ -297,41 +300,49 @@ public class GhostItemSlot extends GuiItemTextureButton
             int left = leftAbsolute();
             int top = topAbsolute();
 
-            MatrixStack matrix = new MatrixStack();
+            Minecraft minecraft = Minecraft.getInstance();
+            Font font = minecraft.font;
+            ItemRenderer renderer = getItemRenderer();
+
+        	//renderer.renderAndDecorateFakeItem(m_itemStack, left, top);
+
+            /* Note: this would be a valid way to render items:
+        	 * renderer.renderGuiItemDecorations(font, m_itemStack, left, top);
+        	 * except that it will always render the quantity, and we don't want that behavior
+        	 * unless quantity comparison is explicitly requested. Also, with our custom method,
+        	 * we can render high quantities without it bleeding over into adjacent slots by
+        	 * making the text smaller.
+             */
             if (m_showQuantity && m_quantity > 1)
             {
-                Minecraft minecraft = Minecraft.getInstance();
-                FontRenderer fr = minecraft.font;
-
+                PoseStack matrix = new PoseStack();
                 String s = String.valueOf(m_quantity);
                 float r = 1.0f;
+                int maxLengthForShrinking = 4;
                 if (s.length() > 2)
                 {
-                    r = 2.0f / s.length();
+                    r = 2.0f / Math.min(maxLengthForShrinking, s.length());
                     matrix.scale(r, r, 1.0f);
                 }
-                matrix.translate(0.0, 0.0, 200.0);
-                IRenderTypeBuffer.Impl b = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
-                fr.drawInBatch(s, (float) (left + 17) / r - fr.width(s), (float) (top + 16) / r - 7, 0x00FFFFFF,
+                matrix.translate(0.0, 0.0, renderer.blitOffset + 200.0);
+                MultiBufferSource.BufferSource b = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+                font.drawInBatch(s, (float) (left + 17) / r - font.width(s), (float) (top + 16) / r - 7, 0x00FFFFFF,
                         true, matrix.last().pose(), b, false, 0, 15728880);
                 b.endBatch();
             }
 
-            if (m_itemStack.getItem().showDurabilityBar(m_itemStack))
+            if (m_itemStack.isBarVisible())
             {
                 RenderSystem.disableDepthTest();
                 RenderSystem.disableTexture();
-                RenderSystem.disableAlphaTest();
                 RenderSystem.disableBlend();
-                Tessellator tessellator = Tessellator.getInstance();
+                Tesselator tessellator = Tesselator.getInstance();
                 BufferBuilder bufferbuilder = tessellator.getBuilder();
-                double health = m_itemStack.getItem().getDurabilityForDisplay(m_itemStack);
-                int i = Math.round(13.0F - (float) health * 13.0F);
-                int j = m_itemStack.getItem().getRGBDurabilityForDisplay(m_itemStack);
+                int i = m_itemStack.getBarWidth();
+                int j = m_itemStack.getBarColor();
                 fillRect(bufferbuilder, left + 2, top + 13, 13, 2, 0, 0, 0, 0xFF);
                 fillRect(bufferbuilder, left + 2, top + 13, i, 1, j >> 16 & 0xFF, j >> 8 & 0xFF, j & 0xFF, 0xFF);
                 RenderSystem.enableBlend();
-                RenderSystem.enableAlphaTest();
                 RenderSystem.enableTexture();
                 RenderSystem.enableDepthTest();
             }
@@ -339,15 +350,16 @@ public class GhostItemSlot extends GuiItemTextureButton
     }
 
     // Copied from ItemRenderer.
-    private void fillRect(BufferBuilder renderer, int x, int y, int width, int height, int red, int green, int blue,
-            int alpha)
+    private void fillRect(BufferBuilder buffer, int x, int y, int width, int height, int red, int green, int blue, int alpha)
     {
-        renderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        renderer.vertex((double) (x + 0), (double) (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.vertex((double) (x + 0), (double) (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.vertex((double) (x + width), (double) (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.vertex((double) (x + width), (double) (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-        Tessellator.getInstance().end();
+    	RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    	buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+    	buffer.vertex((double)(x + 0), (double)(y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
+    	buffer.vertex((double)(x + 0), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
+    	buffer.vertex((double)(x + width), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
+    	buffer.vertex((double)(x + width), (double)(y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
+    	buffer.end();
+	    BufferUploader.end(buffer);
     }
 
     private int m_slot;

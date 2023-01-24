@@ -1,7 +1,7 @@
 package swiftmod.common.channels;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import swiftmod.common.SwiftUtils;
 
 public class ChannelSpec
@@ -23,42 +23,40 @@ public class ChannelSpec
         tag = 0;
     }
 
-    public ChannelSpec(CompoundNBT nbt)
+    public ChannelSpec(CompoundTag nbt)
     {
         owner = new ChannelOwner();
         read(nbt);
     }
 
-    public ChannelSpec(PacketBuffer buffer)
+    public ChannelSpec(FriendlyByteBuf buffer)
     {
         owner = new ChannelOwner();
         read(buffer);
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
         owner.write(nbt);
         nbt.putString(SwiftUtils.tagName("channel_name"), name);
         nbt.putInt(SwiftUtils.tagName("channel_tag"), tag);
-        return nbt;
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
         owner.read(nbt);
         name = nbt.getString(SwiftUtils.tagName("channel_name"));
         tag = nbt.getInt(SwiftUtils.tagName("channel_tag"));
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    public void write(FriendlyByteBuf buffer)
     {
         owner.write(buffer);
         buffer.writeUtf(name);
         buffer.writeInt(tag);
-        return buffer;
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         owner.read(buffer);
         name = buffer.readUtf(32767);

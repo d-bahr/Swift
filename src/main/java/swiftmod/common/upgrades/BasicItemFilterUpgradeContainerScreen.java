@@ -1,9 +1,9 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -17,7 +17,7 @@ import swiftmod.common.gui.WhiteBlackListButton;
 @OnlyIn(Dist.CLIENT)
 public class BasicItemFilterUpgradeContainerScreen extends GuiContainerScreen<BasicItemFilterUpgradeContainer>
 {
-    public BasicItemFilterUpgradeContainerScreen(BasicItemFilterUpgradeContainer c, PlayerInventory inv, ITextComponent title)
+    public BasicItemFilterUpgradeContainerScreen(BasicItemFilterUpgradeContainer c, Inventory inv, Component title)
     {
         super(c, inv, title, 176, 190, BACKGROUND_TEXTURE);
 

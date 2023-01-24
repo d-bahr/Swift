@@ -4,35 +4,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ContainerBlock;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import javax.annotation.Nullable;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TextComponent;
 import swiftmod.common.CopyPastaItem;
 import swiftmod.common.IndexedVoxelShape;
 import swiftmod.common.Raytracer;
@@ -40,7 +42,7 @@ import swiftmod.common.SwiftItems;
 import swiftmod.common.SwiftUtils;
 
 @SuppressWarnings("deprecation")
-public abstract class PipeBlock extends ContainerBlock implements ITileEntityProvider
+public abstract class PipeBlock extends BaseEntityBlock
 {
     public PipeBlock()
     {
@@ -52,16 +54,15 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
     }
 
     @Override
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-            BlockRayTraceResult hit)
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit)
     {
         if (world.isClientSide)
-            return ActionResultType.SUCCESS; // on client side, don't do anything
+            return InteractionResult.SUCCESS; // on client side, don't do anything
 
-        TileEntity te = world.getBlockEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof PipeTileEntity)
         {
-            PipeTileEntity<?, ?, ?> tileEntity = (PipeTileEntity<?, ?, ?>) te;
+            PipeTileEntity<?, ?, ?> blockEntity = (PipeTileEntity<?, ?, ?>) te;
             Direction dir = null;
 
             int index = BlockStateToShapeIndex(state);
@@ -81,145 +82,144 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
                 {
                     if (player.isShiftKeyDown())
                     {
-                        if (CopyPastaItem.copyTileEntitySettings(itemInHand, tileEntity, dir))
+                        if (CopyPastaItem.copyTileEntitySettings(itemInHand, blockEntity, dir))
                         {
-                            player.displayClientMessage(new StringTextComponent("Copied"), true);
-                            return ActionResultType.SUCCESS;
+                            player.displayClientMessage(new TextComponent("Copied"), true);
+                            return InteractionResult.SUCCESS;
                         }
                         else
                         {
-                            player.displayClientMessage(new StringTextComponent("Cannot copy"), true);
-                            return ActionResultType.SUCCESS;
+                            player.displayClientMessage(new TextComponent("Cannot copy"), true);
+                            return InteractionResult.SUCCESS;
                         }
                     }
                     else
                     {
-                        if (CopyPastaItem.pasteTileEntitySettings(itemInHand, tileEntity, dir))
+                        if (CopyPastaItem.pasteTileEntitySettings(itemInHand, blockEntity, dir))
                         {
-                            player.displayClientMessage(new StringTextComponent("Pasted"), true);
-                            return ActionResultType.SUCCESS;
+                            player.displayClientMessage(new TextComponent("Pasted"), true);
+                            return InteractionResult.SUCCESS;
                         }
                         else
                         {
-                            player.displayClientMessage(new StringTextComponent("Cannot paste"), true);
-                            return ActionResultType.SUCCESS;
+                            player.displayClientMessage(new TextComponent("Cannot paste"), true);
+                            return InteractionResult.SUCCESS;
                         }
                     }
                 }
-                else if (tileEntity.tryAddUpgrade(player.inventory, hand, dir))
+                else if (blockEntity.tryAddUpgrade(player.getInventory(), hand, dir))
                 {
-                    return ActionResultType.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
             }
 
             if (player.isShiftKeyDown())
-                return ActionResultType.SUCCESS; // do nothing if crouching (shift)
+                return InteractionResult.SUCCESS; // do nothing if crouching (shift)
 
-            INamedContainerProvider namedContainerProvider = getMenuProvider(state, world, pos);
-            if (namedContainerProvider != null)
+            MenuProvider menuProvider = getMenuProvider(state, world, pos);
+            if (menuProvider != null)
             {
-                if (!(player instanceof ServerPlayerEntity))
-                    return ActionResultType.FAIL; // should always be true, but just in case...
+                if (!(player instanceof ServerPlayer))
+                    return InteractionResult.FAIL; // should always be true, but just in case...
 
-                openGui((ServerPlayerEntity) player, namedContainerProvider, tileEntity, dir);
+                openGui((ServerPlayer) player, menuProvider, blockEntity, dir);
             }
 
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         else
         {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
     }
 
-    protected abstract void openGui(ServerPlayerEntity player, INamedContainerProvider namedContainerProvider,
-            PipeTileEntity<?, ?, ?> tileEntity, Direction startingDir);
-
-    @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world)
+    @Nullable
+    public final <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
     {
-        return newBlockEntity(world);
+    	if (level.isClientSide)
+    		return null;
+    	else
+    		return createTicker(state, type);
     }
 
-    @Override
-    public boolean hasTileEntity(BlockState state)
-    {
-        return true;
-    }
+    protected abstract <T extends BlockEntity> BlockEntityTicker<T> createTicker(BlockState state, BlockEntityType<T> type);
+
+    protected abstract void openGui(ServerPlayer player, MenuProvider menuProvider,
+            PipeTileEntity<?, ?, ?> blockEntity, Direction startingDir);
 
     @Override
-    public void onRemove(BlockState state, World world, BlockPos blockPos, BlockState newState, boolean isMoving)
+    public void onRemove(BlockState state, Level world, BlockPos blockPos, BlockState newState, boolean isMoving)
     {
         if (state.getBlock() != newState.getBlock())
         {
-            TileEntity tileEntity = world.getBlockEntity(blockPos);
-            if (tileEntity instanceof PipeTileEntity)
+            BlockEntity blockEntity = world.getBlockEntity(blockPos);
+            if (blockEntity instanceof PipeTileEntity)
             {
-                ((PipeTileEntity<?, ?, ?>) tileEntity).dropAllContents(world, blockPos);
+                ((PipeTileEntity<?, ?, ?>) blockEntity).dropAllContents(world, blockPos);
             }
             super.onRemove(state, world, blockPos, newState, isMoving);
         }
     }
 
     @Override
-    public BlockRenderType getRenderShape(BlockState blockState)
+    public RenderShape getRenderShape(BlockState blockState)
     {
-        return BlockRenderType.MODEL;
+        return RenderShape.MODEL;
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context)
-    {
-        int index = BlockStateToShapeIndex(state);
-        return SHAPES[index];
-    }
-
-    @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context)
+    public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext context)
     {
         int index = BlockStateToShapeIndex(state);
         return SHAPES[index];
     }
 
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, IBlockReader worldIn, BlockPos pos)
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext context)
     {
         int index = BlockStateToShapeIndex(state);
         return SHAPES[index];
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
+    public VoxelShape getOcclusionShape(BlockState state, BlockGetter blockGetter, BlockPos pos)
+    {
+        int index = BlockStateToShapeIndex(state);
+        return SHAPES[index];
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         builder.add(UP, DOWN, WEST, EAST, NORTH, SOUTH);
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext blockItemUseContext)
+    public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext)
     {
-        World world = blockItemUseContext.getLevel();
-        BlockPos blockPos = blockItemUseContext.getClickedPos();
+        Level level = blockPlaceContext.getLevel();
+        BlockPos blockPos = blockPlaceContext.getClickedPos();
 
-        BlockState blockState = getStateDefinition().any().setValue(UP, canConnect(world, blockPos, Direction.UP))
-                .setValue(DOWN, canConnect(world, blockPos, Direction.DOWN))
-                .setValue(EAST, canConnect(world, blockPos, Direction.EAST))
-                .setValue(WEST, canConnect(world, blockPos, Direction.WEST))
-                .setValue(NORTH, canConnect(world, blockPos, Direction.NORTH))
-                .setValue(SOUTH, canConnect(world, blockPos, Direction.SOUTH));
+        BlockState blockState = getStateDefinition().any().setValue(UP, canConnect(level, blockPos, Direction.UP))
+                .setValue(DOWN, canConnect(level, blockPos, Direction.DOWN))
+                .setValue(EAST, canConnect(level, blockPos, Direction.EAST))
+                .setValue(WEST, canConnect(level, blockPos, Direction.WEST))
+                .setValue(NORTH, canConnect(level, blockPos, Direction.NORTH))
+                .setValue(SOUTH, canConnect(level, blockPos, Direction.SOUTH));
         return blockState;
     }
 
     @Override
-    public BlockState updateShape(BlockState thisState, Direction direction, BlockState neighborState, IWorld world,
+    public BlockState updateShape(BlockState thisState, Direction direction, BlockState neighborState, LevelAccessor level,
             BlockPos thisPos, BlockPos neighborPos)
     {
-        return updateStateOnNeighborChange(world, thisState, direction, thisPos);
+        return updateStateOnNeighborChange(level, thisState, direction, thisPos);
     }
 
-    public BlockState updateStateOnNeighborChange(IBlockReader world, BlockState state, Direction direction,
+    public BlockState updateStateOnNeighborChange(BlockGetter blockGetter, BlockState state, Direction direction,
             BlockPos pos)
     {
-        boolean connect = canConnect(world, pos, direction);
+        boolean connect = canConnect(blockGetter, pos, direction);
         switch (direction)
         {
         case UP:
@@ -244,14 +244,17 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         return state;
     }
 
+    // TODO: Move to tile entity onNeighborChange, possibly
     @Override
-    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor)
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block blockIn, BlockPos neighbor, boolean isMoving)
     {
         Direction dir = SwiftUtils.getDirectionBetweenBlocks(pos, neighbor);
         if (dir != null)
         {
-            updateStateOnNeighborChange(world, state, dir, pos);
+            updateStateOnNeighborChange(level, state, dir, pos);
         }
+
+        super.neighborChanged(state, level, pos, blockIn, neighbor, isMoving);
     }
 
     private static VoxelShape[] populateShapes()
@@ -261,17 +264,17 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         {
             VoxelShape shape = BASE_SHAPE;
             if ((i & 0x01) != 0)
-                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_UP_SHAPE), ATTACHMENT_UP_SHAPE);
+                shape = Shapes.or(Shapes.or(shape, LINK_UP_SHAPE), ATTACHMENT_UP_SHAPE);
             if ((i & 0x02) != 0)
-                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_DOWN_SHAPE), ATTACHMENT_DOWN_SHAPE);
+                shape = Shapes.or(Shapes.or(shape, LINK_DOWN_SHAPE), ATTACHMENT_DOWN_SHAPE);
             if ((i & 0x04) != 0)
-                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_WEST_SHAPE), ATTACHMENT_WEST_SHAPE);
+                shape = Shapes.or(Shapes.or(shape, LINK_WEST_SHAPE), ATTACHMENT_WEST_SHAPE);
             if ((i & 0x08) != 0)
-                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_EAST_SHAPE), ATTACHMENT_EAST_SHAPE);
+                shape = Shapes.or(Shapes.or(shape, LINK_EAST_SHAPE), ATTACHMENT_EAST_SHAPE);
             if ((i & 0x10) != 0)
-                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_NORTH_SHAPE), ATTACHMENT_NORTH_SHAPE);
+                shape = Shapes.or(Shapes.or(shape, LINK_NORTH_SHAPE), ATTACHMENT_NORTH_SHAPE);
             if ((i & 0x20) != 0)
-                shape = VoxelShapes.or(VoxelShapes.or(shape, LINK_SOUTH_SHAPE), ATTACHMENT_SOUTH_SHAPE);
+                shape = Shapes.or(Shapes.or(shape, LINK_SOUTH_SHAPE), ATTACHMENT_SOUTH_SHAPE);
             shapes[i] = shape;
         }
         return shapes;
@@ -338,14 +341,14 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
         return index;
     }
 
-    public boolean canConnect(IBlockReader blockReader, BlockPos position, Direction direction)
+    public boolean canConnect(BlockGetter blockGetter, BlockPos position, Direction direction)
     {
         BlockPos neighborPos = position.relative(direction);
-        TileEntity tileEntity = blockReader.getBlockEntity(neighborPos);
-        return canConnect(tileEntity, direction.getOpposite());
+        BlockEntity blockEntity = blockGetter.getBlockEntity(neighborPos);
+        return canConnect(blockEntity, direction.getOpposite());
     }
 
-    public abstract boolean canConnect(TileEntity tileEntity, Direction direction);
+    public abstract boolean canConnect(BlockEntity blockEntity, Direction direction);
 
     private static final Properties PROPERTIES = Block.Properties.of(Material.STONE).strength(0.2f, 0.2f);
 
@@ -361,8 +364,8 @@ public abstract class PipeBlock extends ContainerBlock implements ITileEntityPro
     private static final double LINK_MARGIN = 6.0;
     private static final double ATTACHMENT_MARGIN = 2.0;
     private static final double ATTACHMENT_WIDTH = 0.5;
-    private static final Vector3d MIN_BASE_CORNER = new Vector3d(BASE_MARGIN, BASE_MARGIN, BASE_MARGIN);
-    private static final Vector3d MAX_BASE_CORNER = new Vector3d(FULL_LENGTH - BASE_MARGIN, FULL_LENGTH - BASE_MARGIN,
+    private static final Vec3 MIN_BASE_CORNER = new Vec3(BASE_MARGIN, BASE_MARGIN, BASE_MARGIN);
+    private static final Vec3 MAX_BASE_CORNER = new Vec3(FULL_LENGTH - BASE_MARGIN, FULL_LENGTH - BASE_MARGIN,
             FULL_LENGTH - BASE_MARGIN);
 
     private static final VoxelShape BASE_SHAPE = Block.box(MIN_BASE_CORNER.x, MIN_BASE_CORNER.y, MIN_BASE_CORNER.z,

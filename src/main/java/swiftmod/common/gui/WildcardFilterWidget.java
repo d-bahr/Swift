@@ -3,9 +3,9 @@ package swiftmod.common.gui;
 import java.util.Collection;
 import java.util.List;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -37,7 +37,7 @@ public class WildcardFilterWidget extends GuiWidget
 
     public WildcardFilterWidget(GuiContainerScreen<?> screen, int x, int y, int width, int numScrollPanelRows)
     {
-        super(screen, x, y, width, 104, StringTextComponent.EMPTY);
+        super(screen, x, y, width, 104, TextComponent.EMPTY);
 
         final int verticalMargin = 2;
 
@@ -48,15 +48,15 @@ public class WildcardFilterWidget extends GuiWidget
         GuiButton deleteButton = new GuiTextureButton(screen, m_panel.right() - 20,
                 m_panel.bottom() + verticalMargin, 20, 20, DELETE_BUTTON_TEXTURE,
                 this::onDeleteButtonClick);
-        deleteButton.setTooltip(new StringTextComponent("Delete filter"));
+        deleteButton.setTooltip(new TextComponent("Delete filter"));
         addChild(deleteButton);
 
         GuiButton addButton = new GuiTextureButton(screen, deleteButton.left() - 20, deleteButton.y, 20, 20,
                 ADD_BUTTON_TEXTURE, this::onAddButtonClick);
-        addButton.setTooltip(new StringTextComponent("Add filter"));
+        addButton.setTooltip(new TextComponent("Add filter"));
         addChild(addButton);
 
-        m_textField = new GuiTextField(screen, 0, addButton.y, addButton.left() - 2, 20, StringTextComponent.EMPTY);
+        m_textField = new GuiTextField(screen, 0, addButton.y, addButton.left() - 2, 20, TextComponent.EMPTY);
         m_textField.setTextColor(-1);
         m_textField.setDisabledTextColour(-1);
         m_textField.setEnableBackgroundDrawing(false);
@@ -70,6 +70,11 @@ public class WildcardFilterWidget extends GuiWidget
 
         m_filterAddCallback = null;
         m_filterRemoveCallback = null;
+    }
+    
+    public void requestTextFieldFocus()
+    {
+    	m_textField.requestFocus();
     }
 
     public void setAddCallback(FilterCallback callback)
@@ -86,16 +91,16 @@ public class WildcardFilterWidget extends GuiWidget
     {
         m_panel.clearText();
         for (String f : filters)
-            m_panel.addText(new StringTextComponent(f));
+            m_panel.addText(new TextComponent(f));
     }
 
     private void onAddButtonClick(GuiWidget button, MouseButton mouseButton)
     {
-        ITextComponent textComponent = m_textField.getText();
+        Component textComponent = m_textField.getText();
         String text = textComponent.getString();
         if (!text.isEmpty())
         {
-            List<ITextComponent> filters = m_panel.getText();
+            List<Component> filters = m_panel.getText();
             for (int i = 0; i < filters.size(); ++i)
             {
                 if (text.equals(filters.get(i).getString()))
@@ -114,7 +119,7 @@ public class WildcardFilterWidget extends GuiWidget
 
     private void onDeleteButtonClick(GuiWidget button, MouseButton mouseButton)
     {
-        ITextComponent textComponent = m_textField.getText();
+        Component textComponent = m_textField.getText();
         String text = textComponent.getString();
         if (!text.isEmpty())
         {
@@ -126,7 +131,7 @@ public class WildcardFilterWidget extends GuiWidget
         }
     }
 
-    private void onFilterSelected(int index, ITextComponent name)
+    private void onFilterSelected(int index, Component name)
     {
         if (name != null)
             m_textField.setText(name.getString());

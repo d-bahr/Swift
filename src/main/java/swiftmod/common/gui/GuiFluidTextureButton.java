@@ -1,11 +1,11 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -48,7 +48,7 @@ public class GuiFluidTextureButton extends GuiButton
         return m_fluidStack;
     }
 
-    public void draw(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
     {
         super.draw(matrixStack, mouseX, mouseY, partialTicks);
         if (!m_fluidStack.isEmpty())
@@ -61,29 +61,28 @@ public class GuiFluidTextureButton extends GuiButton
         }
     }
 
-    public void renderFluid(MatrixStack matrixStack, FluidStack fluidStack, int x, int y, int width, int height)
+    public void renderFluid(PoseStack matrixStack, FluidStack fluidStack, int x, int y, int width, int height)
     {
         renderFluid(matrixStack, fluidStack, x, y, width, height, 0.0f);
     }
 
-    @SuppressWarnings("deprecation")
-    public void renderFluid(MatrixStack matrixStack, FluidStack fluidStack, int x, int y, int width, int height, float alpha)
+    public void renderFluid(PoseStack matrixStack, FluidStack fluidStack, int x, int y, int width, int height, float alpha)
     {
         if (!fluidStack.isEmpty())
         {
             Minecraft minecraft = Minecraft.getInstance();
             FluidAttributes attrs = fluidStack.getFluid().getAttributes();
             ResourceLocation fluidTexture = attrs.getStillTexture(fluidStack);
-            TextureAtlasSprite sprite = minecraft.getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluidTexture);
-            minecraft.getTextureManager().bind(sprite.atlas().location());
+            TextureAtlasSprite sprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidTexture);
+            RenderSystem.setShaderTexture(0, sprite.atlas().location());
             int color = attrs.getColor();
             float r = ((color >> 16) & 0xFF) / 256.0f;
             float g = ((color >> 8) & 0xFF) / 256.0f;
             float b = (color & 0xFF) / 256.0f;
             float a = ((color >> 24) & 0xFF) / 256.0f;
-            RenderSystem.color4f(r, g, b, a);
+            RenderSystem.setShaderColor(r, g, b, a); // TODO: Might need to be RenderSystem.setShaderColor instead.
             blit(matrixStack, x, y, 0, width, height, sprite);
-            RenderSystem.clearCurrentColor();
+            //RenderSystem.clearCurrentColor();
         }
     }
 

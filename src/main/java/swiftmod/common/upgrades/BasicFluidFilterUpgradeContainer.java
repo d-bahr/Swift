@@ -1,10 +1,10 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fluids.FluidStack;
 import swiftmod.common.ContainerBase;
 import swiftmod.common.SwiftContainers;
@@ -18,12 +18,12 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
         implements FluidFilterConfigurationPacket.Handler, FluidFilterSlotPacket.Handler, ClearFilterPacket.Handler
 {
 
-    protected BasicFluidFilterUpgradeContainer(int windowID, PlayerInventory playerInventory)
+    protected BasicFluidFilterUpgradeContainer(int windowID, Inventory playerInventory)
     {
         super(SwiftContainers.s_basicFluidFilterContainerType, windowID, playerInventory, 8, 107);
     }
 
-    protected BasicFluidFilterUpgradeContainer(int windowID, PlayerInventory playerInventory, PacketBuffer extraData)
+    protected BasicFluidFilterUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
         super(SwiftContainers.s_basicFluidFilterContainerType, windowID, new BasicFluidFilterUpgradeDataCache(), playerInventory, 8, 107);
         decode(extraData);
@@ -57,18 +57,18 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
         SwiftNetwork.mainChannel.sendToServer(updatePacket);
     }
 
-    public static void encode(PlayerEntity player, ItemStack heldItem, PacketBuffer buffer)
+    public static void encode(Player player, ItemStack heldItem, FriendlyByteBuf buffer)
     {
         buffer.writeItemStack(heldItem, false);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         m_cache.read(buffer);
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, FluidFilterConfigurationPacket packet)
+    public void handle(ServerPlayer player, FluidFilterConfigurationPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
@@ -81,7 +81,7 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, FluidFilterSlotPacket packet)
+    public void handle(ServerPlayer player, FluidFilterSlotPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
@@ -91,7 +91,7 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, ClearFilterPacket packet)
+    public void handle(ServerPlayer player, ClearFilterPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
@@ -101,13 +101,13 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
     }
 
     public static BasicFluidFilterUpgradeContainer createContainerServerSide(int windowID,
-            PlayerInventory playerInventory, PlayerEntity playerEntity)
+            Inventory playerInventory, Player playerEntity)
     {
         return new BasicFluidFilterUpgradeContainer(windowID, playerInventory);
     }
 
     public static BasicFluidFilterUpgradeContainer createContainerClientSide(int windowID,
-            PlayerInventory playerInventory, PacketBuffer extraData)
+            Inventory playerInventory, FriendlyByteBuf extraData)
     {
         return new BasicFluidFilterUpgradeContainer(windowID, playerInventory, extraData);
     }

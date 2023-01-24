@@ -1,91 +1,91 @@
 package swiftmod.common.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiTextButton extends GuiButton
 {
-    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text)
+    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text)
     {
         super(screen, x, y, width, height);
         createLabel(text);
     }
 
-    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text, IClickable onClick)
+    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text, IClickable onClick)
     {
         super(screen, x, y, width, height, onClick);
         createLabel(text);
     }
 
-    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text, FontRenderer font)
+    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text, Font font)
     {
         super(screen, x, y, width, height);
         createLabel(text, font);
     }
 
-    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text, FontRenderer font, IClickable onClick)
+    public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text, Font font, IClickable onClick)
     {
         super(screen, x, y, width, height, onClick);
         createLabel(text, font);
     }
 
     public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
-            ResourceLocation highlightedTexture, ITextComponent text)
+            ResourceLocation highlightedTexture, Component text)
     {
         super(screen, x, y, width, height, baseTexture, highlightedTexture);
         createLabel(text);
     }
 
     public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
-            ResourceLocation highlightedTexture, ITextComponent text, IClickable onClick)
+            ResourceLocation highlightedTexture, Component text, IClickable onClick)
     {
         super(screen, x, y, width, height, baseTexture, highlightedTexture, onClick);
         createLabel(text);
     }
 
     public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
-            ResourceLocation highlightedTexture, ITextComponent text, FontRenderer font)
+            ResourceLocation highlightedTexture, Component text, Font font)
     {
         super(screen, x, y, width, height, baseTexture, highlightedTexture);
         createLabel(text, font);
     }
 
     public GuiTextButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
-            ResourceLocation highlightedTexture, ITextComponent text, FontRenderer font, IClickable onClick)
+            ResourceLocation highlightedTexture, Component text, Font font, IClickable onClick)
     {
         super(screen, x, y, width, height, baseTexture, highlightedTexture, onClick);
         createLabel(text, font);
     }
 
-    public void createLabel(ITextComponent text)
+    public void createLabel(Component text)
     {
         Minecraft mc = Minecraft.getInstance();
         createLabel(text, mc.font);
     }
 
-    public void createLabel(ITextComponent text, FontRenderer font)
+    public void createLabel(Component text, Font font)
     {
         m_label = new GuiLabel(getScreen(), 0, 0, width, height, text, font);
         m_label.setAlignment(GuiVerticalAlignment.Middle, GuiHorizontalAlignment.Center);
         m_label.setDrawDropShadow(true);
-        m_label.setFontColor(Color.fromLegacyFormat(TextFormatting.WHITE));
+        m_label.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.WHITE));
         addChild(m_label);
     }
 
-    public void setText(ITextComponent text)
+    public void setText(Component text)
     {
         m_label.setText(text);
         onTextChanged();
     }
 
-    public ITextComponent getText()
+    public Component getText()
     {
         return m_label.getText();
     }
@@ -94,22 +94,22 @@ public class GuiTextButton extends GuiButton
     {
     }
 
-    public void setFont(FontRenderer font)
+    public void setFont(Font font)
     {
         m_label.setFont(font);
     }
 
-    public FontRenderer getFont()
+    public Font getFont()
     {
         return m_label.getFont();
     }
 
-    public void setFontColor(Color c)
+    public void setFontColor(TextColor c)
     {
         m_label.setFontColor(c);
     }
 
-    public Color getFontColor()
+    public TextColor getFontColor()
     {
         return m_label.getFontColor();
     }

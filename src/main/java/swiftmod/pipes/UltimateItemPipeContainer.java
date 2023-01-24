@@ -1,14 +1,14 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import swiftmod.common.SwiftContainers;
 import swiftmod.common.upgrades.UpgradeInventory;
 
 public class UltimateItemPipeContainer extends ItemPipeContainer
 {
-    private UltimateItemPipeContainer(int windowID, PlayerInventory playerInventory, PacketBuffer extraData)
+    private UltimateItemPipeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
         super(SwiftContainers.s_ultimateItemPipeContainerType, windowID, playerInventory, extraData,
                 UltimateItemPipeTileEntity::createUpgradeInventory,
@@ -17,28 +17,28 @@ public class UltimateItemPipeContainer extends ItemPipeContainer
                 UltimateItemPipeContainerScreen.PLAYER_INVENTORY_OFFSET_Y);
     }
 
-    private UltimateItemPipeContainer(TileEntity tileEntity, int windowID, PlayerInventory playerInventory,
+    private UltimateItemPipeContainer(BlockEntity blockEntity, int windowID, Inventory playerInventory,
             PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories)
     {
-        super(SwiftContainers.s_ultimateItemPipeContainerType, tileEntity, windowID, playerInventory, cache,
+        super(SwiftContainers.s_ultimateItemPipeContainerType, blockEntity, windowID, playerInventory, cache,
                 refreshFilterCallback, channelManagerCallback, upgradeInventory, sideUpgradeInventories,
                 UltimateItemPipeContainerScreen.PLAYER_INVENTORY_OFFSET_X,
                 UltimateItemPipeContainerScreen.PLAYER_INVENTORY_OFFSET_Y);
     }
 
-    public static UltimateItemPipeContainer createContainerServerSide(TileEntity tileEntity, int windowID,
-            PlayerInventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
+    public static UltimateItemPipeContainer createContainerServerSide(BlockEntity blockEntity, int windowID,
+            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories)
     {
-        return new UltimateItemPipeContainer(tileEntity, windowID, playerInventory, cache, refreshFilterCallback,
+        return new UltimateItemPipeContainer(blockEntity, windowID, playerInventory, cache, refreshFilterCallback,
                 channelManagerCallback, upgradeInventory, sideUpgradeInventories);
     }
 
-    public static UltimateItemPipeContainer createContainerClientSide(int windowID, PlayerInventory playerInventory,
-            PacketBuffer extraData)
+    public static UltimateItemPipeContainer createContainerClientSide(int windowID, Inventory playerInventory,
+            FriendlyByteBuf extraData)
     {
         return new UltimateItemPipeContainer(windowID, playerInventory, extraData);
     }

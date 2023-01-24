@@ -8,16 +8,16 @@ import org.apache.logging.log4j.Logger;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
@@ -30,7 +30,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -75,15 +74,15 @@ public class Swift
         SwiftNetwork.registerPackets();
     }
 
-    private void onForgeChunksLoaded(ServerWorld world, TicketHelper ticketHelper)
+    private void onForgeChunksLoaded(ServerLevel world, TicketHelper ticketHelper)
     {
         Map<BlockPos, Pair<LongSet, LongSet>> blockTickets = ticketHelper.getBlockTickets();
         for (BlockPos pos : blockTickets.keySet())
         {
-            TileEntity tileEntity = world.getBlockEntity(pos);
-            if (tileEntity instanceof IChunkLoadable)
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof IChunkLoadable)
             {
-                if (!((IChunkLoadable) tileEntity).isChunkLoaded())
+                if (!((IChunkLoadable) blockEntity).isChunkLoaded())
                     ticketHelper.removeAllTickets(pos);
             }
         }
@@ -116,7 +115,7 @@ public class Swift
 
             if (s != 0)
             {
-                ItemStack mainHandItem = minecraft.player.getItemInHand(Hand.MAIN_HAND);
+                ItemStack mainHandItem = minecraft.player.getItemInHand(InteractionHand.MAIN_HAND);
                 if (!mainHandItem.isEmpty() && mainHandItem.getItem() == SwiftItems.s_copyPastaItem)
                 {
                     if (s > 0)
@@ -152,12 +151,6 @@ public class Swift
      * map(m->m.getMessageSupplier().get()). collect(Collectors.toList())); }
      */
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event)
-    {
-    }
-
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is
     // subscribing to the MOD Event bus for receiving Registry Events)
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -170,7 +163,7 @@ public class Swift
         }
 
         @SubscribeEvent
-        public static void onTileEntitiesRegistry(final RegistryEvent.Register<TileEntityType<?>> event)
+        public static void onTileEntitiesRegistry(final RegistryEvent.Register<BlockEntityType<?>> event)
         {
             SwiftTileEntities.registerTileEntities(event);
         }
@@ -182,7 +175,7 @@ public class Swift
         }
 
         @SubscribeEvent
-        public static void onContainersRegistry(final RegistryEvent.Register<ContainerType<?>> event)
+        public static void onContainersRegistry(final RegistryEvent.Register<MenuType<?>> event)
         {
             SwiftContainers.registerContainers(event);
         }

@@ -2,9 +2,10 @@ package swiftmod.common;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
 
 public class SwiftKeyBindings
 {
@@ -33,20 +34,20 @@ public class SwiftKeyBindings
             return isKeyDown(341) || isKeyDown(345);
     }
 
-    public static boolean isKeyDown(KeyBinding keyBinding)
+    public static boolean isKeyDown(KeyMapping keyBinding)
     {
-        InputMappings.Input key = keyBinding.getKey();
+    	InputConstants.Key key = keyBinding.getKey();
         int keyCode = key.getValue();
-        if (keyCode != InputMappings.UNKNOWN.getValue())
+        if (keyCode != InputConstants.UNKNOWN.getValue())
         {
             long windowHandle = Minecraft.getInstance().getWindow().getWindow();
             try
             {
-                if (key.getType() == InputMappings.Type.KEYSYM)
+                if (key.getType() == InputConstants.Type.KEYSYM)
                 {
-                    return InputMappings.isKeyDown(windowHandle, keyCode);
+                    return InputConstants.isKeyDown(windowHandle, keyCode);
                 }
-                else if (key.getType() == InputMappings.Type.MOUSE)
+                else if (key.getType() == InputConstants.Type.MOUSE)
                 {
                     return GLFW.glfwGetMouseButton(windowHandle, keyCode) == GLFW.GLFW_PRESS;
                 }
@@ -60,12 +61,12 @@ public class SwiftKeyBindings
 
     public static boolean isKeyDown(int keyCode)
     {
-        if (keyCode != InputMappings.UNKNOWN.getValue())
+        if (keyCode != InputConstants.UNKNOWN.getValue())
         {
             long windowHandle = Minecraft.getInstance().getWindow().getWindow();
             try
             {
-                return InputMappings.isKeyDown(windowHandle, keyCode);
+                return InputConstants.isKeyDown(windowHandle, keyCode);
             }
             catch (Exception ignored)
             {

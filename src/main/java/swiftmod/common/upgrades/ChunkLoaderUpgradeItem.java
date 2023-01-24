@@ -2,11 +2,11 @@ package swiftmod.common.upgrades;
 
 import java.util.List;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import swiftmod.common.SwiftTextUtils;
 
 public class ChunkLoaderUpgradeItem extends UpgradeItem
@@ -17,9 +17,9 @@ public class ChunkLoaderUpgradeItem extends UpgradeItem
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Keeps the chunk containing the pipe loaded.", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Keeps the chunk containing the pipe loaded.", SwiftTextUtils.AQUA)));
     }
 
     public static final String REGISTRY_NAME = "chunk_loader_upgrade";

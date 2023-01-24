@@ -2,17 +2,17 @@ package swiftmod.common;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import swiftmod.common.gui.SwiftGui;
 
-public abstract class PlayerInventoryContainer extends Container
+public abstract class PlayerInventoryContainer extends AbstractContainerMenu
 {
-    protected PlayerInventoryContainer(@Nullable ContainerType<?> type, int windowID, PlayerInventory playerInventory,
+    protected PlayerInventoryContainer(@Nullable MenuType<?> type, int windowID, Inventory playerInventory,
             int x, int y)
     {
         super(type, windowID);
@@ -20,10 +20,10 @@ public abstract class PlayerInventoryContainer extends Container
         setPlayerInventoryLocation(playerInventory, x, y);
     }
 
-    private void setPlayerInventoryLocation(PlayerInventory playerInventory, int x, int y)
+    private void setPlayerInventoryLocation(Inventory playerInventory, int x, int y)
     {
         // Add the hotbar to the GUI. Slots 0-8.
-        for (int i = 0; i < PlayerInventory.getSelectionSize(); ++i)
+        for (int i = 0; i < Inventory.getSelectionSize(); ++i)
         {
             addSlot(new EnableableSlot(playerInventory, i, x + SwiftGui.INVENTORY_SLOT_WIDTH * i, y + HOTBAR_OFFSET_Y));
         }
@@ -33,7 +33,7 @@ public abstract class PlayerInventoryContainer extends Container
         {
             for (int c = 0; c < INVENTORY_NUM_COLUMNS; ++c)
             {
-                int i = PlayerInventory.getSelectionSize() + r * INVENTORY_NUM_COLUMNS + c;
+                int i = Inventory.getSelectionSize() + r * INVENTORY_NUM_COLUMNS + c;
                 addSlot(new EnableableSlot(playerInventory, i, x + SwiftGui.INVENTORY_SLOT_WIDTH * c,
                         y + SwiftGui.INVENTORY_SLOT_HEIGHT * r));
             }
@@ -67,14 +67,14 @@ public abstract class PlayerInventoryContainer extends Container
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player)
+    public boolean stillValid(Player player)
     {
         return true;
     }
 
     // This is called when the player shift-clicks a slot in the inventory screen.
     @Override
-    public ItemStack quickMoveStack(PlayerEntity player, int sourceSlotIndex)
+    public ItemStack quickMoveStack(Player player, int sourceSlotIndex)
     {
         Slot sourceSlot = slots.get(sourceSlotIndex);
         if (sourceSlot == null || !sourceSlot.hasItem())
@@ -83,7 +83,7 @@ public abstract class PlayerInventoryContainer extends Container
         ItemStack sourceStackBeforeMerge = sourceItemStack.copy();
         boolean successfulTransfer = false;
 
-        if (PlayerInventory.isHotbarSlot(sourceSlotIndex))
+        if (Inventory.isHotbarSlot(sourceSlotIndex))
         {
             if (slots.size() > getPlayerInventorySize(player))
             {
@@ -95,11 +95,11 @@ public abstract class PlayerInventoryContainer extends Container
             if (!successfulTransfer)
             {
                 // Move from the hotbar to the inventory instead.
-                successfulTransfer = moveItemStackTo(sourceItemStack, PlayerInventory.getSelectionSize(),
-                        player.inventory.items.size(), false);
+                successfulTransfer = moveItemStackTo(sourceItemStack, Inventory.getSelectionSize(),
+                		getPlayerInventorySize(player), false);
             }
         }
-        else if (isInventorySlot(player.inventory, sourceSlotIndex))
+        else if (isInventorySlot(player.getInventory(), sourceSlotIndex))
         {
             if (slots.size() > getPlayerInventorySize(player))
             {
@@ -111,19 +111,19 @@ public abstract class PlayerInventoryContainer extends Container
             if (!successfulTransfer)
             {
                 // Move from the inventory to the hotbar instead.
-                successfulTransfer = moveItemStackTo(sourceItemStack, 0, PlayerInventory.getSelectionSize(), false);
+                successfulTransfer = moveItemStackTo(sourceItemStack, 0, Inventory.getSelectionSize(), false);
             }
         }
         else
         {
             // Try moving from the container inventory to the hotbar.
-            successfulTransfer = moveItemStackTo(sourceItemStack, 0, PlayerInventory.getSelectionSize(), false);
+            successfulTransfer = moveItemStackTo(sourceItemStack, 0, Inventory.getSelectionSize(), false);
 
             // Move from the container inventory to the player inventory instead.
             if (!successfulTransfer)
             {
-                successfulTransfer = moveItemStackTo(sourceItemStack, PlayerInventory.getSelectionSize(),
-                        player.inventory.items.size(), false);
+                successfulTransfer = moveItemStackTo(sourceItemStack, Inventory.getSelectionSize(),
+                		getPlayerInventorySize(player), false);
             }
         }
 
@@ -142,14 +142,14 @@ public abstract class PlayerInventoryContainer extends Container
         return sourceStackBeforeMerge;
     }
     
-    protected static int getPlayerInventorySize(PlayerEntity player)
+    protected static int getPlayerInventorySize(Player player)
     {
-        return player.inventory.items.size();
+        return player.getInventory().items.size();
     }
 
-    public static boolean isInventorySlot(PlayerInventory inventory, int slot)
+    public static boolean isInventorySlot(Inventory inventory, int slot)
     {
-        return slot >= PlayerInventory.getSelectionSize() && slot < inventory.items.size();
+        return slot >= Inventory.getSelectionSize() && slot < inventory.items.size();
     }
 
     private final int m_numPlayerInventorySlots;

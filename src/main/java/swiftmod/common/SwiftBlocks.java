@@ -1,8 +1,8 @@
 package swiftmod.common;
 
-import net.minecraft.block.Block;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import swiftmod.pipes.*;
@@ -37,13 +37,13 @@ public class SwiftBlocks
 
     public static void registerRenderTypes()
     {
-        RenderTypeLookup.setRenderLayer(s_basicItemPipeBlock, RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(s_advancedItemPipeBlock, RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(s_ultimateItemPipeBlock, RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(s_basicFluidPipeBlock, RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(s_advancedFluidPipeBlock, RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(s_ultimateFluidPipeBlock, RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(s_tankBlock, RenderType.solid());
+        ItemBlockRenderTypes.setRenderLayer(s_basicItemPipeBlock, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(s_advancedItemPipeBlock, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(s_ultimateItemPipeBlock, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(s_basicFluidPipeBlock, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(s_advancedFluidPipeBlock, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(s_ultimateFluidPipeBlock, RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(s_tankBlock, RenderType.solid());
     }
 
     private static <T extends Block> T createBlock(String registryName, T t)

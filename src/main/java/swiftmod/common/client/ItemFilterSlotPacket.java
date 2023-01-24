@@ -1,15 +1,15 @@
 package swiftmod.common.client;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.simple.SimpleChannel;
 import swiftmod.common.BigItemStack;
 
 public class ItemFilterSlotPacket extends DirectionalPacket
 {
     public interface Handler
     {
-        public void handle(ServerPlayerEntity player, ItemFilterSlotPacket packet);
+        public void handle(ServerPlayer player, ItemFilterSlotPacket packet);
     }
 
     public ItemFilterSlotPacket()
@@ -24,27 +24,27 @@ public class ItemFilterSlotPacket extends DirectionalPacket
         itemStack = stack;
     }
 
-    public ItemFilterSlotPacket(PacketBuffer buffer)
+    public ItemFilterSlotPacket(FriendlyByteBuf buffer)
     {
         itemStack = new BigItemStack();
         decode(buffer);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         super.decode(buffer);
         slot = buffer.readInt();
         itemStack.read(buffer);
     }
 
-    public void encode(PacketBuffer buffer)
+    public void encode(FriendlyByteBuf buffer)
     {
         super.encode(buffer);
         buffer.writeInt(slot);
         itemStack.write(buffer);
     }
 
-    public void process(ServerPlayerEntity player)
+    public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
         {

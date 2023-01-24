@@ -1,10 +1,12 @@
 package swiftmod.common;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class BasicItemFilter implements Filter<ItemStack>
 {
@@ -88,6 +90,7 @@ public class BasicItemFilter implements Filter<ItemStack>
         return createReturnValue(!hasAnyFilter);
     }
 
+    @SuppressWarnings("deprecation")
     private FilterMatchResult<Filter<ItemStack>> filter(ItemStack itemStack, BigItemStack filterItemStack, boolean reduceFilter)
     {
         if (itemStack.isEmpty())
@@ -104,17 +107,14 @@ public class BasicItemFilter implements Filter<ItemStack>
 
             if (matchOreDictionary)
             {
-                Set<ResourceLocation> tags = itemStack.getItem().getTags();
-                if (tags.isEmpty())
-                    return createReturnValue(false);
-                Set<ResourceLocation> filterTags = filterStack.getItem().getTags();
-                if (filterTags.isEmpty())
-                    return createReturnValue(false);
-                for (ResourceLocation tag : tags)
-                {
-                    if (filterTags.contains(tag))
-                        return createReturnValue(reduceFilter, filterItemStack);
-                }
+            	Stream<TagKey<Item>> filterTags = filterStack.getItem().builtInRegistryHolder().tags();
+            	Iterator<TagKey<Item>> iter = filterTags.iterator();
+            	while (iter.hasNext())
+            	{
+            		TagKey<Item> tag = iter.next();
+            		if (itemStack.is(tag))
+            			return createReturnValue(reduceFilter, filterItemStack);
+            	}
             }
 
             return createReturnValue(false);

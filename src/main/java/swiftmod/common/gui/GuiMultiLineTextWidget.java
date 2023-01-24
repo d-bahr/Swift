@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,105 +16,105 @@ public class GuiMultiLineTextWidget extends GuiFontWidget
     public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height)
     {
         super(screen, width, height);
-        m_text = new ArrayList<ITextComponent>();
+        m_text = new ArrayList<Component>();
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, FontRenderer font)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, Font font)
     {
         super(screen, width, height, font);
-        m_text = new ArrayList<ITextComponent>();
+        m_text = new ArrayList<Component>();
     }
 
     public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height)
     {
         super(screen, x, y, width, height);
-        m_text = new ArrayList<ITextComponent>();
+        m_text = new ArrayList<Component>();
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, FontRenderer font)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, Font font)
     {
         super(screen, x, y, width, height, font);
-        m_text = new ArrayList<ITextComponent>();
+        m_text = new ArrayList<Component>();
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, ITextComponent text)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, Component text)
     {
         super(screen, width, height);
         initText(text);
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, ITextComponent text, FontRenderer font)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, Component text, Font font)
     {
         super(screen, width, height, font);
         initText(text);
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text)
     {
         super(screen, x, y, width, height);
         initText(text);
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, ITextComponent text, FontRenderer font)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component text, Font font)
     {
         super(screen, x, y, width, height, font);
         initText(text);
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, List<ITextComponent> text)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, List<Component> text)
     {
         super(screen, width, height);
         initText(text);
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, List<ITextComponent> text, FontRenderer font)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int width, int height, List<Component> text, Font font)
     {
         super(screen, width, height, font);
         initText(text);
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, List<ITextComponent> text)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, List<Component> text)
     {
         super(screen, x, y, width, height);
         initText(text);
     }
 
-    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, List<ITextComponent> text, FontRenderer font)
+    public GuiMultiLineTextWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, List<Component> text, Font font)
     {
         super(screen, x, y, width, height, font);
         initText(text);
     }
 
-    private void initText(ITextComponent text)
+    private void initText(Component text)
     {
-        m_text = new ArrayList<ITextComponent>();
+        m_text = new ArrayList<Component>();
         if (text != null)
             m_text.add(text);
     }
 
-    private void initText(List<ITextComponent> text)
+    private void initText(List<Component> text)
     {
         if (text != null)
             m_text = text;
         else
-            m_text = new ArrayList<ITextComponent>();
+            m_text = new ArrayList<Component>();
     }
 
-    public void addText(ITextComponent text)
+    public void addText(Component text)
     {
         if (text != null)
             m_text.add(text);
         onTextChanged();
     }
 
-    public void addText(Collection<ITextComponent> text)
+    public void addText(Collection<Component> text)
     {
         if (text != null)
             m_text.addAll(text);
         onTextChanged();
     }
 
-    public void setText(ITextComponent text)
+    public void setText(Component text)
     {
         m_text.clear();
         if (text != null)
@@ -122,16 +122,16 @@ public class GuiMultiLineTextWidget extends GuiFontWidget
         onTextChanged();
     }
 
-    public void setText(int line, ITextComponent text)
+    public void setText(int line, Component text)
     {
         if (text != null)
             m_text.set(line, text);
         else
-            m_text.set(line, StringTextComponent.EMPTY);
+            m_text.set(line, TextComponent.EMPTY);
         onTextChanged();
     }
 
-    public void setText(List<ITextComponent> text)
+    public void setText(List<Component> text)
     {
         if (text == null)
             m_text.clear();
@@ -160,7 +160,7 @@ public class GuiMultiLineTextWidget extends GuiFontWidget
         }
     }
 
-    public boolean removeText(ITextComponent text)
+    public boolean removeText(Component text)
     {
         for (int i = 0; i < m_text.size(); ++i)
         {
@@ -180,12 +180,12 @@ public class GuiMultiLineTextWidget extends GuiFontWidget
         return m_text.size();
     }
 
-    public ITextComponent getText(int line)
+    public Component getText(int line)
     {
         return m_text.get(line);
     }
 
-    public List<ITextComponent> getText()
+    public List<Component> getText()
     {
         return m_text;
     }
@@ -194,5 +194,5 @@ public class GuiMultiLineTextWidget extends GuiFontWidget
     {
     }
 
-    protected List<ITextComponent> m_text;
+    protected List<Component> m_text;
 }

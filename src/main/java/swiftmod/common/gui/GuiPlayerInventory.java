@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
-import net.minecraft.inventory.container.Container;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.PlayerInventoryContainer;
@@ -23,7 +23,7 @@ public class GuiPlayerInventory extends GuiTexture
     public void show()
     {
         super.show();
-        Container c = getScreen().getMenu();
+        AbstractContainerMenu c = getScreen().getMenu();
         if (c instanceof PlayerInventoryContainer)
             ((PlayerInventoryContainer)c).enablePlayerInventorySlots(true);
     }
@@ -31,7 +31,7 @@ public class GuiPlayerInventory extends GuiTexture
     public void hide()
     {
         super.hide();
-        Container c = getScreen().getMenu();
+        AbstractContainerMenu c = getScreen().getMenu();
         if (c instanceof PlayerInventoryContainer)
             ((PlayerInventoryContainer)c).enablePlayerInventorySlots(false);
     }

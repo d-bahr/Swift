@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -83,9 +83,9 @@ public class WhiteBlackListButton extends GuiTextureButton
     private void updateTooltip()
     {
         if (m_state == WhiteListState.WhiteList)
-            setTooltip(new StringTextComponent("Whitelist"));
+            setTooltip(new TextComponent("Whitelist"));
         else
-            setTooltip(new StringTextComponent("Blacklist"));
+            setTooltip(new TextComponent("Blacklist"));
     }
 
     public static final ResourceLocation WHITELIST_TEXTURE = new ResourceLocation(Swift.MOD_NAME,

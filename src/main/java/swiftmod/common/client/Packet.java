@@ -2,10 +2,10 @@ package swiftmod.common.client;
 
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public abstract class Packet
 {
@@ -18,15 +18,15 @@ public abstract class Packet
         if (sideReceived != LogicalSide.SERVER)
             return;
 
-        ServerPlayerEntity player = context.getSender();
+        ServerPlayer player = context.getSender();
 
         // Dispatch from the network thread to the main server processing thread.
         context.enqueueWork(() -> process(player));
     }
 
-    public abstract void decode(PacketBuffer buffer);
+    public abstract void decode(FriendlyByteBuf buffer);
 
-    public abstract void encode(PacketBuffer buffer);
+    public abstract void encode(FriendlyByteBuf buffer);
 
-    public abstract void process(ServerPlayerEntity player);
+    public abstract void process(ServerPlayer player);
 }

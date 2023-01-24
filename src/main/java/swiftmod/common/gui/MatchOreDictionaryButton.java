@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -24,9 +24,9 @@ public class MatchOreDictionaryButton extends GuiBooleanStateButton
     private void setTooltip()
     {
         if (getState())
-            setTooltip(new StringTextComponent("Match any ore dictionary tag"));
+            setTooltip(new TextComponent("Match any ore dictionary tag"));
         else
-            setTooltip(new StringTextComponent("Ignore ore dictionary tags"));
+            setTooltip(new TextComponent("Ignore ore dictionary tags"));
     }
 
     protected void onStateChanged()

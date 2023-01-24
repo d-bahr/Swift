@@ -2,17 +2,17 @@ package swiftmod.common.upgrades;
 
 import java.util.List;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
+import net.minecraft.nbt.Tag;
 import swiftmod.common.BasicItemFilter;
 import swiftmod.common.BigItemStack;
 import swiftmod.common.Filter;
@@ -33,7 +33,7 @@ public class BasicItemFilterUpgradeItem extends FilterUpgradeItem implements IIt
             return new BasicItemFilter();
         if (itemStack.isEmpty() || !itemStack.hasTag())
             return new BasicItemFilter();
-        CompoundNBT nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
+        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
         if (nbt == null)
             return new BasicItemFilter();
 
@@ -45,13 +45,13 @@ public class BasicItemFilterUpgradeItem extends FilterUpgradeItem implements IIt
         filter.matchNBT = nbt.getBoolean(BasicItemFilterUpgradeDataCache.TAG_MATCH_NBT);
         filter.matchOreDictionary = nbt.getBoolean(BasicItemFilterUpgradeDataCache.TAG_MATCH_ORE_DICTIONARY);
 
-        ListNBT filterNBT = nbt.getList(BasicItemFilterUpgradeDataCache.TAG_SLOTS, Constants.NBT.TAG_COMPOUND);
+        ListTag filterNBT = nbt.getList(BasicItemFilterUpgradeDataCache.TAG_SLOTS, Tag.TAG_COMPOUND);
         if (filterNBT == null)
             return filter;
 
         for (int i = 0; i < filterNBT.size(); ++i)
         {
-            CompoundNBT slotNBT = filterNBT.getCompound(i);
+            CompoundTag slotNBT = filterNBT.getCompound(i);
             BigItemStack stack = new BigItemStack(slotNBT);
             if (!stack.isEmpty())
                 filter.filterStacks.add(stack);
@@ -61,34 +61,34 @@ public class BasicItemFilterUpgradeItem extends FilterUpgradeItem implements IIt
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand)
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
     {
         return ItemContainerProvider.openContainerGui(world, player, hand,
                 BasicItemFilterUpgradeContainer::createContainerServerSide, BasicItemFilterUpgradeContainer::encode);
     }
 
     @Override
-    public void addStandardInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Filters items.", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Filters items.", SwiftTextUtils.AQUA)));
     }
 
     @Override
-    public void addShiftInformation(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
         BasicItemFilterUpgradeDataCache cache = new BasicItemFilterUpgradeDataCache(stack);
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color(cache.getWhiteListState() == WhiteListState.WhiteList ? "Whitelist" : "Blacklist", SwiftTextUtils.AQUA)));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Match count: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchCount())));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Match damage: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchDamage())));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Match mod: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchMod())));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Match NBT: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchNBT())));
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Match ore dict: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchOreDictionary())));
+        tooltip.add(new TextComponent(SwiftTextUtils.color(cache.getWhiteListState() == WhiteListState.WhiteList ? "Whitelist" : "Blacklist", SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Match count: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchCount())));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Match damage: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchDamage())));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Match mod: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchMod())));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Match NBT: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchNBT())));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Match ore dict: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchOreDictionary())));
         List<BigItemStack> filters = cache.getFilters();
         int count = 0;
         for (int i = 0; i < filters.size(); ++i)
             if (!filters.get(i).isEmpty())
                 count++;
-        tooltip.add(new StringTextComponent(SwiftTextUtils.color("Filters: " + count, SwiftTextUtils.AQUA)));
+        tooltip.add(new TextComponent(SwiftTextUtils.color("Filters: " + count, SwiftTextUtils.AQUA)));
     }
 
     @Override

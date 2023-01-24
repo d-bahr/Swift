@@ -1,9 +1,9 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -14,7 +14,7 @@ import swiftmod.common.gui.SideIOConfigurationWidget;
 @OnlyIn(Dist.CLIENT)
 public class SideUpgradeContainerScreen extends GuiContainerScreen<SideUpgradeContainer>
 {
-    public SideUpgradeContainerScreen(SideUpgradeContainer c, PlayerInventory inv, ITextComponent title)
+    public SideUpgradeContainerScreen(SideUpgradeContainer c, Inventory inv, Component title)
     {
         super(c, inv, title, 176, 190, BACKGROUND_TEXTURE);
 

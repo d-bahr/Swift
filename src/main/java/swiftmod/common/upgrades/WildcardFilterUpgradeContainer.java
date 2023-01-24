@@ -1,27 +1,26 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import swiftmod.common.IDataCacheContainer;
 import swiftmod.common.SwiftContainers;
 import swiftmod.common.SwiftItems;
 import swiftmod.common.SwiftNetwork;
 import swiftmod.common.client.WildcardFilterPacket;
 
-public class WildcardFilterUpgradeContainer extends Container
-        implements WildcardFilterPacket.Handler, IDataCacheContainer<WildcardFilterUpgradeDataCache>
+public class WildcardFilterUpgradeContainer extends AbstractContainerMenu implements WildcardFilterPacket.Handler, IDataCacheContainer<WildcardFilterUpgradeDataCache>
 {
-    protected WildcardFilterUpgradeContainer(int windowID, PlayerInventory playerInventory)
+    protected WildcardFilterUpgradeContainer(int windowID, Inventory playerInventory)
     {
         super(SwiftContainers.s_wildcardFilterContainertype, windowID);
         m_cache = new WildcardFilterUpgradeDataCache();
     }
 
-    protected WildcardFilterUpgradeContainer(int windowID, PlayerInventory playerInventory, PacketBuffer extraData)
+    protected WildcardFilterUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
         super(SwiftContainers.s_wildcardFilterContainertype, windowID);
         m_cache = new WildcardFilterUpgradeDataCache();
@@ -34,7 +33,7 @@ public class WildcardFilterUpgradeContainer extends Container
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn)
+    public boolean stillValid(Player playerIn)
     {
         return true;
     }
@@ -64,18 +63,18 @@ public class WildcardFilterUpgradeContainer extends Container
         SwiftNetwork.mainChannel.sendToServer(updatePacket);
     }
 
-    public static void encode(PlayerEntity player, ItemStack heldItem, PacketBuffer buffer)
+    public static void encode(Player player, ItemStack heldItem, FriendlyByteBuf buffer)
     {
         buffer.writeItemStack(heldItem, false);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         m_cache.read(buffer);
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, WildcardFilterPacket packet)
+    public void handle(ServerPlayer player, WildcardFilterPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem)
@@ -87,13 +86,13 @@ public class WildcardFilterUpgradeContainer extends Container
         }
     }
 
-    public static WildcardFilterUpgradeContainer createContainerServerSide(int windowID, PlayerInventory playerInventory, PlayerEntity playerEntity)
+    public static WildcardFilterUpgradeContainer createContainerServerSide(int windowID, Inventory playerInventory, Player playerEntity)
     {
         return new WildcardFilterUpgradeContainer(windowID, playerInventory);
     }
 
-    public static WildcardFilterUpgradeContainer createContainerClientSide(int windowID, PlayerInventory playerInventory,
-            PacketBuffer extraData)
+    public static WildcardFilterUpgradeContainer createContainerClientSide(int windowID, Inventory playerInventory,
+            FriendlyByteBuf extraData)
     {
         return new WildcardFilterUpgradeContainer(windowID, playerInventory, extraData);
     }

@@ -1,8 +1,8 @@
 package swiftmod.pipes;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
 import swiftmod.common.DataCache;
 import swiftmod.common.NeighboringItems;
 import swiftmod.common.RedstoneControl;
@@ -27,71 +27,67 @@ public class PipeDataCache implements DataCache
         channelConfiguration = new ChannelConfigurationDataCache();
     }
 
-    public void serialize(PacketBuffer buffer, NeighboringItems items)
+    public void serialize(FriendlyByteBuf buffer, NeighboringItems items)
     {
         write(buffer);
         items.serialize(buffer);
     }
 
-    public NeighboringItems deserialize(PacketBuffer buffer)
+    public NeighboringItems deserialize(FriendlyByteBuf buffer)
     {
         read(buffer);
         return NeighboringItems.deserialize(buffer);
     }
 
-    public CompoundNBT write(CompoundNBT nbt, boolean writeChannelData)
+    public void write(CompoundTag nbt, boolean writeChannelData)
     {
         RedstoneControl.writeArray(nbt, redstoneControls);
         TransferDirection.writeArray(nbt, transferDirections);
         channelConfiguration.write(nbt, writeChannelData);
-        return nbt;
     }
 
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
-        return write(nbt, true);
+        write(nbt, true);
     }
 
-    public void read(CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
         redstoneControls = RedstoneControl.readArray(nbt);
         transferDirections = TransferDirection.readArray(nbt);
         channelConfiguration.read(nbt);
     }
 
-    public PacketBuffer write(PacketBuffer buffer)
+    public void write(FriendlyByteBuf buffer)
     {
         RedstoneControl.writeArray(buffer, redstoneControls);
         TransferDirection.writeArray(buffer, transferDirections);
         channelConfiguration.write(buffer);
-        return buffer;
     }
 
-    public void read(PacketBuffer buffer)
+    public void read(FriendlyByteBuf buffer)
     {
         redstoneControls = RedstoneControl.readArray(buffer);
         transferDirections = TransferDirection.readArray(buffer);
         channelConfiguration.read(buffer);
     }
 
-    public PacketBuffer writeTransferDirection(PacketBuffer buffer, Direction direction)
+    public void writeTransferDirection(FriendlyByteBuf buffer, Direction direction)
     {
         TransferDirection.write(buffer, transferDirections[SwiftUtils.dirToIndex(direction)]);
-        return buffer;
     }
 
-    public void readTransferDirection(PacketBuffer buffer, Direction direction)
+    public void readTransferDirection(FriendlyByteBuf buffer, Direction direction)
     {
         transferDirections[SwiftUtils.dirToIndex(direction)] = TransferDirection.read(buffer);
     }
 
-    public PacketBuffer writeRedstoneControl(PacketBuffer buffer, Direction direction)
+    public void writeRedstoneControl(FriendlyByteBuf buffer, Direction direction)
     {
         RedstoneControl.write(buffer, redstoneControls[SwiftUtils.dirToIndex(direction)]);
-        return buffer;
     }
 
-    public void readRedstoneControl(PacketBuffer buffer, Direction direction)
+    public void readRedstoneControl(FriendlyByteBuf buffer, Direction direction)
     {
         redstoneControls[SwiftUtils.dirToIndex(direction)] = RedstoneControl.read(buffer);
     }

@@ -1,30 +1,27 @@
 package swiftmod.pipes;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import io.netty.util.internal.ThreadLocalRandom;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import swiftmod.common.Color;
 import swiftmod.common.ContainerInventory;
@@ -53,13 +50,13 @@ import swiftmod.common.upgrades.UpgradeType;
 // U = IItemHandler or IFluidHandler
 // V = ItemStack or FluidStack
 public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends TileEntityBase<T>
-        implements INamedContainerProvider, ITickableTileEntity, IChunkLoadable
+        implements MenuProvider, IChunkLoadable
 {
     @SuppressWarnings("unchecked")
-    protected PipeTileEntity(TileEntityType<?> type, T cache, UpgradeInventory upgradeInventory,
+    protected PipeTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, T cache, UpgradeInventory upgradeInventory,
             Supplier<UpgradeInventory> sideUpgradeInventorySupplier)
     {
-        super(type, cache);
+        super(type, pos, state, cache);
 
         m_baseUpgradeInventory = upgradeInventory;
         m_baseUpgradeInventory.setMarkDirtyCallback(this::setChanged);
@@ -81,35 +78,33 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT nbt)
+    public void write(CompoundTag nbt)
     {
         super.write(nbt);
 
         getCache().write(nbt, false);
         nbt.put(SwiftUtils.tagName("baseUpgradeSlots"), m_baseUpgradeInventory.serializeNBT());
 
-        ListNBT sideUpgradeNBT = new ListNBT();
+        ListTag sideUpgradeNBT = new ListTag();
         for (int i = 0; i < m_sideUpgradeInventories.length; ++i)
         {
-            CompoundNBT side = new CompoundNBT();
+            CompoundTag side = new CompoundTag();
             side.putInt(SwiftUtils.tagName("direction"), i);
             side.put(SwiftUtils.tagName("inventory"), m_sideUpgradeInventories[i].serializeNBT());
             sideUpgradeNBT.add(side);
         }
         nbt.put(SwiftUtils.tagName("sideUpgradeSlots"), sideUpgradeNBT);
-
-        return nbt;
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT nbt)
+    public void read(CompoundTag nbt)
     {
-        super.read(state, nbt);
+        super.read(nbt);
 
         getCache().read(nbt);
         m_baseUpgradeInventory.deserializeNBT(nbt.getCompound(SwiftUtils.tagName("baseUpgradeSlots")));
 
-        if (hasLevel() && level instanceof ServerWorld)
+        if (hasLevel() && level instanceof ServerLevel)
         {
             int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
             if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
@@ -125,13 +120,13 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             {
                 ItemStack stack = m_baseUpgradeInventory.getItem(slot);
                 ChunkPos chunk = new ChunkPos(worldPosition);
-                ServerWorld serverWorld = (ServerWorld) level;
+                ServerLevel serverWorld = (ServerLevel) level;
                 boolean add = stack != null && !stack.isEmpty();
                 ForgeChunkManager.forceChunk(serverWorld, Swift.MOD_NAME, worldPosition, chunk.x, chunk.z, add, true);
             }
         }
 
-        ListNBT sideUpgradeNBT = nbt.getList(SwiftUtils.tagName("sideUpgradeSlots"), Constants.NBT.TAG_COMPOUND);
+        ListTag sideUpgradeNBT = nbt.getList(SwiftUtils.tagName("sideUpgradeSlots"), Tag.TAG_COMPOUND);
         if (sideUpgradeNBT == null)
         {
             Swift.LOGGER.warn("Invalid item pipe NBT. Side upgrades ignored.");
@@ -142,11 +137,11 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             m_sideUpgradeInventories[i].clearContent();
         for (int i = 0; i < sideUpgradeNBT.size(); ++i)
         {
-            CompoundNBT sideNBT = sideUpgradeNBT.getCompound(i);
+            CompoundTag sideNBT = sideUpgradeNBT.getCompound(i);
             int index = sideNBT.getInt(SwiftUtils.tagName("direction"));
             if (index < m_sideUpgradeInventories.length)
             {
-                CompoundNBT inventoryNBT = sideNBT.getCompound(SwiftUtils.tagName("inventory"));
+                CompoundTag inventoryNBT = sideNBT.getCompound(SwiftUtils.tagName("inventory"));
                 m_sideUpgradeInventories[index].deserializeNBT(inventoryNBT);
             }
         }
@@ -173,13 +168,13 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         }
     }
 
-    public boolean copyTileEntityUpgrades(CompoundNBT nbt, Direction dir, CopyPastaItem.CopyType copyType)
+    public boolean copyTileEntityUpgrades(CompoundTag nbt, Direction dir, CopyPastaItem.CopyType copyType)
     {
         switch (copyType)
         {
         case CopyLikeToLike:
         {
-            ListNBT list = new ListNBT();
+            ListTag list = new ListTag();
             if (dir == null)
                 list.add(copyUpgrades(m_baseUpgradeInventory, null));
             else
@@ -189,7 +184,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         }
         case CopyBase:
         {
-            ListNBT list = new ListNBT();
+            ListTag list = new ListTag();
             list.add(copyUpgrades(m_baseUpgradeInventory, null));
             nbt.put(SwiftUtils.tagName("targets"), list);
             return true;
@@ -198,14 +193,14 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         {
             if (dir == null)
                 return false;
-            ListNBT list = new ListNBT();
+            ListTag list = new ListTag();
             list.add(copyUpgrades(m_sideUpgradeInventories[SwiftUtils.dirToIndex(dir)], dir));
             nbt.put(SwiftUtils.tagName("targets"), list);
             return true;
         }
         case CopyAllDirections:
         {
-            ListNBT list = new ListNBT();
+            ListTag list = new ListTag();
             for (Direction d : Direction.values())
                 list.add(copyUpgrades(m_sideUpgradeInventories[SwiftUtils.dirToIndex(d)], d));
             nbt.put(SwiftUtils.tagName("targets"), list);
@@ -213,7 +208,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         }
         case CopyAll:
         {
-            ListNBT list = new ListNBT();
+            ListTag list = new ListTag();
             list.add(copyUpgrades(m_baseUpgradeInventory, null));
             for (Direction d : Direction.values())
                 list.add(copyUpgrades(m_sideUpgradeInventories[SwiftUtils.dirToIndex(d)], d));
@@ -225,9 +220,9 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         }
     }
 
-    private CompoundNBT copyUpgrades(UpgradeInventory inventory, Direction dir)
+    private CompoundTag copyUpgrades(UpgradeInventory inventory, Direction dir)
     {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         if (dir == null)
         {
             nbt.putInt(SwiftUtils.tagName("direction"), -1);
@@ -241,7 +236,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             RedstoneControl.write(nbt, rc);
             TransferDirection.write(nbt, td);
         }
-        ListNBT upgradeInventoryNBT = new ListNBT();
+        ListTag upgradeInventoryNBT = new ListTag();
         for (int i = 0; i < inventory.getContainerSize(); ++i)
         {
             ItemStack stack = inventory.getItem(i);
@@ -253,13 +248,13 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         return nbt;
     }
 
-    public boolean pasteTileEntityUpgrades(CompoundNBT nbt, Direction dir, CopyPastaItem.CopyType copyType)
+    public boolean pasteTileEntityUpgrades(CompoundTag nbt, Direction dir, CopyPastaItem.CopyType copyType)
     {
         boolean hasMatch = false;
-        ListNBT list = nbt.getList(SwiftUtils.tagName("targets"), Constants.NBT.TAG_COMPOUND);
+        ListTag list = nbt.getList(SwiftUtils.tagName("targets"), Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); ++i)
         {
-            CompoundNBT item = list.getCompound(i);
+            CompoundTag item = list.getCompound(i);
             int dirInt = item.getInt(SwiftUtils.tagName("direction"));
             RedstoneControl rc = RedstoneControl.read(item);
             TransferDirection td = TransferDirection.read(item);
@@ -340,13 +335,13 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         return hasMatch;
     }
 
-    private void pasteUpgrades(CompoundNBT nbt, UpgradeInventory inventory, Direction targetDir)
+    private void pasteUpgrades(CompoundTag nbt, UpgradeInventory inventory, Direction targetDir)
     {
-        ListNBT list = nbt.getList(SwiftUtils.tagName("upgrades"), Constants.NBT.TAG_COMPOUND);
+        ListTag list = nbt.getList(SwiftUtils.tagName("upgrades"), Tag.TAG_COMPOUND);
         int length = Math.min(inventory.getContainerSize(), list.size());
         for (int i = 0; i < length; ++i)
         {
-            CompoundNBT item = list.getCompound(i);
+            CompoundTag item = list.getCompound(i);
             ItemStack targetItem = inventory.getItem(i);
             ItemStack sourceItem = ItemStack.of(item);
             if (!sourceItem.isEmpty() && !targetItem.isEmpty() && sourceItem.getItem() == targetItem.getItem())
@@ -365,37 +360,14 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             }
         }
     }
-
-    public boolean tryAddUpgrade(PlayerInventory inventory, Hand hand)
+    
+    public boolean tryAddUpgrade(ItemStack itemStack)
     {
-        return tryAddUpgrade(inventory, hand, null);
+    	return tryAddUpgrade(itemStack, null);
     }
 
-    public boolean tryAddUpgrade(PlayerInventory inventory, Hand hand, Direction dir)
+    public boolean tryAddUpgrade(ItemStack itemStack, Direction dir)
     {
-        List<ItemStack> itemList;
-        int itemListIndex = 0;
-        ItemStack itemStack;
-        if (hand == Hand.OFF_HAND)
-        {
-            itemList = inventory.offhand;
-            itemListIndex = 0;
-            itemStack = itemList.get(itemListIndex);
-        }
-        else
-        {
-            itemList = inventory.items;
-            if (PlayerInventory.isHotbarSlot(inventory.selected))
-            {
-                itemListIndex = inventory.selected;
-                itemStack = itemList.get(itemListIndex);
-            }
-            else
-            {
-                itemListIndex = 0;
-                itemStack = ItemStack.EMPTY;
-            }
-        }
         if (itemStack.isEmpty())
             return false;
         if (!(itemStack.getItem() instanceof UpgradeItem))
@@ -403,14 +375,14 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         UpgradeType upgrade = ((UpgradeItem)itemStack.getItem()).getType();
         if (dir == null)
         {
-            return tryAddBaseUpgrade(itemList, itemListIndex, itemStack, upgrade, dir);
+            return tryAddBaseUpgrade(itemStack, upgrade, dir);
         }
         else
         {
             int slot = m_baseUpgradeInventory.getSlotForUpgrade(upgrade);
             if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
             {
-                return tryAddBaseUpgrade(itemList, itemListIndex, itemStack, upgrade, dir);
+                return tryAddBaseUpgrade(itemStack, upgrade, dir);
             }
             else
             {
@@ -425,14 +397,36 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
                 ItemStack simulation = sideUpgradeInventory.tryInsert(slot2, itemStack, true);
                 if (itemStack.getCount() <= simulation.getCount())
                     return false;
-                ItemStack transfer = ItemStackHelper.removeItem(itemList, itemListIndex, 1);
+                ItemStack transfer = itemStack.split(1);
                 sideUpgradeInventory.tryInsert(slot2, transfer, false);
                 return true;
             }
         }
     }
 
-    public boolean tryAddBaseUpgrade(List<ItemStack> itemList, int itemListIndex, ItemStack itemStack, UpgradeType upgradeType, Direction dir)
+    public boolean tryAddUpgrade(Inventory inventory, InteractionHand hand)
+    {
+        return tryAddUpgrade(inventory, hand, null);
+    }
+
+    public boolean tryAddUpgrade(Inventory inventory, InteractionHand hand, Direction dir)
+    {
+        ItemStack itemStack = ItemStack.EMPTY;
+        if (hand == InteractionHand.OFF_HAND)
+        {
+            itemStack = inventory.offhand.get(0);
+        }
+        else
+        {
+            if (Inventory.isHotbarSlot(inventory.selected))
+                itemStack = inventory.items.get(inventory.selected);
+            else
+                return false;
+        }
+    	return tryAddUpgrade(itemStack, dir);
+    }
+
+    protected boolean tryAddBaseUpgrade(ItemStack itemStack, UpgradeType upgradeType, Direction dir)
     {
         int slot = m_baseUpgradeInventory.getSlotForUpgrade(upgradeType);
         if (slot < 0 || slot >= m_baseUpgradeInventory.getContainerSize())
@@ -442,26 +436,26 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         ItemStack simulation = m_baseUpgradeInventory.tryInsert(slot, itemStack, true);
         if (itemStack.getCount() <= simulation.getCount())
             return false;
-        ItemStack transfer = ItemStackHelper.removeItem(itemList, itemListIndex, 1);
+        ItemStack transfer = itemStack.split(1);
         m_baseUpgradeInventory.tryInsert(slot, transfer, false);
         return true;
     }
 
     @Override
-    public void setLevelAndPosition(World world, BlockPos pos)
+    public void setLevel(Level newLevel)
     {
         // If the world changes, detach the channel manager from the current world
         // and reattach it in the world. This may happen the first time the tile
         // entity is loaded, as the world is set after the NBT is loaded, for some
         // kind of obscure reason.
-        if (hasLevel() && level instanceof ServerWorld)
+        if (hasLevel() && level instanceof ServerLevel)
         {
             getChannelManager().detach(this);
         }
 
-        super.setLevelAndPosition(world, pos);
+        super.setLevel(newLevel);
 
-        if (hasLevel() && level instanceof ServerWorld)
+        if (hasLevel() && level instanceof ServerLevel)
         {
             int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
             if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
@@ -474,14 +468,14 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         }
     }
 
-    @Override
-    public void tick()
+    public static <T extends PipeDataCache, U, V> void serverTick(Level level, BlockPos pos, BlockState state, PipeTileEntity<T, U, V> tileEntity)
     {
-        // Only run this code server-side.
-        if (level.isClientSide)
-            return;
+    	tileEntity.serverTick(level);
+    }
 
-        // TODO: Take a look at how mechanism handles their block updates on pipes. Callbacks on their
+    public void serverTick(Level level)
+    {
+    	// TODO: Take a look at how Mekanism handles their block updates on pipes. Callbacks on their
         // own don't seem to work correctly; I think they might just be doing some calculations every
         // tick, similar to the below logic.
         PipeBlock pb = (PipeBlock)getBlockState().getBlock();
@@ -581,7 +575,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
                     ArrayList<U> handlers = new ArrayList<U>();
                     ArrayList<Byte> dirStates = new ArrayList<Byte>();
                     UpgradeInventory sideUpgradeInventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(dirs[i])];
-                    TileEntity neighbor = level.getBlockEntity(worldPosition.relative(dirs[i]));
+                    BlockEntity neighbor = level.getBlockEntity(worldPosition.relative(dirs[i]));
 
                     ItemStack sideConfigStack = ItemStack.EMPTY;
                     if (sideUpgradeInventory.getContainerSize() > 0)
@@ -648,7 +642,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
 
             if (teleportItem != null)
             {
-                CompoundNBT channelNBT = teleportItem.getTagElement(TeleporterUpgradeItem.NBT_TAG);
+                CompoundTag channelNBT = teleportItem.getTagElement(TeleporterUpgradeItem.NBT_TAG);
                 if (channelNBT != null)
                 {
                     ChannelSpec spec = new ChannelSpec(channelNBT);
@@ -679,7 +673,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
                                     ArrayList<Byte> dirStates = new ArrayList<Byte>();
                                     UpgradeInventory sideUpgradeInventory = otherPipe.m_sideUpgradeInventories[SwiftUtils
                                             .dirToIndex(dirs[i])];
-                                    TileEntity otherPipeNeighbor = target.getNeighbor(dirs[i]);
+                                    BlockEntity otherPipeNeighbor = target.getNeighbor(dirs[i]);
 
                                     ItemStack sideConfigStack = ItemStack.EMPTY;
                                     if (sideUpgradeInventory.getContainerSize() > 0)
@@ -962,7 +956,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
 
     private void onBaseUpgradesChanged(ContainerInventory cv)
     {
-    	if (hasLevel() && level instanceof ServerWorld)
+    	if (hasLevel() && level instanceof ServerLevel)
         {
             int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
             if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
@@ -981,7 +975,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             {
                 ItemStack stack = m_baseUpgradeInventory.getItem(slot);
                 ChunkPos chunk = new ChunkPos(worldPosition);
-                ServerWorld serverWorld = (ServerWorld) level;
+                ServerLevel serverWorld = (ServerLevel) level;
                 boolean add = stack != null && !stack.isEmpty();
                 ForgeChunkManager.forceChunk(serverWorld, Swift.MOD_NAME, worldPosition, chunk.x, chunk.z, add,
                         true);
@@ -991,7 +985,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
 
     protected void onChannelUpdate(ChannelSpec spec)
     {
-    	if (hasLevel() && level instanceof ServerWorld)
+    	if (hasLevel() && level instanceof ServerLevel)
     	{
 	        if (spec != null)
 	            getChannelManager().reattach(spec, this);
@@ -1007,7 +1001,7 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
             Item item = stack.getItem();
             if (item instanceof TeleporterUpgradeItem)
             {
-                CompoundNBT channelNBT = stack.getTagElement(TeleporterUpgradeItem.NBT_TAG);
+                CompoundTag channelNBT = stack.getTagElement(TeleporterUpgradeItem.NBT_TAG);
                 if (channelNBT != null)
                 {
                     ChannelSpec spec = new ChannelSpec(channelNBT);
@@ -1041,18 +1035,18 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
      * @param world
      * @param blockPos
      */
-    public void dropAllContents(World world, BlockPos blockPos)
+    public void dropAllContents(Level world, BlockPos blockPos)
     {
-        InventoryHelper.dropContents(world, blockPos, m_baseUpgradeInventory);
+    	Containers.dropContents(world, blockPos, m_baseUpgradeInventory);
         for (int i = 0; i < m_sideUpgradeInventories.length; ++i)
-            InventoryHelper.dropContents(world, blockPos, m_sideUpgradeInventories[i]);
+        	Containers.dropContents(world, blockPos, m_sideUpgradeInventories[i]);
     }
 
-    protected abstract PipeTileEntity<T, U, V> castToSelf(TileEntity entity);
+    protected abstract PipeTileEntity<T, U, V> castToSelf(BlockEntity entity);
 
     protected abstract void refreshFilter(Direction dir);
 
-    protected abstract U getHandler(TileEntity tileEntity, Direction dir);
+    protected abstract U getHandler(BlockEntity blockEntity, Direction dir);
 
     protected abstract int getSize(U handler);
 

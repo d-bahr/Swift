@@ -1,10 +1,10 @@
 package swiftmod.common.upgrades;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import swiftmod.common.BigItemStack;
 import swiftmod.common.ContainerBase;
 import swiftmod.common.SwiftContainers;
@@ -17,12 +17,12 @@ import swiftmod.common.client.ItemFilterSlotPacket;
 public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilterUpgradeDataCache>
         implements ItemFilterConfigurationPacket.Handler, ItemFilterSlotPacket.Handler, ClearFilterPacket.Handler
 {
-    protected BasicItemFilterUpgradeContainer(int windowID, PlayerInventory playerInventory)
+    protected BasicItemFilterUpgradeContainer(int windowID, Inventory playerInventory)
     {
         super(SwiftContainers.s_basicItemFilterContainerType, windowID, playerInventory, 8, 107);
     }
 
-    protected BasicItemFilterUpgradeContainer(int windowID, PlayerInventory playerInventory, PacketBuffer extraData)
+    protected BasicItemFilterUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
         super(SwiftContainers.s_basicItemFilterContainerType, windowID, new BasicItemFilterUpgradeDataCache(), playerInventory, 8, 107);
         decode(extraData);
@@ -56,18 +56,18 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
         SwiftNetwork.mainChannel.sendToServer(updatePacket);
     }
 
-    public static void encode(PlayerEntity player, ItemStack heldItem, PacketBuffer buffer)
+    public static void encode(Player player, ItemStack heldItem, FriendlyByteBuf buffer)
     {
         buffer.writeItemStack(heldItem, false);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         m_cache.read(buffer);
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, ItemFilterConfigurationPacket packet)
+    public void handle(ServerPlayer player, ItemFilterConfigurationPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
@@ -82,7 +82,7 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, ItemFilterSlotPacket packet)
+    public void handle(ServerPlayer player, ItemFilterSlotPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
@@ -92,7 +92,7 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
     }
 
     @Override
-    public void handle(ServerPlayerEntity player, ClearFilterPacket packet)
+    public void handle(ServerPlayer player, ClearFilterPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
@@ -101,13 +101,13 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
         }
     }
 
-    public static BasicItemFilterUpgradeContainer createContainerServerSide(int windowID, PlayerInventory playerInventory, PlayerEntity playerEntity)
+    public static BasicItemFilterUpgradeContainer createContainerServerSide(int windowID, Inventory playerInventory, Player playerEntity)
     {
         return new BasicItemFilterUpgradeContainer(windowID, playerInventory);
     }
 
-    public static BasicItemFilterUpgradeContainer createContainerClientSide(int windowID, PlayerInventory playerInventory,
-            PacketBuffer extraData)
+    public static BasicItemFilterUpgradeContainer createContainerClientSide(int windowID, Inventory playerInventory,
+            FriendlyByteBuf extraData)
     {
         return new BasicItemFilterUpgradeContainer(windowID, playerInventory, extraData);
     }

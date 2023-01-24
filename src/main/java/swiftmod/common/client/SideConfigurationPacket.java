@@ -1,15 +1,15 @@
 package swiftmod.common.client;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class SideConfigurationPacket extends DirectionalPacket
 {
     public interface Handler
     {
-        public void handle(ServerPlayerEntity player, SideConfigurationPacket packet);
+        public void handle(ServerPlayer player, SideConfigurationPacket packet);
     }
 
     public SideConfigurationPacket()
@@ -26,25 +26,25 @@ public class SideConfigurationPacket extends DirectionalPacket
         directionStates = b;
     }
 
-    public SideConfigurationPacket(PacketBuffer buffer)
+    public SideConfigurationPacket(FriendlyByteBuf buffer)
     {
         super();
         decode(buffer);
     }
 
-    public void decode(PacketBuffer buffer)
+    public void decode(FriendlyByteBuf buffer)
     {
         super.decode(buffer);
         directionStates = buffer.readByteArray();
     }
 
-    public void encode(PacketBuffer buffer)
+    public void encode(FriendlyByteBuf buffer)
     {
         super.encode(buffer);
         buffer.writeByteArray(directionStates);
     }
 
-    public void process(ServerPlayerEntity player)
+    public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
         {

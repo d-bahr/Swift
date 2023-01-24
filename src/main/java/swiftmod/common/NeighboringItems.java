@@ -2,20 +2,20 @@ package swiftmod.common;
 
 import java.util.ArrayList;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 
 public class NeighboringItems
 {
     @FunctionalInterface
     public interface Predicate
     {
-        public boolean test(TileEntity tileEntity, Direction dir);
+        public boolean test(BlockEntity blockEntity, Direction dir);
     }
 
     private NeighboringItems(int size)
@@ -24,19 +24,19 @@ public class NeighboringItems
         m_startingDirection = null;
     }
 
-    public NeighboringItems(IBlockReader blockReader, BlockPos pos)
+    public NeighboringItems(BlockGetter blockGetter, BlockPos pos)
     {
-        this(blockReader, pos, (tileEntity, dir) -> true);
+        this(blockGetter, pos, (blockEntity, dir) -> true);
     }
 
-    public NeighboringItems(IBlockReader blockReader, BlockPos pos, Predicate predicate)
+    public NeighboringItems(BlockGetter blockGetter, BlockPos pos, Predicate predicate)
     {
         m_stacks = new ArrayList<NeighboringItem>(Direction.values().length);
 
         Direction[] dirs = Direction.values();
         for (int i = 0; i < dirs.length; ++i)
         {
-            ItemStack stack = createItemStackForNeighbor(blockReader, pos, dirs[i], predicate);
+            ItemStack stack = createItemStackForNeighbor(blockGetter, pos, dirs[i], predicate);
             if (stack != null && stack.getCount() > 0)
             {
                 NeighboringItem item = new NeighboringItem(dirs[i], stack);
@@ -45,14 +45,14 @@ public class NeighboringItems
         }
     }
 
-    private static ItemStack createItemStackForNeighbor(IBlockReader blockReader, BlockPos pos, Direction dir,
+    private static ItemStack createItemStackForNeighbor(BlockGetter blockGetter, BlockPos pos, Direction dir,
             Predicate predicate)
     {
         BlockPos neighborPos = pos.relative(dir);
-        TileEntity tileEntity = blockReader.getBlockEntity(neighborPos);
-        if (predicate.test(tileEntity, dir.getOpposite()))
+        BlockEntity blockEntity = blockGetter.getBlockEntity(neighborPos);
+        if (predicate.test(blockEntity, dir.getOpposite()))
         {
-            Block neighborBlock = blockReader.getBlockState(neighborPos).getBlock();
+            Block neighborBlock = blockGetter.getBlockState(neighborPos).getBlock();
             ItemStack stack = new ItemStack(neighborBlock);
             if (stack.getCount() > 0)
                 return stack;
@@ -80,7 +80,7 @@ public class NeighboringItems
         return m_stacks;
     }
 
-    public PacketBuffer serialize(PacketBuffer buffer)
+    public void serialize(FriendlyByteBuf buffer)
     {
         buffer.writeInt(m_stacks.size());
         for (int i = 0; i < m_stacks.size(); ++i)
@@ -92,10 +92,9 @@ public class NeighboringItems
             buffer.writeInt(-1);
         else
             buffer.writeInt(SwiftUtils.dirToIndex(m_startingDirection));
-        return buffer;
     }
 
-    public static NeighboringItems deserialize(PacketBuffer buffer)
+    public static NeighboringItems deserialize(FriendlyByteBuf buffer)
     {
         int size = buffer.readInt();
         NeighboringItems items = new NeighboringItems(size);

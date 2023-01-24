@@ -1,8 +1,8 @@
 package swiftmod.pipes;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -20,7 +20,7 @@ import swiftmod.common.upgrades.BasicFluidFilterUpgradeDataCache;
 public abstract class AbstractAdvancedFluidPipeContainerScreen<T extends FluidPipeContainer>
         extends AdvancedPipeContainerScreen<T>
 {
-    public AbstractAdvancedFluidPipeContainerScreen(T c, PlayerInventory inv, ITextComponent title)
+    public AbstractAdvancedFluidPipeContainerScreen(T c, Inventory inv, Component title)
     {
         super(c, inv, title);
     }

@@ -16,6 +16,6 @@ public class BasicSideUpgradeItemStackHandler extends UpgradeItemStackHandler
     @Override
     public int getSlotForUpgrade(UpgradeType type)
     {
-        return 0;
+        return -1;
     }
 }
