@@ -3,21 +3,21 @@ package swiftmod.common;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.Util;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -63,12 +63,12 @@ public class TankBlock extends BaseEntityBlock
                 {
                     String fluidName = Integer.toString(stack.getAmount()) + " mb "
                             + stack.getDisplayName().getString();
-                    player.sendMessage(new TextComponent(fluidName), Util.NIL_UUID);
+                    player.sendSystemMessage(Component.literal(fluidName));
                     return InteractionResult.SUCCESS;
                 }
             }
 
-            player.sendMessage(new TextComponent("Empty"), Util.NIL_UUID);
+            player.sendSystemMessage(Component.literal("Empty"));
             return InteractionResult.SUCCESS;
         }
     }
@@ -97,5 +97,5 @@ public class TankBlock extends BaseEntityBlock
         world.sendBlockUpdated(pos, state, state, 3);
     }
 
-    private static final Properties PROPERTIES = Block.Properties.of(Material.STONE).strength(0.5f, 0.5f);
+    private static final Properties PROPERTIES = BlockBehaviour.Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(0.5F, 0.5F);
 }

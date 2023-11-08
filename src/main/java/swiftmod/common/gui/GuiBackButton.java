@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -23,7 +23,7 @@ public class GuiBackButton extends GuiTextureButton
 
     private void initTooltip()
     {
-        setTooltip(new TextComponent("Back"));
+        setTooltip(Component.literal("Back"));
     }
 
     public static final ResourceLocation TEXTURE = new ResourceLocation(Swift.MOD_NAME, "textures/gui/back_button.png");

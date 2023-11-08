@@ -10,7 +10,7 @@ public class UltimateFluidPipeContainer extends FluidPipeContainer
 {
     private UltimateFluidPipeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_ultimateFluidPipeContainerType, windowID, playerInventory, extraData,
+        super(SwiftContainers.s_ultimateFluidPipeContainerType.get(), windowID, playerInventory, extraData,
                 UltimateFluidPipeTileEntity::createUpgradeInventory,
                 UltimateFluidPipeTileEntity::createSideUpgradeInventory,
                 UltimateFluidPipeContainerScreen.PLAYER_INVENTORY_OFFSET_X,
@@ -22,7 +22,7 @@ public class UltimateFluidPipeContainer extends FluidPipeContainer
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories)
     {
-        super(SwiftContainers.s_ultimateFluidPipeContainerType, blockEntity, windowID, playerInventory, cache,
+        super(SwiftContainers.s_ultimateFluidPipeContainerType.get(), blockEntity, windowID, playerInventory, cache,
                 refreshFilterCallback, channelManagerCallback, upgradeInventory, sideUpgradeInventories,
                 UltimateFluidPipeContainerScreen.PLAYER_INVENTORY_OFFSET_X,
                 UltimateFluidPipeContainerScreen.PLAYER_INVENTORY_OFFSET_Y);

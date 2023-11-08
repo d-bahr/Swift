@@ -13,7 +13,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import swiftmod.pipes.PipeTileEntity;
@@ -31,8 +30,7 @@ public class CopyPastaItem extends ItemBase
 
     public CopyPastaItem()
     {
-        super(1, Swift.ITEM_GROUP);
-        setRegistryName(Swift.MOD_NAME, REGISTRY_NAME);
+        super(1);
     }
 
     @Override
@@ -56,7 +54,7 @@ public class CopyPastaItem extends ItemBase
         if (player.isShiftKeyDown())
         {
             itemStack.removeTagKey(NBT_TAG);
-            player.displayClientMessage(new TextComponent("Cleared"), true);
+            player.displayClientMessage(Component.literal("Cleared"), true);
         }
 
         return new InteractionResultHolder<ItemStack>(InteractionResult.SUCCESS, itemStack);
@@ -65,7 +63,7 @@ public class CopyPastaItem extends ItemBase
     @Override
     public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Copies settings from one pipe to another.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Copies settings from one pipe to another.", SwiftTextUtils.AQUA)));
     }
 
     @Override
@@ -74,10 +72,10 @@ public class CopyPastaItem extends ItemBase
         CopyType type = getCopyType(stack);
         String str = copyTypeToString(type);
 
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Current mode: " + str, SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Shift + Right Click = Copy", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Right Click = Paste", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Shift + Right Click Air = Clear", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Current mode: " + str, SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Shift + Right Click = Copy", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Right Click = Paste", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Shift + Right Click Air = Clear", SwiftTextUtils.AQUA)));
     }
 
     @Override
@@ -164,7 +162,7 @@ public class CopyPastaItem extends ItemBase
     {
         CopyType type = getCopyType(player.getItemInHand(InteractionHand.MAIN_HAND));
         String str = copyTypeToString(type);
-        player.displayClientMessage(new TextComponent("Mode: " + str), true);
+        player.displayClientMessage(Component.literal("Mode: " + str), true);
     }
 
     public static CopyType getCopyType(ItemStack stack)

@@ -4,7 +4,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -87,7 +86,7 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
         m_filterSettingsButton = new GuiSettingsButton(this, SIDE_UPGRADE_PANEL_SLOT_START_X + SIDE_UPGRADE_PANEL_SLOT_WIDTH + 1,
                 SIDE_UPGRADE_PANEL_SLOT_START_Y + 1);
         m_filterSettingsButton.setClickCallback(this::openFilterSettings);
-        m_filterSettingsButton.setTooltip(new TextComponent("Change filter settings"));
+        m_filterSettingsButton.setTooltip(Component.literal("Change filter settings"));
 
         GuiTexture sideUpgradeSlotTexture = new GuiTexture(this,
                 SIDE_UPGRADE_PANEL_SLOT_START_X + SIDE_UPGRADE_PANEL_SLOT_OFFSET_X, SIDE_UPGRADE_PANEL_SLOT_START_Y, 18,
@@ -96,7 +95,7 @@ public abstract class AdvancedPipeContainerScreen<T extends PipeContainer> exten
         m_sideUpgradeSettingsButton = new GuiSettingsButton(this, sideUpgradeSlotTexture.right() + 1,
                 sideUpgradeSlotTexture.top() + 1);
         m_sideUpgradeSettingsButton.setClickCallback(this::openSideConfigSettings);
-        m_sideUpgradeSettingsButton.setTooltip(new TextComponent("Change side I/O settings"));
+        m_sideUpgradeSettingsButton.setTooltip(Component.literal("Change side I/O settings"));
 
         m_directionalConfigPanel.addChild(m_filterSettingsButton);
         m_directionalConfigPanel.addChild(sideUpgradeSlotTexture);

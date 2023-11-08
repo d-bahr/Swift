@@ -8,12 +8,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public final class SwiftUtils
@@ -75,7 +73,7 @@ public final class SwiftUtils
     {
         if (blockEntity == null)
             return false;
-        LazyOptional<IItemHandler> capability = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+        LazyOptional<IItemHandler> capability = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side);
         if (capability == null)
             return false;
         Optional<IItemHandler> resolved = capability.resolve();
@@ -88,7 +86,7 @@ public final class SwiftUtils
     {
         if (blockEntity == null)
             return null;
-        LazyOptional<IItemHandler> capability = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+        LazyOptional<IItemHandler> capability = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side);
         if (capability == null)
             return null;
         Optional<IItemHandler> resolved = capability.resolve();
@@ -101,7 +99,7 @@ public final class SwiftUtils
     {
         if (blockEntity == null)
             return false;
-        LazyOptional<IFluidHandler> capability = blockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
+        LazyOptional<IFluidHandler> capability = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side);
         if (capability == null)
             return false;
         Optional<IFluidHandler> resolved = capability.resolve();
@@ -114,7 +112,7 @@ public final class SwiftUtils
     {
         if (blockEntity == null)
             return null;
-        LazyOptional<IFluidHandler> capability = blockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
+        LazyOptional<IFluidHandler> capability = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side);
         if (capability == null)
             return null;
         Optional<IFluidHandler> resolved = capability.resolve();
@@ -127,7 +125,7 @@ public final class SwiftUtils
     {
         if (itemStack == null || itemStack.isEmpty())
             return null;
-        LazyOptional<IFluidHandler> capability = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY);
+        LazyOptional<IFluidHandler> capability = itemStack.getCapability(ForgeCapabilities.FLUID_HANDLER);
         if (capability == null)
             return null;
         Optional<IFluidHandler> resolved = capability.resolve();
@@ -140,7 +138,7 @@ public final class SwiftUtils
     {
         if (blockEntity == null)
             return false;
-        LazyOptional<IEnergyStorage> capability = blockEntity.getCapability(CapabilityEnergy.ENERGY, side);
+        LazyOptional<IEnergyStorage> capability = blockEntity.getCapability(ForgeCapabilities.ENERGY, side);
         if (capability == null)
             return false;
         Optional<IEnergyStorage> resolved = capability.resolve();

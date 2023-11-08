@@ -23,6 +23,6 @@ public class BasicItemPipeBlock extends ItemPipeBlock
 	@Override
 	protected <T extends BlockEntity> BlockEntityTicker<T> createTicker(BlockState state, BlockEntityType<T> type)
 	{
-		return createTickerHelper(type, SwiftTileEntities.s_basicItemPipeTileEntityType, BasicItemPipeTileEntity::serverTick);
+		return createTickerHelper(type, SwiftTileEntities.s_basicItemPipeTileEntityType.get(), BasicItemPipeTileEntity::serverTick);
 	}
 }

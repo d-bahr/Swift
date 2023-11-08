@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -54,9 +55,9 @@ public class GuiLabel extends GuiTextWidget
     }
 
     @Override
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
 
         float drawX = 0;
         float drawY = 0;
@@ -65,13 +66,13 @@ public class GuiLabel extends GuiTextWidget
         {
         default:
         case Top:
-            drawY = y;
+            drawY = getY();
             break;
         case Middle:
-            drawY = y + (height - SwiftGui.TEXT_HEIGHT * m_fontScale) / 2.0f;
+            drawY = getY() + (height - SwiftGui.TEXT_HEIGHT * m_fontScale) / 2.0f;
             break;
         case Bottom:
-            drawY = y + height - SwiftGui.TEXT_HEIGHT * m_fontScale;
+            drawY = getY() + height - SwiftGui.TEXT_HEIGHT * m_fontScale;
             break;
         }
 
@@ -82,22 +83,23 @@ public class GuiLabel extends GuiTextWidget
         {
         default:
         case Left:
-            drawX = x;
+            drawX = getX();
             break;
         case Center:
-            drawX = x + (width - stringWidth) / 2.0f;
+            drawX = getX() + (width - stringWidth) / 2.0f;
             break;
         case Right:
-            drawX = x + width - stringWidth;
+            drawX = getX() + width - stringWidth;
             break;
         }
 
-        matrixStack.pushPose();
-        matrixStack.translate(drawX, drawY, 0.0);
-        matrixStack.scale(m_fontScale, m_fontScale, 1.0f);
-        matrixStack.translate(-drawX, -drawY, 0.0);
-        drawText(matrixStack, drawX, drawY);
-        matrixStack.popPose();
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(drawX, drawY, 0.0);
+        pose.scale(m_fontScale, m_fontScale, 1.0f);
+        pose.translate(-drawX, -drawY, 0.0);
+        drawText(graphics, drawX, drawY);
+        pose.popPose();
     }
 
     protected GuiVerticalAlignment m_verticalAlignment;

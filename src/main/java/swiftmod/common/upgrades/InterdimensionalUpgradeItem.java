@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import swiftmod.common.SwiftTextUtils;
 
@@ -13,14 +12,14 @@ public class InterdimensionalUpgradeItem extends TeleporterUpgradeItem
 {
     public InterdimensionalUpgradeItem()
     {
-        super(UpgradeType.InterdimensionalUpgrade, REGISTRY_NAME);
+        super(UpgradeType.InterdimensionalUpgrade);
     }
 
     @Override
     public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Transport over any distance and across dimensions.", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Can only be used in an ultimate-tier pipe.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Transport over any distance and across dimensions.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Can only be used in an ultimate-tier pipe.", SwiftTextUtils.AQUA)));
     }
 
     public static final String REGISTRY_NAME = "interdimensional_upgrade";

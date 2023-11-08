@@ -26,7 +26,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -34,7 +35,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import swiftmod.common.CopyPastaItem;
 import swiftmod.common.IndexedVoxelShape;
 import swiftmod.common.Raytracer;
@@ -78,18 +79,18 @@ public abstract class PipeBlock extends BaseEntityBlock
             ItemStack itemInHand = player.getItemInHand(hand);
             if (!itemInHand.isEmpty())
             {
-                if (itemInHand.getItem() == SwiftItems.s_copyPastaItem)
+                if (itemInHand.getItem() == SwiftItems.s_copyPastaItem.get())
                 {
                     if (player.isShiftKeyDown())
                     {
                         if (CopyPastaItem.copyTileEntitySettings(itemInHand, blockEntity, dir))
                         {
-                            player.displayClientMessage(new TextComponent("Copied"), true);
+                            player.displayClientMessage(Component.literal("Copied"), true);
                             return InteractionResult.SUCCESS;
                         }
                         else
                         {
-                            player.displayClientMessage(new TextComponent("Cannot copy"), true);
+                            player.displayClientMessage(Component.literal("Cannot copy"), true);
                             return InteractionResult.SUCCESS;
                         }
                     }
@@ -97,12 +98,12 @@ public abstract class PipeBlock extends BaseEntityBlock
                     {
                         if (CopyPastaItem.pasteTileEntitySettings(itemInHand, blockEntity, dir))
                         {
-                            player.displayClientMessage(new TextComponent("Pasted"), true);
+                            player.displayClientMessage(Component.literal("Pasted"), true);
                             return InteractionResult.SUCCESS;
                         }
                         else
                         {
-                            player.displayClientMessage(new TextComponent("Cannot paste"), true);
+                            player.displayClientMessage(Component.literal("Cannot paste"), true);
                             return InteractionResult.SUCCESS;
                         }
                     }
@@ -122,7 +123,7 @@ public abstract class PipeBlock extends BaseEntityBlock
                 if (!(player instanceof ServerPlayer))
                     return InteractionResult.FAIL; // should always be true, but just in case...
 
-                openGui((ServerPlayer) player, menuProvider, blockEntity, dir);
+                openScreen((ServerPlayer) player, menuProvider, blockEntity, dir);
             }
 
             return InteractionResult.SUCCESS;
@@ -144,7 +145,7 @@ public abstract class PipeBlock extends BaseEntityBlock
 
     protected abstract <T extends BlockEntity> BlockEntityTicker<T> createTicker(BlockState state, BlockEntityType<T> type);
 
-    protected abstract void openGui(ServerPlayer player, MenuProvider menuProvider,
+    protected abstract void openScreen(ServerPlayer player, MenuProvider menuProvider,
             PipeTileEntity<?, ?, ?> blockEntity, Direction startingDir);
 
     @Override
@@ -349,8 +350,8 @@ public abstract class PipeBlock extends BaseEntityBlock
     }
 
     public abstract boolean canConnect(BlockEntity blockEntity, Direction direction);
-
-    private static final Properties PROPERTIES = Block.Properties.of(Material.STONE).strength(0.2f, 0.2f);
+    
+    private static final Properties PROPERTIES = Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(0.5F, 0.5F);
 
     public static final BooleanProperty UP = BlockStateProperties.UP;
     public static final BooleanProperty DOWN = BlockStateProperties.DOWN;

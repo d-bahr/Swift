@@ -2,10 +2,11 @@ package swiftmod.common;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeItem;
 import swiftmod.common.upgrades.BasicItemFilterUpgradeItem;
 import swiftmod.common.upgrades.ChunkLoaderUpgradeItem;
@@ -20,93 +21,58 @@ import swiftmod.common.upgrades.WildcardFilterUpgradeItem;
 
 public class SwiftItems
 {
-    public static void registerItems(final RegistryEvent.Register<Item> event)
+    public static void registerItems()
     {
-        IForgeRegistry<Item> registry = event.getRegistry();
+        s_basicItemPipeBlockItem     = s_items.register("basic_item_pipe",     () -> createBlockItem(64, SwiftBlocks.s_basicItemPipeBlock));
+        s_advancedItemPipeBlockItem  = s_items.register("advanced_item_pipe",  () -> createBlockItem(64, SwiftBlocks.s_advancedItemPipeBlock));
+        s_ultimateItemPipeBlockItem  = s_items.register("ultimate_item_pipe",  () -> createBlockItem(64, SwiftBlocks.s_ultimateItemPipeBlock));
+        s_basicFluidPipeBlockItem    = s_items.register("basic_fluid_pipe",    () -> createBlockItem(64, SwiftBlocks.s_basicFluidPipeBlock));
+        s_advancedFluidPipeBlockItem = s_items.register("advanced_fluid_pipe", () -> createBlockItem(64, SwiftBlocks.s_advancedFluidPipeBlock));
+        s_ultimateFluidPipeBlockItem = s_items.register("ultimate_fluid_pipe", () -> createBlockItem(64, SwiftBlocks.s_ultimateFluidPipeBlock));
 
-        s_basicItemPipeBlockItem = createBlockItem("basic_item_pipe", 64, Swift.ITEM_GROUP, SwiftBlocks.s_basicItemPipeBlock);
-        registry.register(s_basicItemPipeBlockItem);
+        s_tankBlockItem               = s_items.register(TankItem.REGISTRY_NAME, () -> new TankItem());
+        s_speedUpgradeItem            = s_items.register(SpeedUpgradeItem.REGISTRY_NAME, () -> new SpeedUpgradeItem());
+        s_stackUpgradeItem            = s_items.register(StackUpgradeItem.REGISTRY_NAME, () -> new StackUpgradeItem());
+        s_speedDowngradeItem          = s_items.register(SpeedDowngradeItem.REGISTRY_NAME, () -> new SpeedDowngradeItem());
+        s_ultimateStackUpgradeItem    = s_items.register(UltimateStackUpgradeItem.REGISTRY_NAME, () -> new UltimateStackUpgradeItem());
+        s_teleporterUpgradeItem       = s_items.register(TeleporterUpgradeItem.REGISTRY_NAME, () -> new TeleporterUpgradeItem());
+        s_interdimensionalUpgradeItem = s_items.register(InterdimensionalUpgradeItem.REGISTRY_NAME, () -> new InterdimensionalUpgradeItem());
+        s_basicItemFilterUpgradeItem  = s_items.register(BasicItemFilterUpgradeItem.REGISTRY_NAME, () -> new BasicItemFilterUpgradeItem());
+        s_basicFluidFilterUpgradeItem = s_items.register(BasicFluidFilterUpgradeItem.REGISTRY_NAME, () -> new BasicFluidFilterUpgradeItem());
+        s_sideUpgradeItem             = s_items.register(SideUpgradeItem.REGISTRY_NAME, () -> new SideUpgradeItem());
+        s_chunkLoaderUpgradeItem      = s_items.register(ChunkLoaderUpgradeItem.REGISTRY_NAME, () -> new ChunkLoaderUpgradeItem());
+        s_wildcardFilterUpgradeItem   = s_items.register(WildcardFilterUpgradeItem.REGISTRY_NAME, () -> new WildcardFilterUpgradeItem());
+        s_copyPastaItem               = s_items.register(CopyPastaItem.REGISTRY_NAME, () -> new CopyPastaItem());
 
-        s_advancedItemPipeBlockItem = createBlockItem("advanced_item_pipe", 64, Swift.ITEM_GROUP, SwiftBlocks.s_advancedItemPipeBlock);
-        registry.register(s_advancedItemPipeBlockItem);
-
-        s_ultimateItemPipeBlockItem = createBlockItem("ultimate_item_pipe", 64, Swift.ITEM_GROUP, SwiftBlocks.s_ultimateItemPipeBlock);
-        registry.register(s_ultimateItemPipeBlockItem);
-
-        s_basicFluidPipeBlockItem = createBlockItem("basic_fluid_pipe", 64, Swift.ITEM_GROUP, SwiftBlocks.s_basicFluidPipeBlock);
-        registry.register(s_basicFluidPipeBlockItem);
-
-        s_advancedFluidPipeBlockItem = createBlockItem("advanced_fluid_pipe", 64, Swift.ITEM_GROUP, SwiftBlocks.s_advancedFluidPipeBlock);
-        registry.register(s_advancedFluidPipeBlockItem);
-
-        s_ultimateFluidPipeBlockItem = createBlockItem("ultimate_fluid_pipe", 64, Swift.ITEM_GROUP, SwiftBlocks.s_ultimateFluidPipeBlock);
-        registry.register(s_ultimateFluidPipeBlockItem);
-
-        s_tankBlockItem = new TankItem();
-        registry.register(s_tankBlockItem);
-
-        s_speedUpgradeItem = new SpeedUpgradeItem();
-        registry.register(s_speedUpgradeItem);
-
-        s_stackUpgradeItem = new StackUpgradeItem();
-        registry.register(s_stackUpgradeItem);
-
-        s_speedDowngradeItem = new SpeedDowngradeItem();
-        registry.register(s_speedDowngradeItem);
-
-        s_ultimateStackUpgradeItem = new UltimateStackUpgradeItem();
-        registry.register(s_ultimateStackUpgradeItem);
-
-        s_teleporterUpgradeItem = new TeleporterUpgradeItem();
-        registry.register(s_teleporterUpgradeItem);
-
-        s_interdimensionalUpgradeItem = new InterdimensionalUpgradeItem();
-        registry.register(s_interdimensionalUpgradeItem);
-
-        s_basicItemFilterUpgradeItem = new BasicItemFilterUpgradeItem();
-        registry.register(s_basicItemFilterUpgradeItem);
-
-        s_basicFluidFilterUpgradeItem = new BasicFluidFilterUpgradeItem();
-        registry.register(s_basicFluidFilterUpgradeItem);
-
-        s_sideUpgradeItem = new SideUpgradeItem();
-        registry.register(s_sideUpgradeItem);
-
-        s_chunkLoaderUpgradeItem = new ChunkLoaderUpgradeItem();
-        registry.register(s_chunkLoaderUpgradeItem);
-
-        s_wildcardFilterUpgradeItem = new WildcardFilterUpgradeItem();
-        registry.register(s_wildcardFilterUpgradeItem);
-
-        s_copyPastaItem = new CopyPastaItem();
-        registry.register(s_copyPastaItem);
+    	s_items.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
-    private static BlockItem createBlockItem(String registryName, int maxStackSize, CreativeModeTab itemGroup, Block block)
+    private static BlockItem createBlockItem(int maxStackSize, RegistryObject<? extends Block> block)
     {
-        Item.Properties properties = new Item.Properties().stacksTo(maxStackSize).tab(itemGroup);
-        BlockItem item = new BlockItem(block, properties);
-        item.setRegistryName(Swift.MOD_NAME, registryName);
+        Item.Properties properties = new Item.Properties().stacksTo(maxStackSize);
+        BlockItem item = new BlockItem(block.get(), properties);
         return item;
     }
+    
+    private static DeferredRegister<Item> s_items = DeferredRegister.create(ForgeRegistries.ITEMS, Swift.MOD_NAME);
 
-    public static BlockItem s_basicItemPipeBlockItem;
-    public static BlockItem s_advancedItemPipeBlockItem;
-    public static BlockItem s_ultimateItemPipeBlockItem;
-    public static BlockItem s_basicFluidPipeBlockItem;
-    public static BlockItem s_advancedFluidPipeBlockItem;
-    public static BlockItem s_ultimateFluidPipeBlockItem;
-    public static TankItem s_tankBlockItem;
-    public static SpeedUpgradeItem s_speedUpgradeItem;
-    public static StackUpgradeItem s_stackUpgradeItem;
-    public static SpeedDowngradeItem s_speedDowngradeItem;
-    public static UltimateStackUpgradeItem s_ultimateStackUpgradeItem;
-    public static TeleporterUpgradeItem s_teleporterUpgradeItem;
-    public static InterdimensionalUpgradeItem s_interdimensionalUpgradeItem;
-    public static BasicItemFilterUpgradeItem s_basicItemFilterUpgradeItem;
-    public static BasicFluidFilterUpgradeItem s_basicFluidFilterUpgradeItem;
-    public static SideUpgradeItem s_sideUpgradeItem;
-    public static ChunkLoaderUpgradeItem s_chunkLoaderUpgradeItem;
-    public static WildcardFilterUpgradeItem s_wildcardFilterUpgradeItem;
-    public static CopyPastaItem s_copyPastaItem;
+    public static RegistryObject<BlockItem> s_basicItemPipeBlockItem;
+    public static RegistryObject<BlockItem> s_advancedItemPipeBlockItem;
+    public static RegistryObject<BlockItem> s_ultimateItemPipeBlockItem;
+    public static RegistryObject<BlockItem> s_basicFluidPipeBlockItem;
+    public static RegistryObject<BlockItem> s_advancedFluidPipeBlockItem;
+    public static RegistryObject<BlockItem> s_ultimateFluidPipeBlockItem;
+    public static RegistryObject<TankItem> s_tankBlockItem;
+    public static RegistryObject<SpeedUpgradeItem> s_speedUpgradeItem;
+    public static RegistryObject<StackUpgradeItem> s_stackUpgradeItem;
+    public static RegistryObject<SpeedDowngradeItem> s_speedDowngradeItem;
+    public static RegistryObject<UltimateStackUpgradeItem> s_ultimateStackUpgradeItem;
+    public static RegistryObject<TeleporterUpgradeItem> s_teleporterUpgradeItem;
+    public static RegistryObject<InterdimensionalUpgradeItem> s_interdimensionalUpgradeItem;
+    public static RegistryObject<BasicItemFilterUpgradeItem> s_basicItemFilterUpgradeItem;
+    public static RegistryObject<BasicFluidFilterUpgradeItem> s_basicFluidFilterUpgradeItem;
+    public static RegistryObject<SideUpgradeItem> s_sideUpgradeItem;
+    public static RegistryObject<ChunkLoaderUpgradeItem> s_chunkLoaderUpgradeItem;
+    public static RegistryObject<WildcardFilterUpgradeItem> s_wildcardFilterUpgradeItem;
+    public static RegistryObject<CopyPastaItem> s_copyPastaItem;
 }

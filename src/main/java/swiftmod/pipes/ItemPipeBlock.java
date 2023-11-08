@@ -15,13 +15,13 @@ public abstract class ItemPipeBlock extends PipeBlock
     }
 
     @Override
-    protected void openGui(ServerPlayer player, MenuProvider menuProvider,
+    protected void openScreen(ServerPlayer player, MenuProvider menuProvider,
             PipeTileEntity<?, ?, ?> blockEntity, Direction startingDir)
     {
         if (blockEntity instanceof ItemPipeTileEntity)
         {
             ItemPipeTileEntity itemPipeTE = (ItemPipeTileEntity) blockEntity;
-            NetworkHooks.openGui((ServerPlayer) player, menuProvider, (FriendlyByteBuf) ->
+            NetworkHooks.openScreen((ServerPlayer) player, menuProvider, (FriendlyByteBuf) ->
             {
                 itemPipeTE.serializeBufferForContainer(FriendlyByteBuf, player, startingDir);
             });

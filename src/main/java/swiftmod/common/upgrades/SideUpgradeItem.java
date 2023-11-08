@@ -9,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import swiftmod.common.Color;
 import swiftmod.common.ItemContainerProvider;
@@ -20,7 +19,7 @@ public class SideUpgradeItem extends UpgradeItem
 {
     public SideUpgradeItem()
     {
-        super(UpgradeType.SideUpgrade, REGISTRY_NAME);
+        super(UpgradeType.SideUpgrade);
     }
 
     @Override
@@ -33,8 +32,8 @@ public class SideUpgradeItem extends UpgradeItem
     @Override
     public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Allows inserting or extracting from any", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("face of an attached inventory.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Allows inserting or extracting from any", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("face of an attached inventory.", SwiftTextUtils.AQUA)));
     }
 
     @Override
@@ -59,18 +58,18 @@ public class SideUpgradeItem extends UpgradeItem
     {
         if (state == 0)
         {
-            return new TextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
+            return Component.literal(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
                     + SwiftTextUtils.color("Disabled", SwiftTextUtils.RED));
         }
         else if (state == 17)
         {
-            return new TextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
+            return Component.literal(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
                     + SwiftTextUtils.color("Any", SwiftTextUtils.WHITE));
         }
         else
         {
             Color c = Color.fromIndex((int)state);
-            return new TextComponent(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
+            return Component.literal(SwiftTextUtils.color(direction, SwiftTextUtils.AQUA)
                     + SwiftTextUtils.color(c.getName(), c));
         }
     }

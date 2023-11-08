@@ -8,11 +8,12 @@ import com.mojang.blaze3d.vertex.Tesselator;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -104,7 +105,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
     {
         if (!m_fluidStack.isEmpty())
         {
-            m_fluidStack.setAmount(Math.min(quantity, m_showQuantity ? m_maxQuantity : 1));
+            m_fluidStack.setAmount(Math.min(quantity, m_showQuantity ? m_maxQuantity : 1_000));
             updateTooltip();
         }
     }
@@ -128,7 +129,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
     {
         if (!m_fluidStack.isEmpty())
         {
-            m_fluidStack.setAmount(Math.min(getQuantity() + amount, m_showQuantity ? m_maxQuantity : 1));
+            m_fluidStack.setAmount(Math.min(getQuantity() + amount, m_showQuantity ? m_maxQuantity : 1_000));
             updateTooltip();
         }
     }
@@ -344,13 +345,14 @@ public class GhostFluidSlot extends GuiFluidTextureButton
                 quantityStr = Integer.toString(quantity / 1000) + "." + Integer.toString(quantity % 1000) + " B";
             else
                 quantityStr = Integer.toString(quantity) + " mB";
-            m_tooltip.setText(new TextComponent("Quantity: " + quantityStr));
+            m_tooltip.setText(Component.literal("Quantity: " + quantityStr));
         }
     }
 
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
 
         if (!m_fluidStack.isEmpty())
         {
@@ -378,7 +380,7 @@ public class GhostFluidSlot extends GuiFluidTextureButton
                 matrix.translate(0.0, 0.0, 200.0);
                 MultiBufferSource.BufferSource b = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
                 fr.drawInBatch(s, (float) (left + 17) / r - fr.width(s), (float) (top + 16) / r - 7, 0x00FFFFFF,
-                        true, matrix.last().pose(), b, false, 0, 15728880);
+                        true, matrix.last().pose(), b, Font.DisplayMode.NORMAL, 0, 15728880);
                 b.endBatch();
             }
         }

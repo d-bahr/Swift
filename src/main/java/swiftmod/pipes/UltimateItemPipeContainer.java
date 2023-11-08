@@ -10,7 +10,7 @@ public class UltimateItemPipeContainer extends ItemPipeContainer
 {
     private UltimateItemPipeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_ultimateItemPipeContainerType, windowID, playerInventory, extraData,
+        super(SwiftContainers.s_ultimateItemPipeContainerType.get(), windowID, playerInventory, extraData,
                 UltimateItemPipeTileEntity::createUpgradeInventory,
                 UltimateItemPipeTileEntity::createSideUpgradeInventory,
                 UltimateItemPipeContainerScreen.PLAYER_INVENTORY_OFFSET_X,
@@ -22,7 +22,7 @@ public class UltimateItemPipeContainer extends ItemPipeContainer
             ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
             UpgradeInventory[] sideUpgradeInventories)
     {
-        super(SwiftContainers.s_ultimateItemPipeContainerType, blockEntity, windowID, playerInventory, cache,
+        super(SwiftContainers.s_ultimateItemPipeContainerType.get(), blockEntity, windowID, playerInventory, cache,
                 refreshFilterCallback, channelManagerCallback, upgradeInventory, sideUpgradeInventories,
                 UltimateItemPipeContainerScreen.PLAYER_INVENTORY_OFFSET_X,
                 UltimateItemPipeContainerScreen.PLAYER_INVENTORY_OFFSET_Y);

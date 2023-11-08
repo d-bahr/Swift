@@ -9,7 +9,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import swiftmod.common.Filter;
@@ -22,7 +21,7 @@ public class WildcardFilterUpgradeItem extends FilterUpgradeItem implements IIte
 {
     public WildcardFilterUpgradeItem()
     {
-        super(UpgradeType.WildcardFilterUpgrade, REGISTRY_NAME);
+        super(UpgradeType.WildcardFilterUpgrade);
     }
 
     public Filter<ItemStack> createItemFilter(ItemStack stack)
@@ -63,16 +62,16 @@ public class WildcardFilterUpgradeItem extends FilterUpgradeItem implements IIte
     @Override
     public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Filters items or fluids using ore dictionary tags.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Filters items or fluids using ore dictionary tags.", SwiftTextUtils.AQUA)));
     }
 
     @Override
     public void addShiftInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Supported wildcard patterns:", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("*", SwiftTextUtils.ORANGE) + SwiftTextUtils.color(" - zero or more characters", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("?", SwiftTextUtils.ORANGE) + SwiftTextUtils.color(" - exactly one character", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Current filters: " + WildcardFilterUpgradeDataCache.numFilters(stack), SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Supported wildcard patterns:", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("*", SwiftTextUtils.ORANGE) + SwiftTextUtils.color(" - zero or more characters", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("?", SwiftTextUtils.ORANGE) + SwiftTextUtils.color(" - exactly one character", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Current filters: " + WildcardFilterUpgradeDataCache.numFilters(stack), SwiftTextUtils.AQUA)));
     }
 
     @Override

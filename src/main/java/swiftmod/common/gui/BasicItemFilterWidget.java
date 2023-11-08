@@ -6,7 +6,6 @@ import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.BigItemStack;
@@ -36,7 +35,7 @@ public class BasicItemFilterWidget extends GuiWidget
 
     public BasicItemFilterWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation backgroundTexture)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
 
         m_backgroundTexture = new GuiTexture(screen, 0, 0, width, height, backgroundTexture);
         addChild(m_backgroundTexture);
@@ -72,7 +71,7 @@ public class BasicItemFilterWidget extends GuiWidget
         m_filterSlots = new ArrayList<GhostItemSlot>();
 
         GuiDeleteButton deleteButton = new GuiDeleteButton(screen, GUI_DELETE_X, GUI_DELETE_Y, this::onDeleteButtonPressed);
-        deleteButton.setTooltip(new TextComponent("Remove all filters"));
+        deleteButton.setTooltip(Component.literal("Remove all filters"));
         addChild(deleteButton);
         
         GuiTexture infoTexture = new GuiTexture(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16, INFO_TEXTURE);
@@ -80,11 +79,11 @@ public class BasicItemFilterWidget extends GuiWidget
         
         GuiTooltip infoTooltip = new GuiTooltip(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16);
         List<Component> tooltip = new ArrayList<Component>();
-        tooltip.add(new TextComponent("Left click on a slot to add or increment a filter."));
-        tooltip.add(new TextComponent("Right click on a slot to remove or decrement a filter."));
-        tooltip.add(new TextComponent("Shift + click to add/remove one stack."));
-        tooltip.add(new TextComponent("Ctrl + click to add/remove one item."));
-        tooltip.add(new TextComponent("Max quantity: " + MAX_SLOT_QUANTITY + " items"));
+        tooltip.add(Component.literal("Left click on a slot to add or increment a filter."));
+        tooltip.add(Component.literal("Right click on a slot to remove or decrement a filter."));
+        tooltip.add(Component.literal("Shift + click to add/remove one stack."));
+        tooltip.add(Component.literal("Ctrl + click to add/remove one item."));
+        tooltip.add(Component.literal("Max quantity: " + MAX_SLOT_QUANTITY + " items"));
         infoTooltip.setText(tooltip);
         infoTooltip.setZ(1000.0f);
         addChild(infoTooltip);

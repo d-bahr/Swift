@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -132,19 +132,19 @@ public class RedstoneButton extends GuiTextureButton
         switch (m_state)
         {
         case Disabled:
-            setTooltip(new TextComponent("Inactive"));
+            setTooltip(Component.literal("Inactive"));
             break;
         case Ignore:
-            setTooltip(new TextComponent("Always active"));
+            setTooltip(Component.literal("Always active"));
             break;
         case Normal:
-            setTooltip(new TextComponent("Active with redstone"));
+            setTooltip(Component.literal("Active with redstone"));
             break;
         case Inverted:
-            setTooltip(new TextComponent("Active without redstone"));
+            setTooltip(Component.literal("Active without redstone"));
             break;
         default:
-            setTooltip(new TextComponent("Inactive"));
+            setTooltip(Component.literal("Inactive"));
             break;
         }
     }

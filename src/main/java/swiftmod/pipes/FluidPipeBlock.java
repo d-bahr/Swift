@@ -15,13 +15,13 @@ public abstract class FluidPipeBlock extends PipeBlock
     }
 
     @Override
-    protected void openGui(ServerPlayer player, MenuProvider menuProvider,
+    protected void openScreen(ServerPlayer player, MenuProvider menuProvider,
             PipeTileEntity<?, ?, ?> blockEntity, Direction startingDir)
     {
         if (blockEntity instanceof FluidPipeTileEntity)
         {
             FluidPipeTileEntity fluidPipeTE = (FluidPipeTileEntity) blockEntity;
-            NetworkHooks.openGui((ServerPlayer) player, menuProvider, (FriendlyByteBuf) ->
+            NetworkHooks.openScreen((ServerPlayer) player, menuProvider, (FriendlyByteBuf) ->
             {
                 fluidPipeTE.serializeBufferForContainer(FriendlyByteBuf, player, startingDir);
             });

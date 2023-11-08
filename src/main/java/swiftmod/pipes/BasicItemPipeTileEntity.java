@@ -6,7 +6,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftTileEntities;
 import swiftmod.common.upgrades.BasicSideUpgradeItemStackHandler;
@@ -17,7 +16,7 @@ public class BasicItemPipeTileEntity extends ItemPipeTileEntity
 {
     public BasicItemPipeTileEntity(BlockPos pos, BlockState state)
     {
-        super(SwiftTileEntities.s_basicItemPipeTileEntityType, pos, state, createUpgradeInventory(),
+        super(SwiftTileEntities.s_basicItemPipeTileEntityType.get(), pos, state, createUpgradeInventory(),
                 BasicItemPipeTileEntity::createSideUpgradeInventory);
     }
 
@@ -48,7 +47,7 @@ public class BasicItemPipeTileEntity extends ItemPipeTileEntity
     @Override
     public Component getDisplayName()
     {
-        return new TranslatableComponent(DISPLAY_NAME);
+        return Component.translatable(DISPLAY_NAME);
     }
 
     public static String getRegistryName()

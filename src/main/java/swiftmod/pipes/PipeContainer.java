@@ -38,7 +38,7 @@ import swiftmod.common.upgrades.UpgradeItem;
 import swiftmod.common.upgrades.UpgradeType;
 import swiftmod.common.upgrades.WildcardFilterUpgradeDataCache;
 
-public class PipeContainer extends ContainerBase<PipeDataCache>
+public abstract class PipeContainer extends ContainerBase<PipeDataCache>
         implements RedstoneControlConfigurationPacket.Handler, TransferDirectionConfigurationPacket.Handler,
         SlotConfigurationPacket.Handler, SideConfigurationPacket.Handler, WildcardFilterPacket.Handler
 {
@@ -147,6 +147,8 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         }
         addSlots(upgradeSlots);
     }
+    
+    protected abstract int getFilterUpgradeSlot(UpgradeInventory inventory);
 
     protected void initSideUpgradeSlots()
     {
@@ -165,7 +167,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
             SlotBase[] upgradeSlots = m_sideUpgradeInventories[i].createSlots(x, y, 1,
                     m_sideUpgradeInventories[i].getContainerSize(), width, height);
 
-            int filterUpgradeSlot = m_sideUpgradeInventories[i].getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+            int filterUpgradeSlot = getFilterUpgradeSlot(m_sideUpgradeInventories[i]);
             int sideUpgradeSlot = m_sideUpgradeInventories[i].getSlotForUpgrade(UpgradeType.SideUpgrade);
             for (int j = 0; j < upgradeSlots.length; ++j)
             {
@@ -205,7 +207,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem.get())
             {
                 cache.itemStack = itemStack;
             }
@@ -221,7 +223,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_sideUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_sideUpgradeItem.get())
             {
                 cache.itemStack = itemStack;
             }
@@ -502,7 +504,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem.get())
             {
                 if (packet.add)
                     WildcardFilterUpgradeDataCache.addFilter(packet.filter, itemStack);
@@ -523,7 +525,7 @@ public class PipeContainer extends ContainerBase<PipeDataCache>
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_sideUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_sideUpgradeItem.get())
             {
                 SideUpgradeDataCache.setStates(packet.directionStates, itemStack);
             }

@@ -2,7 +2,6 @@ package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -39,8 +38,8 @@ public class MatchCountButton extends GuiBooleanStateButton
 
     private void initTooltip()
     {
-        m_matchTextComponent = new TextComponent("Match item count");
-        m_ignoreTextComponent = new TextComponent("Ignore item count");
+        m_matchTextComponent = Component.literal("Match item count");
+        m_ignoreTextComponent = Component.literal("Ignore item count");
     }
 
     private void setTooltip()

@@ -17,13 +17,13 @@ public class TeleporterUpgradeContainer extends AbstractContainerMenu implements
 {
     protected TeleporterUpgradeContainer(int windowID)
     {
-        super(SwiftContainers.s_teleporterUpgradeContainerType, windowID);
+        super(SwiftContainers.s_teleporterUpgradeContainerType.get(), windowID);
         m_cache = new ChannelConfigurationDataCache();
     }
 
     protected TeleporterUpgradeContainer(int windowID, FriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_teleporterUpgradeContainerType, windowID);
+        super(SwiftContainers.s_teleporterUpgradeContainerType.get(), windowID);
         m_cache = new ChannelConfigurationDataCache();
         decode(extraData);
     }
@@ -113,6 +113,12 @@ public class TeleporterUpgradeContainer extends AbstractContainerMenu implements
             }
         }
     }
+
+	@Override
+	public ItemStack quickMoveStack(Player player, int slot)
+	{
+		return null;
+	}
 
     public static TeleporterUpgradeContainer createContainerServerSide(int windowID)
     {

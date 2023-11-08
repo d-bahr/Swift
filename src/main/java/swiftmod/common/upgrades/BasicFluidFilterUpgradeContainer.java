@@ -20,12 +20,12 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
 
     protected BasicFluidFilterUpgradeContainer(int windowID, Inventory playerInventory)
     {
-        super(SwiftContainers.s_basicFluidFilterContainerType, windowID, playerInventory, 8, 107);
+        super(SwiftContainers.s_basicFluidFilterContainerType.get(), windowID, playerInventory, 8, 107);
     }
 
     protected BasicFluidFilterUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_basicFluidFilterContainerType, windowID, new BasicFluidFilterUpgradeDataCache(), playerInventory, 8, 107);
+        super(SwiftContainers.s_basicFluidFilterContainerType.get(), windowID, new BasicFluidFilterUpgradeDataCache(), playerInventory, 8, 107);
         decode(extraData);
     }
 
@@ -71,7 +71,7 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
     public void handle(ServerPlayer player, FluidFilterConfigurationPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
         {
             BasicFluidFilterUpgradeDataCache.setWhiteListState(packet.whiteListState, itemStack);
             BasicFluidFilterUpgradeDataCache.setMatchCount(packet.matchCount, itemStack);
@@ -84,7 +84,7 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
     public void handle(ServerPlayer player, FluidFilterSlotPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
         {
             BasicFluidFilterUpgradeDataCache.setFilterSlot(packet.slot, packet.fluidStack, itemStack);
         }
@@ -94,7 +94,7 @@ public class BasicFluidFilterUpgradeContainer extends ContainerBase<BasicFluidFi
     public void handle(ServerPlayer player, ClearFilterPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
         {
             BasicFluidFilterUpgradeDataCache.clearAllFilters(itemStack);
         }

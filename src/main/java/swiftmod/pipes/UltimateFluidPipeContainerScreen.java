@@ -3,7 +3,6 @@ package swiftmod.pipes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -54,7 +53,7 @@ public class UltimateFluidPipeContainerScreen extends AbstractAdvancedFluidPipeC
         m_teleportSettingsButton = new GuiSettingsButton(this, m_upgradePanel.width() - SwiftGui.BUTTON_WIDTH - 1,
                 m_upgradePanel.height() - SwiftGui.BUTTON_HEIGHT - 1);
         m_teleportSettingsButton.setClickCallback(this::openTeleportSettings);
-        m_teleportSettingsButton.setTooltip(new TextComponent("Change channel settings"));
+        m_teleportSettingsButton.setTooltip(Component.literal("Change channel settings"));
 
         m_upgradePanel.addChild(m_teleportSettingsButton);
     }

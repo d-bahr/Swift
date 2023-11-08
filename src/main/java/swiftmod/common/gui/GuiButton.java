@@ -2,12 +2,11 @@ package swiftmod.common.gui;
 
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -24,7 +23,7 @@ public class GuiButton extends GuiWidget
     public GuiButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
             ResourceLocation highlightedTexture)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         m_requestFocusOnPress = false;
         m_tooltip = new GuiTooltip(screen, 0, 0, width, height);
         addChild(m_tooltip);
@@ -43,7 +42,7 @@ public class GuiButton extends GuiWidget
     public GuiButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation baseTexture,
             ResourceLocation highlightedTexture, IClickable onClick)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         m_requestFocusOnPress = false;
         m_tooltip = new GuiTooltip(screen, 0, 0, width, height);
         addChild(m_tooltip);
@@ -108,39 +107,34 @@ public class GuiButton extends GuiWidget
     }
 
     @Override
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
         if (m_drawBackground)
-            drawBackground(matrixStack, mouseX, mouseY, partialTicks);
+            drawBackground(graphics, mouseX, mouseY, partialTicks);
     }
 
-    protected void drawBackground(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    protected void drawBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
+    	ResourceLocation texture;
         if (!active && m_inactiveTexture != null)
         {
-            RenderSystem.setShaderTexture(0, m_inactiveTexture);
+        	texture = m_inactiveTexture;
         }
         else if (containsMouse(mouseX, mouseY))
         {
-        	RenderSystem.setShaderTexture(0, m_highlightedTexture);
+        	texture = m_highlightedTexture;
         }
         else
         {
-        	RenderSystem.setShaderTexture(0, m_baseTexture);
+        	texture = m_baseTexture;
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        blit(matrixStack, x, y, 0, 0, width, height, width, height);
-        //renderBg(matrixStack, minecraft, mouseX, mouseY);
-        //if (isHovered())
-        //    renderToolTip(matrixStack, mouseX, mouseY);
-        //Font fontrenderer = minecraft.fontRenderer;
-        //int j = getFGColor();
-        //drawCenteredString(matrixStack, fontrenderer, getMessage(), x + width / 2, y + (height - 8) / 2, j | Mth.ceil(alpha * 255.0F) << 24);
+        graphics.blit(texture, getX(), getY(), 0, 0, width, height, width, height);
     }
 
     public static final ResourceLocation s_baseTexture = new ResourceLocation(Swift.MOD_NAME,

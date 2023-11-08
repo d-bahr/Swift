@@ -50,16 +50,22 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
     {
         BasicFluidFilterUpgradeDataCache cache = new BasicFluidFilterUpgradeDataCache();
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(direction)];
-        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
+        int slot = getFilterUpgradeSlot(inventory);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 cache.itemStack = itemStack;
             }
         }
         return cache;
+    }
+    
+    @Override
+    public int getFilterUpgradeSlot(UpgradeInventory inventory)
+    {
+    	return inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
     }
 
     public void updateFilter(Direction direction, int slot, FluidStack fluidStack)
@@ -91,7 +97,7 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 BasicFluidFilterUpgradeDataCache.setWhiteListState(packet.whiteListState, itemStack);
                 BasicFluidFilterUpgradeDataCache.setMatchCount(packet.matchCount, itemStack);
@@ -111,7 +117,7 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 BasicFluidFilterUpgradeDataCache.setFilterSlot(packet.slot, packet.fluidStack, itemStack);
 
@@ -128,7 +134,7 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 BasicFluidFilterUpgradeDataCache.clearAllFilters(itemStack);
 

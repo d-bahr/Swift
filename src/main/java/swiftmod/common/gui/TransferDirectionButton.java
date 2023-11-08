@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -78,9 +78,9 @@ public class TransferDirectionButton extends GuiTextureButton
     private void updateTooltip()
     {
         if (m_state == TransferDirection.Extract)
-            setTooltip(new TextComponent("Extract"));
+            setTooltip(Component.literal("Extract"));
         else
-            setTooltip(new TextComponent("Insert"));
+            setTooltip(Component.literal("Insert"));
     }
 
     public static final ResourceLocation INSERT_TEXTURE = new ResourceLocation(Swift.MOD_NAME,

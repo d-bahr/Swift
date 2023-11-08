@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class BasicItemFilter implements Filter<ItemStack>
 {
@@ -90,7 +91,6 @@ public class BasicItemFilter implements Filter<ItemStack>
         return createReturnValue(!hasAnyFilter);
     }
 
-    @SuppressWarnings("deprecation")
     private FilterMatchResult<Filter<ItemStack>> filter(ItemStack itemStack, BigItemStack filterItemStack, boolean reduceFilter)
     {
         if (itemStack.isEmpty())
@@ -99,15 +99,15 @@ public class BasicItemFilter implements Filter<ItemStack>
         ItemStack filterStack = filterItemStack.getItemStack();
         if (itemStack.getItem() != filterStack.getItem())
         {
-            if (matchMod && itemStack.getItem().getRegistryName().getNamespace() == filterStack.getItem()
-                    .getRegistryName().getNamespace())
+            if (matchMod && ForgeRegistries.ITEMS.getKey(itemStack.getItem()).getNamespace() ==
+            		ForgeRegistries.ITEMS.getKey(filterStack.getItem()).getNamespace())
             {
                 return createReturnValue(reduceFilter, filterItemStack);
             }
 
             if (matchOreDictionary)
             {
-            	Stream<TagKey<Item>> filterTags = filterStack.getItem().builtInRegistryHolder().tags();
+            	Stream<TagKey<Item>> filterTags = filterStack.getTags();
             	Iterator<TagKey<Item>> iter = filterTags.iterator();
             	while (iter.hasNext())
             	{

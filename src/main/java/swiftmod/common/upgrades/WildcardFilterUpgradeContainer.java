@@ -16,13 +16,13 @@ public class WildcardFilterUpgradeContainer extends AbstractContainerMenu implem
 {
     protected WildcardFilterUpgradeContainer(int windowID, Inventory playerInventory)
     {
-        super(SwiftContainers.s_wildcardFilterContainertype, windowID);
+        super(SwiftContainers.s_wildcardFilterContainertype.get(), windowID);
         m_cache = new WildcardFilterUpgradeDataCache();
     }
 
     protected WildcardFilterUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_wildcardFilterContainertype, windowID);
+        super(SwiftContainers.s_wildcardFilterContainertype.get(), windowID);
         m_cache = new WildcardFilterUpgradeDataCache();
         decode(extraData);
     }
@@ -77,7 +77,7 @@ public class WildcardFilterUpgradeContainer extends AbstractContainerMenu implem
     public void handle(ServerPlayer player, WildcardFilterPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem.get())
         {
             if (packet.add)
                 WildcardFilterUpgradeDataCache.addFilter(packet.filter, itemStack);
@@ -85,6 +85,12 @@ public class WildcardFilterUpgradeContainer extends AbstractContainerMenu implem
                 WildcardFilterUpgradeDataCache.removeFilter(packet.filter, itemStack);
         }
     }
+
+	@Override
+	public ItemStack quickMoveStack(Player player, int slot)
+	{
+		return null;
+	}
 
     public static WildcardFilterUpgradeContainer createContainerServerSide(int windowID, Inventory playerInventory, Player playerEntity)
     {

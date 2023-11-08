@@ -50,16 +50,22 @@ public class ItemPipeContainer extends PipeContainer implements ItemFilterConfig
     {
         BasicItemFilterUpgradeDataCache cache = new BasicItemFilterUpgradeDataCache();
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(direction)];
-        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+        int slot = getFilterUpgradeSlot(inventory);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 cache.itemStack = itemStack;
             }
         }
         return cache;
+    }
+    
+    @Override
+    public int getFilterUpgradeSlot(UpgradeInventory inventory)
+    {
+    	return inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
     }
 
     public void updateFilter(Direction direction, int slot, ItemStack itemStack, int quantity)
@@ -91,7 +97,7 @@ public class ItemPipeContainer extends PipeContainer implements ItemFilterConfig
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 BasicItemFilterUpgradeDataCache.setWhiteListState(packet.whiteListState, itemStack);
                 BasicItemFilterUpgradeDataCache.setMatchCount(packet.matchCount, itemStack);
@@ -113,7 +119,7 @@ public class ItemPipeContainer extends PipeContainer implements ItemFilterConfig
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 BasicItemFilterUpgradeDataCache.setFilterSlot(packet.slot, packet.itemStack, itemStack);
 
@@ -130,7 +136,7 @@ public class ItemPipeContainer extends PipeContainer implements ItemFilterConfig
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 BasicItemFilterUpgradeDataCache.clearAllFilters(itemStack);
 

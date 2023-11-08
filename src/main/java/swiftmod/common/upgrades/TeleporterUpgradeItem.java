@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import swiftmod.common.ItemContainerProvider;
 import swiftmod.common.SwiftTextUtils;
@@ -19,12 +18,12 @@ public class TeleporterUpgradeItem extends UpgradeItem
 {
     public TeleporterUpgradeItem()
     {
-        super(UpgradeType.TeleportUpgrade, REGISTRY_NAME);
+        super(UpgradeType.TeleportUpgrade);
     }
 
-    protected TeleporterUpgradeItem(UpgradeType t, String n)
+    protected TeleporterUpgradeItem(UpgradeType t)
     {
-        super(t, n);
+        super(t);
     }
 
     @Override
@@ -37,8 +36,8 @@ public class TeleporterUpgradeItem extends UpgradeItem
     @Override
     public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Transport over any distance within the dimension.", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Can only be used in an ultimate-tier pipe.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Transport over any distance within the dimension.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Can only be used in an ultimate-tier pipe.", SwiftTextUtils.AQUA)));
     }
 
     @Override
@@ -47,12 +46,12 @@ public class TeleporterUpgradeItem extends UpgradeItem
         ChannelSpec spec = ChannelConfigurationDataCache.getChannel(stack);
         if (spec == null || spec.name.isEmpty())
         {
-            tooltip.add(new TextComponent(SwiftTextUtils.color("Channel not set.", SwiftTextUtils.PINK)));
+            tooltip.add(Component.literal(SwiftTextUtils.color("Channel not set.", SwiftTextUtils.PINK)));
         }
         else
         {
-            tooltip.add(new TextComponent(SwiftTextUtils.color("Type: " + (spec.owner.isPrivate() ? "Private" : "Public"), SwiftTextUtils.AQUA)));
-            tooltip.add(new TextComponent(SwiftTextUtils.color("Channel: " + spec.name, SwiftTextUtils.AQUA)));
+            tooltip.add(Component.literal(SwiftTextUtils.color("Type: " + (spec.owner.isPrivate() ? "Private" : "Public"), SwiftTextUtils.AQUA)));
+            tooltip.add(Component.literal(SwiftTextUtils.color("Channel: " + spec.name, SwiftTextUtils.AQUA)));
         }
     }
 

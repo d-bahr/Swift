@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -24,9 +24,9 @@ public class MatchModButton extends GuiBooleanStateButton
     private void setTooltip()
     {
         if (getState())
-            setTooltip(new TextComponent("Match mod"));
+            setTooltip(Component.literal("Match mod"));
         else
-            setTooltip(new TextComponent("Ignore mod"));
+            setTooltip(Component.literal("Ignore mod"));
     }
 
     protected void onStateChanged()

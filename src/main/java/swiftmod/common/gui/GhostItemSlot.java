@@ -4,6 +4,7 @@ import java.util.function.BiPredicate;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,10 +13,10 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -291,9 +292,10 @@ public class GhostItemSlot extends GuiItemTextureButton
         return true;
     }
 
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
 
         if (!m_itemStack.isEmpty() && m_quantity > 0)
         {
@@ -302,7 +304,6 @@ public class GhostItemSlot extends GuiItemTextureButton
 
             Minecraft minecraft = Minecraft.getInstance();
             Font font = minecraft.font;
-            ItemRenderer renderer = getItemRenderer();
 
         	//renderer.renderAndDecorateFakeItem(m_itemStack, left, top);
 
@@ -324,17 +325,16 @@ public class GhostItemSlot extends GuiItemTextureButton
                     r = 2.0f / Math.min(maxLengthForShrinking, s.length());
                     matrix.scale(r, r, 1.0f);
                 }
-                matrix.translate(0.0, 0.0, renderer.blitOffset + 200.0);
+                matrix.translate(0.0, 0.0, 200.0);
                 MultiBufferSource.BufferSource b = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
                 font.drawInBatch(s, (float) (left + 17) / r - font.width(s), (float) (top + 16) / r - 7, 0x00FFFFFF,
-                        true, matrix.last().pose(), b, false, 0, 15728880);
+                        true, matrix.last().pose(), b, Font.DisplayMode.NORMAL, 0, 15728880);
                 b.endBatch();
             }
 
             if (m_itemStack.isBarVisible())
             {
                 RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
                 RenderSystem.disableBlend();
                 Tesselator tessellator = Tesselator.getInstance();
                 BufferBuilder bufferbuilder = tessellator.getBuilder();
@@ -343,7 +343,6 @@ public class GhostItemSlot extends GuiItemTextureButton
                 fillRect(bufferbuilder, left + 2, top + 13, 13, 2, 0, 0, 0, 0xFF);
                 fillRect(bufferbuilder, left + 2, top + 13, i, 1, j >> 16 & 0xFF, j >> 8 & 0xFF, j & 0xFF, 0xFF);
                 RenderSystem.enableBlend();
-                RenderSystem.enableTexture();
                 RenderSystem.enableDepthTest();
             }
         }
@@ -358,8 +357,8 @@ public class GhostItemSlot extends GuiItemTextureButton
     	buffer.vertex((double)(x + 0), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
     	buffer.vertex((double)(x + width), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
     	buffer.vertex((double)(x + width), (double)(y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-    	buffer.end();
-	    BufferUploader.end(buffer);
+    	RenderedBuffer rb = buffer.end();
+	    BufferUploader.draw(rb);
     }
 
     private int m_slot;

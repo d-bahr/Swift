@@ -6,8 +6,6 @@ import java.util.SortedSet;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -42,7 +40,7 @@ public class ChannelSelectionWidget extends GuiWidget
 
     public ChannelSelectionWidget(GuiContainerScreen<?> screen, int x, int y, int width, int numScrollPanelRows)
     {
-        super(screen, x, y, width, 148, TextComponent.EMPTY);
+        super(screen, x, y, width, 148, Component.empty());
 
         final int verticalMargin = 2;
         final int horizontalMargin = 2;
@@ -52,7 +50,7 @@ public class ChannelSelectionWidget extends GuiWidget
         m_showPrivateChannels = true;
 
         m_publicButton = new GuiTextButton(screen, 0, 0, width / 2 - horizontalMargin, 20, BIG_BUTTON_TEXTURE,
-                BIG_BUTTON_HIGHLIGHTED_TEXTURE, new TranslatableComponent("swift.text.public"),
+                BIG_BUTTON_HIGHLIGHTED_TEXTURE, Component.translatable("swift.text.public"),
                 this::onPublicButtonClick);
         m_publicButton.active = true;
         m_publicButton.setBackgroundInactiveTexture(BIG_BUTTON_INACTIVE_TEXTURE);
@@ -60,7 +58,7 @@ public class ChannelSelectionWidget extends GuiWidget
 
         m_privateButton = new GuiTextButton(screen, m_publicButton.right() + horizontalMargin * 2, m_publicButton.top(),
                 m_publicButton.width(), 20, BIG_BUTTON_TEXTURE, BIG_BUTTON_HIGHLIGHTED_TEXTURE,
-                new TranslatableComponent("swift.text.private"), this::onPrivateButtonClick);
+                Component.translatable("swift.text.private"), this::onPrivateButtonClick);
         m_privateButton.active = false;
         m_privateButton.setBackgroundInactiveTexture(BIG_BUTTON_INACTIVE_TEXTURE);
         addChild(m_privateButton);
@@ -73,15 +71,15 @@ public class ChannelSelectionWidget extends GuiWidget
         GuiButton deleteButton = new GuiTextureButton(screen, m_privateButton.right() - 20,
                 m_panel.bottom() + verticalMargin, 20, 20, DELETE_BUTTON_TEXTURE,
                 this::onDeleteButtonClick);
-        deleteButton.setTooltip(new TextComponent("Delete channel"));
+        deleteButton.setTooltip(Component.literal("Delete channel"));
         addChild(deleteButton);
 
-        GuiButton addButton = new GuiTextureButton(screen, deleteButton.left() - 20, deleteButton.y, 20, 20,
+        GuiButton addButton = new GuiTextureButton(screen, deleteButton.left() - 20, deleteButton.getY(), 20, 20,
                 ADD_BUTTON_TEXTURE, this::onAddButtonClick);
-        addButton.setTooltip(new TextComponent("Add channel"));
+        addButton.setTooltip(Component.literal("Add channel"));
         addChild(addButton);
 
-        m_textField = new GuiTextField(screen, 0, addButton.y, addButton.left() - 2, 20, TextComponent.EMPTY);
+        m_textField = new GuiTextField(screen, 0, addButton.getY(), addButton.left() - 2, 20, Component.empty());
         m_textField.setTextColor(-1);
         m_textField.setDisabledTextColour(-1);
         m_textField.setEnableBackgroundDrawing(false);
@@ -92,12 +90,12 @@ public class ChannelSelectionWidget extends GuiWidget
 
         GuiButton setButton = new GuiTextButton(screen, m_publicButton.left(), m_textField.bottom() + verticalMargin,
                 m_publicButton.getWidth(), 20, BIG_BUTTON_TEXTURE, BIG_BUTTON_HIGHLIGHTED_TEXTURE,
-                new TranslatableComponent("swift.text.set"), this::onSetButtonClick);
+                Component.translatable("swift.text.set"), this::onSetButtonClick);
         addChild(setButton);
 
         GuiButton unsetButton = new GuiTextButton(screen, m_privateButton.left(), setButton.top(),
                 m_privateButton.getWidth(), 20, BIG_BUTTON_TEXTURE, BIG_BUTTON_HIGHLIGHTED_TEXTURE,
-                new TranslatableComponent("swift.text.unset"), this::onUnsetButtonClick);
+                Component.translatable("swift.text.unset"), this::onUnsetButtonClick);
         addChild(unsetButton);
         
         // Easiest to do this at the end...
@@ -140,14 +138,14 @@ public class ChannelSelectionWidget extends GuiWidget
     {
         m_privateChannelNames.clear();
         for (String s : channels)
-            m_privateChannelNames.add(new TextComponent(s));
+            m_privateChannelNames.add(Component.literal(s));
     }
 
     public void setPrivateChannels(List<String> channels)
     {
         m_privateChannelNames.clear();
         for (String s : channels)
-            m_privateChannelNames.add(new TextComponent(s));
+            m_privateChannelNames.add(Component.literal(s));
         m_privateChannelNames.sort((a, b) ->
         {
             return a.getString().compareTo(b.getString());
@@ -158,14 +156,14 @@ public class ChannelSelectionWidget extends GuiWidget
     {
         m_publicChannelNames.clear();
         for (String s : channels)
-            m_publicChannelNames.add(new TextComponent(s));
+            m_publicChannelNames.add(Component.literal(s));
     }
 
     public void setPublicChannels(List<String> channels)
     {
         m_publicChannelNames.clear();
         for (String s : channels)
-            m_publicChannelNames.add(new TextComponent(s));
+            m_publicChannelNames.add(Component.literal(s));
         m_publicChannelNames.sort((a, b) ->
         {
             return a.getString().compareTo(b.getString());

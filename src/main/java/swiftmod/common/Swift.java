@@ -8,23 +8,18 @@ import org.apache.logging.log4j.Logger;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
+import net.minecraftforge.client.event.InputEvent.MouseScrollingEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.common.world.ForgeChunkManager.TicketHelper;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -38,9 +33,6 @@ public class Swift
 {
     public static final String MOD_NAME = "swift";
     public static final Logger LOGGER = LogManager.getLogger(MOD_NAME);
-    public static final CustomItemGroup ITEM_GROUP = new CustomItemGroup(Swift.MOD_NAME,
-            () -> SwiftItems.s_advancedItemPipeBlockItem);
-
     private static long s_lastScrollTime = -1;
     private static double s_scrollDelta = 0.0;
 
@@ -58,6 +50,12 @@ public class Swift
 
         ForgeChunkManager.setForcedChunkLoadingCallback(MOD_NAME, this::onForgeChunksLoaded);
 
+        SwiftBlocks.registerBlocks();
+        SwiftItems.registerItems();
+        SwiftTileEntities.registerTileEntities();
+        SwiftContainers.registerContainers();
+        CustomItemGroup.registerCreativeTabs();
+
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -69,7 +67,6 @@ public class Swift
 
     private void doClientInit(final FMLClientSetupEvent event)
     {
-        SwiftBlocks.registerRenderTypes();
         SwiftContainers.registerScreenTypes();
         SwiftNetwork.registerPackets();
     }
@@ -101,7 +98,7 @@ public class Swift
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public void onMouseEvent(MouseScrollEvent event)
+    public void onMouseEvent(MouseScrollingEvent event)
     {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null && minecraft.player.isShiftKeyDown())
@@ -116,7 +113,7 @@ public class Swift
             if (s != 0)
             {
                 ItemStack mainHandItem = minecraft.player.getItemInHand(InteractionHand.MAIN_HAND);
-                if (!mainHandItem.isEmpty() && mainHandItem.getItem() == SwiftItems.s_copyPastaItem)
+                if (!mainHandItem.isEmpty() && mainHandItem.getItem() == SwiftItems.s_copyPastaItem.get())
                 {
                     if (s > 0)
                     {
@@ -150,34 +147,4 @@ public class Swift
      * process InterModComms from other mods LOGGER.info("Got IMC {}", event.getIMCStream().
      * map(m->m.getMessageSupplier().get()). collect(Collectors.toList())); }
      */
-
-    // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is
-    // subscribing to the MOD Event bus for receiving Registry Events)
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents
-    {
-        @SubscribeEvent
-        public static void onBlocksRegistry(final RegistryEvent.Register<Block> event)
-        {
-            SwiftBlocks.registerBlocks(event);
-        }
-
-        @SubscribeEvent
-        public static void onTileEntitiesRegistry(final RegistryEvent.Register<BlockEntityType<?>> event)
-        {
-            SwiftTileEntities.registerTileEntities(event);
-        }
-
-        @SubscribeEvent
-        public static void onItemsRegistry(final RegistryEvent.Register<Item> event)
-        {
-            SwiftItems.registerItems(event);
-        }
-
-        @SubscribeEvent
-        public static void onContainersRegistry(final RegistryEvent.Register<MenuType<?>> event)
-        {
-            SwiftContainers.registerContainers(event);
-        }
-    }
 }

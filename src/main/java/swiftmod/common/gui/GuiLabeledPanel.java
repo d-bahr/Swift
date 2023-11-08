@@ -5,7 +5,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,54 +13,54 @@ public class GuiLabeledPanel extends GuiPanel
 {
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, Component label)
     {
-        super(screen, width, height, TextComponent.EMPTY);
+        super(screen, width, height, Component.empty());
         createLabel(label);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, Component label, Font font)
     {
-        super(screen, width, height, TextComponent.EMPTY);
+        super(screen, width, height, Component.empty());
         createLabel(label, font);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component label)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         createLabel(label);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component label,
             Font font)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         createLabel(label, font);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, ResourceLocation backgroundTexture,
             Component label)
     {
-        super(screen, width, height, TextComponent.EMPTY);
+        super(screen, width, height, Component.empty());
         createLabel(label);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int width, int height, ResourceLocation backgroundTexture,
             Component label, Font font)
     {
-        super(screen, width, height, TextComponent.EMPTY);
+        super(screen, width, height, Component.empty());
         createLabel(label, font);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height,
             ResourceLocation backgroundTexture, Component label)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         createLabel(label);
     }
 
     public GuiLabeledPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height,
             ResourceLocation backgroundTexture, Component label, Font font)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         createLabel(label, font);
     }
 

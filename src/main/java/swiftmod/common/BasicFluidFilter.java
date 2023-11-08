@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class BasicFluidFilter implements Filter<FluidStack>
 {
@@ -92,8 +93,8 @@ public class BasicFluidFilter implements Filter<FluidStack>
 
         if (fluidStack.getFluid() != filterStack.getFluid())
         {
-            if (matchMod && fluidStack.getFluid().getRegistryName().getNamespace() == filterStack.getFluid()
-                    .getRegistryName().getNamespace())
+            if (matchMod && ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).getNamespace() ==
+            		ForgeRegistries.FLUIDS.getKey(filterStack.getFluid()).getNamespace())
             {
                 return createReturnValue(reduceFilter, filterStack);
             }

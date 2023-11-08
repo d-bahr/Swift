@@ -7,7 +7,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -15,8 +14,7 @@ public class TankItem extends BlockItem
 {
     public TankItem()
     {
-        super(SwiftBlocks.s_tankBlock, new Item.Properties().stacksTo(64).tab(Swift.ITEM_GROUP));
-        setRegistryName(Swift.MOD_NAME, REGISTRY_NAME);
+        super(SwiftBlocks.s_tankBlock.get(), new Item.Properties().stacksTo(64));
     }
 
     @Override
@@ -33,7 +31,7 @@ public class TankItem extends BlockItem
 	        }
 	    }
 
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Contents: " + contents, SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Contents: " + contents, SwiftTextUtils.AQUA)));
     }
 
     public static final String REGISTRY_NAME = "tank";

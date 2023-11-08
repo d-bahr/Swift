@@ -3,7 +3,6 @@ package swiftmod.common.gui;
 import java.util.Stack;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
@@ -19,7 +18,7 @@ public class GuiPanelStack extends GuiWidget
 
     public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y)
     {
-        this(screen, x, y, 0, 0, TextComponent.EMPTY);
+        this(screen, x, y, 0, 0, Component.empty());
     }
 
     public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, Component title)
@@ -29,7 +28,7 @@ public class GuiPanelStack extends GuiWidget
 
     public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, int width, int height)
     {
-        this(screen, x, y, width, height, TextComponent.EMPTY);
+        this(screen, x, y, width, height, Component.empty());
     }
 
     public GuiPanelStack(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component title)

@@ -1,7 +1,7 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -24,9 +24,9 @@ public class MatchNBTButton extends GuiBooleanStateButton
     private void setTooltip()
     {
         if (getState())
-            setTooltip(new TextComponent("Match NBT data"));
+            setTooltip(Component.literal("Match NBT data"));
         else
-            setTooltip(new TextComponent("Ignore NBT data"));
+            setTooltip(Component.literal("Ignore NBT data"));
     }
 
     protected void onStateChanged()

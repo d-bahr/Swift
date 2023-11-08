@@ -1,10 +1,10 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -18,7 +18,7 @@ public class GuiTexture extends GuiWidget
 
     public GuiTexture(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation texture)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         m_requestFocusOnPress = false;
         m_texture = texture;
     }
@@ -28,28 +28,29 @@ public class GuiTexture extends GuiWidget
         m_texture = texture;
     }
 
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
 
         if (m_texture != null)
-            drawTexture(m_texture, matrixStack, x, y, width, height);
+            drawTexture(graphics, m_texture, getX(), getY(), width, height);
     }
 
-    public static void drawTexture(ResourceLocation texture, PoseStack matrixStack, int x, int y, int width,
+    public static void drawTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width,
             int height)
     {
-        drawTexture(texture, matrixStack, x, y, width, height, 0, 0);
+        drawTexture(graphics, texture, x, y, width, height, 0, 0);
     }
 
-    public static void drawTexture(ResourceLocation texture, PoseStack matrixStack,
+    public static void drawTexture(GuiGraphics graphics, ResourceLocation texture,
             int x, int y, int width, int height, int horizontalMargin, int verticalMargin)
     {
         if (texture != null)
         {
-        	RenderSystem.setShaderTexture(0, texture);
             RenderSystem.enableDepthTest();
-            blit(matrixStack, x + horizontalMargin, y + verticalMargin, 0.0f, 0.0f, width, height,
+            RenderSystem.enableBlend();
+            graphics.blit(texture, x + horizontalMargin, y + verticalMargin, 0.0f, 0.0f, width, height,
                     width - horizontalMargin * 2, height - verticalMargin * 2);
         }
     }

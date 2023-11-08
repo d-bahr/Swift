@@ -23,6 +23,6 @@ public class AdvancedFluidPipeBlock extends FluidPipeBlock
 	@Override
 	protected <T extends BlockEntity> BlockEntityTicker<T> createTicker(BlockState state, BlockEntityType<T> type)
 	{
-		return createTickerHelper(type, SwiftTileEntities.s_advancedFluidPipeTileEntityType, AdvancedFluidPipeTileEntity::serverTick);
+		return createTickerHelper(type, SwiftTileEntities.s_advancedFluidPipeTileEntityType.get(), AdvancedFluidPipeTileEntity::serverTick);
 	}
 }

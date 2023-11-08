@@ -15,13 +15,12 @@ public class SideUpgradeContainer extends ContainerBase<SideUpgradeDataCache> im
 {
     protected SideUpgradeContainer(int windowID, Inventory playerInventory)
     {
-        super(SwiftContainers.s_sideUpgradeContainerType, windowID, playerInventory, 8, 107);
+        super(SwiftContainers.s_sideUpgradeContainerType.get(), windowID, playerInventory, 8, 107);
     }
 
     protected SideUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_sideUpgradeContainerType, windowID, new SideUpgradeDataCache(), playerInventory, 8,
-                107);
+        super(SwiftContainers.s_sideUpgradeContainerType.get(), windowID, new SideUpgradeDataCache(), playerInventory, 8, 107);
         decode(extraData);
     }
 
@@ -55,7 +54,7 @@ public class SideUpgradeContainer extends ContainerBase<SideUpgradeDataCache> im
     public void handle(ServerPlayer player, SideConfigurationPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_sideUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_sideUpgradeItem.get())
         {
             SideUpgradeDataCache.setStates(packet.directionStates, itemStack);
         }

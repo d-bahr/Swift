@@ -10,7 +10,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.nbt.Tag;
 import net.minecraftforge.fluids.FluidStack;
@@ -24,7 +23,7 @@ public class BasicFluidFilterUpgradeItem extends FilterUpgradeItem implements IF
 {
     public BasicFluidFilterUpgradeItem()
     {
-        super(UpgradeType.BasicFluidFilterUpgrade, REGISTRY_NAME);
+        super(UpgradeType.BasicFluidFilterUpgrade);
     }
 
     public Filter<FluidStack> createFluidFilter(ItemStack itemStack)
@@ -68,23 +67,23 @@ public class BasicFluidFilterUpgradeItem extends FilterUpgradeItem implements IF
     @Override
     public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Filters fluids.", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Filters fluids.", SwiftTextUtils.AQUA)));
     }
 
     @Override
     public void addShiftInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
     {
         BasicFluidFilterUpgradeDataCache cache = new BasicFluidFilterUpgradeDataCache(stack);
-        tooltip.add(new TextComponent(SwiftTextUtils.color(cache.getWhiteListState() == WhiteListState.WhiteList ? "Whitelist" : "Blacklist", SwiftTextUtils.AQUA)));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Match amount: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchCount())));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Match mod: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchMod())));
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Match ore dict: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchOreDictionary())));
+        tooltip.add(Component.literal(SwiftTextUtils.color(cache.getWhiteListState() == WhiteListState.WhiteList ? "Whitelist" : "Blacklist", SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Match amount: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchCount())));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Match mod: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchMod())));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Match ore dict: ", SwiftTextUtils.AQUA) + SwiftTextUtils.colorBoolean(cache.getMatchOreDictionary())));
         List<FluidStack> filters = cache.getFilters();
         int count = 0;
         for (int i = 0; i < filters.size(); ++i)
             if (!filters.get(i).isEmpty())
                 count++;
-        tooltip.add(new TextComponent(SwiftTextUtils.color("Filters: " + count, SwiftTextUtils.AQUA)));
+        tooltip.add(Component.literal(SwiftTextUtils.color("Filters: " + count, SwiftTextUtils.AQUA)));
     }
 
     @Override

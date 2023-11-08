@@ -160,7 +160,9 @@ public abstract class PipeTileEntity<T extends PipeDataCache, U, V> extends Tile
         if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
         {
             ItemStack stack = m_baseUpgradeInventory.getItem(slot);
-            return stack != null && !stack.isEmpty() && stack.getItem() == SwiftItems.s_chunkLoaderUpgradeItem;
+            return stack != null &&
+            	   !stack.isEmpty() &&
+            	   stack.getItem() == SwiftItems.s_chunkLoaderUpgradeItem.get();
         }
         else
         {

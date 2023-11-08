@@ -19,12 +19,12 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
 {
     protected BasicItemFilterUpgradeContainer(int windowID, Inventory playerInventory)
     {
-        super(SwiftContainers.s_basicItemFilterContainerType, windowID, playerInventory, 8, 107);
+        super(SwiftContainers.s_basicItemFilterContainerType.get(), windowID, playerInventory, 8, 107);
     }
 
     protected BasicItemFilterUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_basicItemFilterContainerType, windowID, new BasicItemFilterUpgradeDataCache(), playerInventory, 8, 107);
+        super(SwiftContainers.s_basicItemFilterContainerType.get(), windowID, new BasicItemFilterUpgradeDataCache(), playerInventory, 8, 107);
         decode(extraData);
     }
 
@@ -70,7 +70,7 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
     public void handle(ServerPlayer player, ItemFilterConfigurationPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
         {
             BasicItemFilterUpgradeDataCache.setWhiteListState(packet.whiteListState, itemStack);
             BasicItemFilterUpgradeDataCache.setMatchCount(packet.matchCount, itemStack);
@@ -85,7 +85,7 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
     public void handle(ServerPlayer player, ItemFilterSlotPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
         {
             BasicItemFilterUpgradeDataCache.setFilterSlot(packet.slot, packet.itemStack, itemStack);
         }
@@ -95,7 +95,7 @@ public class BasicItemFilterUpgradeContainer extends ContainerBase<BasicItemFilt
     public void handle(ServerPlayer player, ClearFilterPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+        if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
         {
             BasicItemFilterUpgradeDataCache.clearAllFilters(itemStack);
         }

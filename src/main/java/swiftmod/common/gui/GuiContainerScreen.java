@@ -2,11 +2,12 @@ package swiftmod.common.gui;
 
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import javax.annotation.Nullable;
 
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -46,11 +47,11 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     private void createBaseComponents(Inventory inv, int width, int height, ResourceLocation backgroundTexture)
     {
         m_playerInventory = new GuiPlayerInventory(this, 7, 0);
-        m_playerInventory.y = height - m_playerInventory.height() - 8;
+        m_playerInventory.setY(height - m_playerInventory.height() - 8);
 
         m_playerInventoryLabel = new GuiLabel(this, 8, 0, m_playerInventory.width(), SwiftGui.TEXT_HEIGHT,
                 inv.getDisplayName());
-        m_playerInventoryLabel.y = m_playerInventory.top() - m_playerInventoryLabel.height() - 2;
+        m_playerInventoryLabel.setY(m_playerInventory.top() - m_playerInventoryLabel.height() - 2);
 
         m_backgroundTexture = new GuiTexture(this, 0, 0, width, height, backgroundTexture);
     }
@@ -90,7 +91,7 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
 
         for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = renderables.get(i);
+            Renderable w = renderables.get(i);
             if (w instanceof GuiWidget)
                 ((GuiWidget) w).init();
         }
@@ -170,38 +171,52 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     {
         return height;
     }
-    
-    public ItemRenderer getItemRenderer()
-    {
-    	return itemRenderer;
-    }
 
     @Override
     public void containerTick()
     {
         for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = renderables.get(i);
+            Renderable w = renderables.get(i);
             if (w instanceof GuiWidget)
                 ((GuiWidget) w).tick();
         }
     }
 
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-        renderTooltip(matrixStack, mouseX, mouseY);
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY)
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY)
     {
-        m_backgroundTexture.draw(matrixStack, mouseX, mouseY, partialTicks);
+        m_backgroundTexture.draw(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override
-    protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY)
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY)
     {
+    }
+    
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
+        for (GuiEventListener listener : children())
+        {
+            if (listener instanceof GuiWidget)
+            {
+                if (((GuiWidget)listener).mousePressed(mouseX, mouseY, button))
+                {
+                    if (button == 0)
+                        setDragging(true);
+                    return true;
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -209,7 +224,7 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     {
         for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = renderables.get(i);
+            Renderable w = renderables.get(i);
             if (w instanceof GuiWidget)
             {
                 if (((GuiWidget) w).mouseDragged(mouseX, mouseY, button, dragX, dragY))
@@ -256,7 +271,7 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     {
         for (int i = 0; i < renderables.size(); ++i)
         {
-            Widget w = renderables.get(i);
+            Renderable w = renderables.get(i);
             if (w instanceof GuiWidget)
                 requestFocusWorker(widget, (GuiWidget)w);
         }
@@ -290,6 +305,28 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
             m_focusedWidget.setFocused(false);
             m_focusedWidget = null;
         }
+    }
+
+    @Override
+    public void setFocused(@Nullable GuiEventListener listener)
+    {
+    	if (m_focusedWidget != listener)
+    	{
+    		if (m_focusedWidget != null)
+    			m_focusedWidget.setFocused(false);
+    		if (listener instanceof GuiWidget)
+    		{
+	    		m_focusedWidget = (GuiWidget)listener;
+	    		if (m_focusedWidget != null)
+	    			m_focusedWidget.setFocused(false);
+    		}
+    	}
+    }
+    
+    @Override
+    public void setInitialFocus(GuiEventListener listener)
+    {
+    	super.setInitialFocus(listener);
     }
 
     // TODO: Combine to a GuiLabeledPlayerInventory class.

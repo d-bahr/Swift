@@ -40,12 +40,12 @@ public class PipeContainerScreen<T extends PipeContainer> extends GuiContainerSc
         m_panelStack.push(m_basePanel);
 
         // UI is offset by one pixel for some dumb reason.
-        m_playerInventory.x = PLAYER_INVENTORY_OFFSET_X - 1;
-        m_playerInventory.y = PLAYER_INVENTORY_OFFSET_Y - 1;
+        m_playerInventory.setX(PLAYER_INVENTORY_OFFSET_X - 1);
+        m_playerInventory.setY(PLAYER_INVENTORY_OFFSET_Y - 1);
 
         // TODO: Really need to fix this up in GuiContainerScreen so it doesn't need to be done here.
-        m_playerInventoryLabel.x = m_playerInventory.x + 1;
-        m_playerInventoryLabel.y = m_playerInventory.top() - m_playerInventoryLabel.height() - 2;
+        m_playerInventoryLabel.setX(m_playerInventory.getX() + 1);
+        m_playerInventoryLabel.setY(m_playerInventory.top() - m_playerInventoryLabel.height() - 2);
         
         m_init = true;
     }

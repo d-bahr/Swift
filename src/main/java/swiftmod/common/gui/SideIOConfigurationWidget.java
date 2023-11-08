@@ -3,7 +3,7 @@ package swiftmod.common.gui;
 import java.awt.Point;
 
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Color;
@@ -25,7 +25,7 @@ public class SideIOConfigurationWidget extends GuiWidget
 
     public SideIOConfigurationWidget(GuiContainerScreen<?> screen, int x, int y)
     {
-        super(screen, x, y, 54, 54, TextComponent.EMPTY);
+        super(screen, x, y, 54, 54, Component.empty());
         Direction[] dirs = Direction.values();
         m_buttons = new ColoredDirectionButton[dirs.length];
         for (int i = 0; i < dirs.length; ++i)
@@ -91,7 +91,7 @@ public class SideIOConfigurationWidget extends GuiWidget
             cap += "Any";
         else
             cap += Color.fromIndex(state).getName();
-        m_buttons[SwiftUtils.dirToIndex(direction)].setTooltip(new TextComponent(cap));
+        m_buttons[SwiftUtils.dirToIndex(direction)].setTooltip(Component.literal(cap));
     }
 
     private static Point getButtonLocation(Direction direction)

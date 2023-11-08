@@ -74,7 +74,7 @@ public class ItemContainerProvider<T extends AbstractContainerMenu> implements M
         if (!world.isClientSide)
         {
             MenuProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
-            NetworkHooks.openGui((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
+            NetworkHooks.openScreen((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
             {
                 encoder.encode(player, itemStack, FriendlyByteBuf);
             });
@@ -94,7 +94,7 @@ public class ItemContainerProvider<T extends AbstractContainerMenu> implements M
         if (!world.isClientSide)
         {
             MenuProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
-            NetworkHooks.openGui((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
+            NetworkHooks.openScreen((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
             {
                 encoder.encode(player, itemStack, FriendlyByteBuf);
             });

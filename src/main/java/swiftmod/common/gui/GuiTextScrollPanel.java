@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -62,8 +63,8 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
     {
         int leftAbs = leftAbsolute();
         int topAbs = topAbsolute();
-        int barXAbs = leftAbs - x + barX;
-        int barYAbs = topAbs - y + barY;
+        int barXAbs = leftAbs - getX() + barX;
+        int barYAbs = topAbs - getY() + barY;
         if (mouseX >= barXAbs && mouseX <= barXAbs + barWidth && mouseY >= barYAbs && mouseY <= barYAbs + maxBarHeight)
         {
             if (needsScrollBars())
@@ -117,7 +118,7 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
         if (needsScrollBars() && isDragging)
         {
             int topAbs = topAbsolute();
-            int barYAbs = topAbs - y + barY;
+            int barYAbs = topAbs - getY() + barY;
             scroll = Math.min(Math.max((mouseY - barYAbs) / getMax(), 0), 1);
         }
         return true;
@@ -240,34 +241,39 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
             scroll = 0;
     }
 
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
         // Draw the background
         RenderSystem.setShaderTexture(0, BACKGROUND);
 
         RenderSystem.enableDepthTest();
-        blit(matrixStack, x, y, 0.0f, 0.0f, width, height, width, height);
+        graphics.blit(BACKGROUND, getX(), getY(), 0.0f, 0.0f, width, height, width, height);
 
         RenderSystem.setShaderTexture(0, SCROLL_LIST);
         // Draw Scroll
         // Top border
-        blit(matrixStack, barX - 1, barY - 1, 0, 0, SCROLL_BAR_WIDTH, 1, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
+        graphics.blit(SCROLL_LIST, barX - 1, barY - 1, 0, 0, SCROLL_BAR_WIDTH, 1, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
         // Middle border
-        blit(matrixStack, barX - 1, barY, 6, maxBarHeight, 0, 1, SCROLL_BAR_WIDTH, 1, SCROLL_BAR_WIDTH,
+        graphics.blit(SCROLL_LIST, barX - 1, barY, 6, maxBarHeight, 0, 1, SCROLL_BAR_WIDTH, 1, SCROLL_BAR_WIDTH,
                 SCROLL_BAR_HEIGHT);
         // Bottom border
-        blit(matrixStack, barX - 1, y + maxBarHeight + 2, 0, 0, SCROLL_BAR_WIDTH, 1, SCROLL_BAR_WIDTH,
+        graphics.blit(SCROLL_LIST, barX - 1, getY() + maxBarHeight + 2, 0, 0, SCROLL_BAR_WIDTH, 1, SCROLL_BAR_WIDTH,
                 SCROLL_BAR_HEIGHT);
         // Scroll bar
-        blit(matrixStack, barX, barY + getScroll(), 0, 2, barWidth, barHeight, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
+        graphics.blit(SCROLL_LIST, barX, barY + getScroll(), 0, 2, barWidth, barHeight, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
         // Draw the elements
-        drawElements(matrixStack, mouseX, mouseY, partialTicks);
+        int scrollIndex = getIndexAtStartOfScroll();
+        if (selected != -1 && selected >= scrollIndex && selected <= scrollIndex + getFocusedElements() - 1)
+        {
+        	graphics.blit(SCROLL_LIST, getX() + 1, getY() + 1 + (selected - scrollIndex) * elementHeight,
+        			barX - getX() - 2, elementHeight, 4, 2, 2, 2, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
+        }
 
         // Draw the foreground
         if (!m_text.isEmpty())
         {
             // Render the text into the entries
-            int scrollIndex = getIndexAtStartOfScroll();
             int focusedElements = getFocusedElements();
             int numLines = numLines();
             for (int i = 0; i < focusedElements; i++)
@@ -275,40 +281,30 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
                 int index = scrollIndex + i;
                 if (index < numLines)
                 {
-                    drawScaledTextScaledBound(matrixStack, m_text.get(index), x + 2, y + 2 + elementHeight * i,
-                            0x00FFFFFF, barX - x - 2, 0.8F);
+                    drawScaledTextScaledBound(graphics, m_text.get(index), getX() + 2, getY() + 2 + elementHeight * i,
+                            0x00FFFFFF, barX - getX() - 2, 0.8F);
                 }
             }
         }
     }
 
-    public void drawElements(PoseStack matrix, int mouseX, int mouseY, float partialTicks)
-    {
-        // Draw Selected
-        int scrollIndex = getIndexAtStartOfScroll();
-        if (selected != -1 && selected >= scrollIndex && selected <= scrollIndex + getFocusedElements() - 1)
-        {
-            blit(matrix, x + 1, y + 1 + (selected - scrollIndex) * elementHeight, barX - x - 2, elementHeight, 4, 2, 2,
-                    2, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
-        }
-    }
-
-    public void drawScaledTextScaledBound(PoseStack matrix, Component text, float x, float y, int color,
+    public void drawScaledTextScaledBound(GuiGraphics graphics, Component text, float x, float y, int color,
             float maxX, float textScale)
     {
         float width = getStringWidth(text) * textScale;
         float scale = Math.min(1, maxX / width) * textScale;
-        drawTextWithScale(matrix, text, x, y, color, scale);
+        drawTextWithScale(graphics, text, x, y, color, scale);
     }
 
-    private void drawTextWithScale(PoseStack matrix, Component text, float x, float y, int color, float scale)
+    private void drawTextWithScale(GuiGraphics graphics, Component text, float x, float y, int color, float scale)
     {
         float yAdd = 4 - (scale * 8) / 2F;
-        matrix.pushPose();
-        matrix.translate(x, y + yAdd, 0);
-        matrix.scale(scale, scale, scale);
-        drawString(matrix, text, 0, 0, color);
-        matrix.popPose();
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(x, y + yAdd, 0);
+        pose.scale(scale, scale, scale);
+        drawString(graphics, text, 0, 0, color);
+        pose.popPose();
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
@@ -318,10 +314,10 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
         return mc.font.width(component);
     }
 
-    private int drawString(PoseStack matrix, Component component, int x, int y, int color)
+    private int drawString(GuiGraphics graphics, Component component, int x, int y, int color)
     {
         Minecraft mc = Minecraft.getInstance();
-        return mc.font.draw(matrix, component, x, y, color);
+        return graphics.drawString(mc.font, component, x, y, color, false);
     }
 
     protected double scroll;

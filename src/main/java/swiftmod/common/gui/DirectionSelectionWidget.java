@@ -5,7 +5,7 @@ import java.awt.Point;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
@@ -27,7 +27,7 @@ public class DirectionSelectionWidget extends GuiWidget
 
     public DirectionSelectionWidget(GuiContainerScreen<?> screen, int x, int y)
     {
-        super(screen, x, y, 54, 54, TextComponent.EMPTY);
+        super(screen, x, y, 54, 54, Component.empty());
         m_buttons = new GuiButton[Direction.values().length];
         for (Direction d : Direction.values())
             clearItemForDirection(d);
@@ -67,7 +67,7 @@ public class DirectionSelectionWidget extends GuiWidget
 
         String name = dir.getName();
         String cap = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-        m_buttons[dirIndex].setTooltip(new TextComponent(cap));
+        m_buttons[dirIndex].setTooltip(Component.literal(cap));
 
         if (m_buttons[dirIndex] != null)
             addChild(m_buttons[dirIndex]);
