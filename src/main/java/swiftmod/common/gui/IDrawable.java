@@ -1,12 +1,11 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.client.gui.GuiGraphics;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public interface IDrawable
 {
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks);
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks);
 }

@@ -1,12 +1,11 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiTextWidget extends GuiFontWidget
@@ -50,19 +49,19 @@ public class GuiTextWidget extends GuiFontWidget
     {
     }
 
-    protected void drawText(PoseStack matrixStack, float x, float y)
+    protected void drawText(GuiGraphics graphics, float x, float y)
     {
-        drawText(matrixStack, m_text, x, y);
+        drawText(graphics, m_text, x, y);
     }
 
-    protected void drawText(PoseStack matrixStack, float x, float y, TextColor color)
+    protected void drawText(GuiGraphics graphics, float x, float y, TextColor color)
     {
-        drawText(matrixStack, m_text, x, y, color);
+        drawText(graphics, m_text, x, y, color);
     }
 
-    protected void drawText(PoseStack matrixStack, float x, float y, int color)
+    protected void drawText(GuiGraphics graphics, float x, float y, int color)
     {
-        drawText(matrixStack, m_text, x, y, color);
+        drawText(graphics, m_text, x, y, color);
     }
 
     protected Component m_text;

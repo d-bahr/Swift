@@ -1,13 +1,12 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Simple container for other widgets.
@@ -17,7 +16,7 @@ public class GuiPanel extends GuiWidget
 {
     public GuiPanel(GuiContainerScreen<?> screen, int width, int height)
     {
-        this(screen, width, height, TextComponent.EMPTY);
+        this(screen, width, height, Component.empty());
     }
 
     public GuiPanel(GuiContainerScreen<?> screen, int width, int height, Component title)
@@ -30,7 +29,7 @@ public class GuiPanel extends GuiWidget
 
     public GuiPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height)
     {
-        this(screen, x, y, width, height, TextComponent.EMPTY);
+        this(screen, x, y, width, height, Component.empty());
     }
 
     public GuiPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, Component title)
@@ -43,7 +42,7 @@ public class GuiPanel extends GuiWidget
 
     public GuiPanel(GuiContainerScreen<?> screen, int width, int height, ResourceLocation backgroundTexture)
     {
-        this(screen, width, height, backgroundTexture, TextComponent.EMPTY);
+        this(screen, width, height, backgroundTexture, Component.empty());
     }
 
     public GuiPanel(GuiContainerScreen<?> screen, int width, int height, ResourceLocation backgroundTexture, Component title)
@@ -56,7 +55,7 @@ public class GuiPanel extends GuiWidget
 
     public GuiPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation backgroundTexture)
     {
-        this(screen, x, y, width, height, backgroundTexture, TextComponent.EMPTY);
+        this(screen, x, y, width, height, backgroundTexture, Component.empty());
     }
 
     public GuiPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation backgroundTexture, Component title)
@@ -78,23 +77,22 @@ public class GuiPanel extends GuiWidget
     }
 
     @Override
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
         if (m_drawBackground)
-            drawBackground(matrixStack, mouseX, mouseY, partialTicks);
+            drawBackground(graphics, mouseX, mouseY, partialTicks);
     }
 
-    protected void drawBackground(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    protected void drawBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
         if (m_backgroundTexture != null)
         {
-        	RenderSystem.setShaderTexture(0, m_backgroundTexture);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
-            blit(matrixStack, this.x, this.y, 0, 0, this.width, this.height, this.width, this.height);
+            graphics.blit(m_backgroundTexture, getX(), getY(), 0, 0, this.width, this.height, this.width, this.height);
         }
     }
 

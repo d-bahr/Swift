@@ -1,0 +1,11 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+        	"item": "swift:basic_fluid_filter_upgrade"
+        }
+    ],
+    "result": {
+        "id": "swift:basic_fluid_filter_upgrade"
+    }
+}

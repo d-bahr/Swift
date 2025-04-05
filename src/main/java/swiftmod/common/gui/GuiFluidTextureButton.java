@@ -1,15 +1,15 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiFluidTextureButton extends GuiButton
@@ -48,41 +48,42 @@ public class GuiFluidTextureButton extends GuiButton
         return m_fluidStack;
     }
 
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
         if (!m_fluidStack.isEmpty())
         {
             int left = left() + m_xTexMargin;
             int top = top() + m_yTexMargin;
             int w = width - (m_xTexMargin * 2);
             int h = height - (m_yTexMargin * 2);
-            renderFluid(matrixStack, m_fluidStack, left, top, w, h, alpha);
+            renderFluid(graphics, m_fluidStack, left, top, w, h, alpha);
         }
     }
 
-    public void renderFluid(PoseStack matrixStack, FluidStack fluidStack, int x, int y, int width, int height)
+    public void renderFluid(GuiGraphics graphics, FluidStack fluidStack, int x, int y, int width, int height)
     {
-        renderFluid(matrixStack, fluidStack, x, y, width, height, 0.0f);
+        renderFluid(graphics, fluidStack, x, y, width, height, 0.0f);
     }
 
-    public void renderFluid(PoseStack matrixStack, FluidStack fluidStack, int x, int y, int width, int height, float alpha)
+    public void renderFluid(GuiGraphics graphics, FluidStack fluidStack, int x, int y, int width, int height, float alpha)
     {
         if (!fluidStack.isEmpty())
         {
             Minecraft minecraft = Minecraft.getInstance();
-            FluidAttributes attrs = fluidStack.getFluid().getAttributes();
-            ResourceLocation fluidTexture = attrs.getStillTexture(fluidStack);
+            IClientFluidTypeExtensions attrs = IClientFluidTypeExtensions.of(fluidStack.getFluid());
+            ResourceLocation fluidTexture = attrs.getStillTexture();
             TextureAtlasSprite sprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidTexture);
-            RenderSystem.setShaderTexture(0, sprite.atlas().location());
-            int color = attrs.getColor();
+            RenderSystem.setShaderTexture(0, sprite.atlasLocation());
+            int color = attrs.getTintColor();
             float r = ((color >> 16) & 0xFF) / 256.0f;
             float g = ((color >> 8) & 0xFF) / 256.0f;
             float b = (color & 0xFF) / 256.0f;
             float a = ((color >> 24) & 0xFF) / 256.0f;
-            RenderSystem.setShaderColor(r, g, b, a); // TODO: Might need to be RenderSystem.setShaderColor instead.
-            blit(matrixStack, x, y, 0, width, height, sprite);
-            //RenderSystem.clearCurrentColor();
+            RenderSystem.setShaderColor(r, g, b, a);
+            graphics.blit(x, y, 0, width, height, sprite);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
         }
     }
 

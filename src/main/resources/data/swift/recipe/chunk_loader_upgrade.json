@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "C C",
+        "DED",
+        "C C"
+    ],
+    "key": {
+        "C": {
+            "tag": "c:rods/wooden"
+        },
+        "D": {
+            "tag": "c:ingots/iron"
+        },
+        "E": {
+            "tag": "c:storage_blocks/raw_iron"
+        }
+    },
+    "result": {
+        "id": "swift:chunk_loader_upgrade"
+    }
+}

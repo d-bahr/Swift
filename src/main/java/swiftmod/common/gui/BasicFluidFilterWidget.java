@@ -5,10 +5,9 @@ import java.util.List;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.fluids.FluidStack;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Notification;
 import swiftmod.common.Swift;
@@ -36,7 +35,7 @@ public class BasicFluidFilterWidget extends GuiWidget
     public BasicFluidFilterWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height,
             ResourceLocation backgroundTexture)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
 
         m_backgroundTexture = new GuiTexture(screen, 0, 0, width, height, backgroundTexture);
         addChild(m_backgroundTexture);
@@ -50,8 +49,8 @@ public class BasicFluidFilterWidget extends GuiWidget
 
         m_matchCountButton = new MatchCountButton(screen, GUI_MATCH_AMOUNT_X, GUI_MATCH_AMOUNT_Y, MATCH_AMOUNT_TEXTURE,
                 IGNORE_AMOUNT_TEXTURE, this::onMatchCountChanged);
-        m_matchCountButton.setMatchTooltip(new TextComponent("Match fluid amount"));
-        m_matchCountButton.setIgnoreTooltip(new TextComponent("Ignore fluid amount"));
+        m_matchCountButton.setMatchTooltip(Component.literal("Match fluid amount"));
+        m_matchCountButton.setIgnoreTooltip(Component.literal("Ignore fluid amount"));
         m_matchCountButton.setZ(foregroundZ);
         addChild(m_matchCountButton);
 
@@ -68,7 +67,7 @@ public class BasicFluidFilterWidget extends GuiWidget
 
         GuiDeleteButton deleteButton = new GuiDeleteButton(screen, GUI_DELETE_X, GUI_DELETE_Y,
                 this::onDeleteButtonPressed);
-        deleteButton.setTooltip(new TextComponent("Remove all filters"));
+        deleteButton.setTooltip(Component.literal("Remove all filters"));
         addChild(deleteButton);
 
         GuiTexture infoTexture = new GuiTexture(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16, INFO_TEXTURE);
@@ -76,12 +75,12 @@ public class BasicFluidFilterWidget extends GuiWidget
 
         GuiTooltip infoTooltip = new GuiTooltip(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16);
         List<Component> tooltip = new ArrayList<Component>();
-        tooltip.add(new TextComponent("Left click on a slot to add or increment a filter."));
-        tooltip.add(new TextComponent("Right click on a slot to remove or decrement a filter."));
-        tooltip.add(new TextComponent("Shift + click to add/remove 16 buckets."));
-        tooltip.add(new TextComponent("Ctrl + click to add/remove 100 mB."));
-        tooltip.add(new TextComponent("Shift + Ctrl + click to add/remove 1 mB."));
-        tooltip.add(new TextComponent("Max quantity: 999 buckets"));
+        tooltip.add(Component.literal("Left click on a slot to add or increment a filter."));
+        tooltip.add(Component.literal("Right click on a slot to remove or decrement a filter."));
+        tooltip.add(Component.literal("Shift + click to add/remove 16 buckets."));
+        tooltip.add(Component.literal("Ctrl + click to add/remove 100 mB."));
+        tooltip.add(Component.literal("Shift + Ctrl + click to add/remove 1 mB."));
+        tooltip.add(Component.literal("Max quantity: 999 buckets"));
         infoTooltip.setText(tooltip);
         infoTooltip.setZ(1000.0f);
         addChild(infoTooltip);
@@ -290,16 +289,16 @@ public class BasicFluidFilterWidget extends GuiWidget
 
     protected static final int FILTER_SLOTS_PER_ROW = 9;
 
-    protected static final ResourceLocation MATCH_AMOUNT_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation MATCH_AMOUNT_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/match_fluid_amount.png");
 
-    protected static final ResourceLocation IGNORE_AMOUNT_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation IGNORE_AMOUNT_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/ignore_fluid_amount.png");
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/basic_filter_upgrade.png");
 
-    protected static final ResourceLocation INFO_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation INFO_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/info.png");
 
     protected GuiTexture m_backgroundTexture;

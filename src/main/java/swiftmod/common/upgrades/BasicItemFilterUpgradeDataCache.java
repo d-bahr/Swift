@@ -1,14 +1,12 @@
 package swiftmod.common.upgrades;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import swiftmod.common.BigItemStack;
 import swiftmod.common.ItemStackDataCache;
-import swiftmod.common.SwiftUtils;
+import swiftmod.common.SwiftDataComponents;
 import swiftmod.common.WhiteListState;
 
 public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
@@ -25,12 +23,9 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
 
     public WhiteListState getWhiteListState()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return WhiteListState.WhiteList;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return WhiteListState.WhiteList;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? WhiteListState.read(nbt) : WhiteListState.WhiteList;
+        return itemStack.getOrDefault(SwiftDataComponents.WHITELIST_DATA_COMPONENT, WhiteListState.WhiteList);
     }
 
     public void setWhiteListState(WhiteListState state)
@@ -41,20 +36,14 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
     public static void setWhiteListState(WhiteListState state, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            WhiteListState.write(nbt, state);
-        }
+        	itemStack.set(SwiftDataComponents.WHITELIST_DATA_COMPONENT, state);
     }
 
     public boolean getMatchCount()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_COUNT) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_COUNT_DATA_COMPONENT, false);
     }
 
     public void setMatchCount(boolean match)
@@ -65,20 +54,14 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchCount(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_COUNT, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_COUNT_DATA_COMPONENT, match);
     }
 
     public boolean getMatchDamage()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_DAMAGE) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_DAMAGE_DATA_COMPONENT, false);
     }
 
     public void setMatchDamage(boolean match)
@@ -89,20 +72,14 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchDamage(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_DAMAGE, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_DAMAGE_DATA_COMPONENT, match);
     }
 
     public boolean getMatchMod()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_MOD) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_MOD_DATA_COMPONENT, false);
     }
 
     public void setMatchMod(boolean match)
@@ -113,20 +90,14 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchMod(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_MOD, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_MOD_DATA_COMPONENT, match);
     }
 
     public boolean getMatchNBT()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_NBT) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_NBT_DATA_COMPONENT, false);
     }
 
     public void setMatchNBT(boolean match)
@@ -137,20 +108,14 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchNBT(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_NBT, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_NBT_DATA_COMPONENT, match);
     }
 
     public boolean getMatchOreDictionary()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_ORE_DICTIONARY) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_ORE_DICT_DATA_COMPONENT, false);
     }
 
     public void setMatchOreDictionary(boolean match)
@@ -161,13 +126,10 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchOreDictionary(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_ORE_DICTIONARY, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_ORE_DICT_DATA_COMPONENT, match);
     }
     
-    private ArrayList<BigItemStack> createNewFilters()
+    private static ArrayList<BigItemStack> createNewFilters()
     {
         ArrayList<BigItemStack> filters = new ArrayList<BigItemStack>(BasicItemFilterUpgradeItem.NUM_SLOTS);
         for (int i = 0; i < BasicItemFilterUpgradeItem.NUM_SLOTS; ++i)
@@ -175,31 +137,15 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
         return filters;
     }
 
-    public ArrayList<BigItemStack> getFilters()
+    public List<BigItemStack> getFilters()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return createNewFilters();
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return createNewFilters();
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        if (nbt == null)
-            return createNewFilters();
-        ListTag filterNBT = nbt.getList(TAG_SLOTS, Tag.TAG_COMPOUND);
-        ArrayList<BigItemStack> filters = new ArrayList<BigItemStack>();
-        if (filterNBT == null || filterNBT.isEmpty())
-        {
-            return createNewFilters();
-        }
+        List<BigItemStack> filters = itemStack.get(SwiftDataComponents.BIG_ITEM_STACK_LIST_DATA_COMPONENT);
+        if (filters != null)
+        	return filters;
         else
-        {
-            for (int i = 0; i < filterNBT.size(); ++i)
-            {
-                CompoundTag slotNBT = filterNBT.getCompound(i);
-                BigItemStack stack = new BigItemStack(slotNBT);
-                filters.add(stack);
-            }
-        }
-        return filters;
+        	return createNewFilters();
     }
 
     public void setFilterSlot(int slot, ItemStack itemStack, int quantity)
@@ -216,27 +162,14 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            ListTag filterNBT = nbt.getList(TAG_SLOTS, Tag.TAG_COMPOUND);
-            if (filterNBT == null || filterNBT.isEmpty())
-            {
-                filterNBT = new ListTag();
-                BigItemStack empty = new BigItemStack();
-                for (int i = 0; i < BasicItemFilterUpgradeItem.NUM_SLOTS; ++i)
-                {
-                    CompoundTag slotNBT = new CompoundTag();
-                    empty.write(slotNBT);
-                    filterNBT.add(slotNBT);
-                }
-                nbt.put(TAG_SLOTS, filterNBT);
-            }
-
-            if (slot < filterNBT.size())
-            {
-                CompoundTag slotNBT = new CompoundTag();
-                filter.write(slotNBT);
-                filterNBT.set(slot, slotNBT);
-            }
+        	List<BigItemStack> itemStacks = itemStack.get(SwiftDataComponents.BIG_ITEM_STACK_LIST_DATA_COMPONENT);
+        	List<BigItemStack> newItemStacks;
+        	if (itemStacks == null)
+        		newItemStacks = createNewFilters();
+        	else
+        		newItemStacks = new ArrayList<BigItemStack>(itemStacks); // Need to create a copy because data components are immutable.
+        	newItemStacks.set(slot, filter);
+        	itemStack.set(SwiftDataComponents.BIG_ITEM_STACK_LIST_DATA_COMPONENT, newItemStacks);
         }
     }
 
@@ -247,19 +180,6 @@ public class BasicItemFilterUpgradeDataCache extends ItemStackDataCache
 
     public static void clearAllFilters(ItemStack itemStack)
     {
-        if (itemStack != null && !itemStack.isEmpty() && itemStack.hasTag())
-        {
-            CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-            if (nbt != null)
-                nbt.remove(TAG_SLOTS);
-        }
+    	itemStack.remove(SwiftDataComponents.BIG_ITEM_STACK_LIST_DATA_COMPONENT);
     }
-
-    // TODO: Move this to BasicItemFilterUpgradeItem.
-    public static final String TAG_MATCH_COUNT = SwiftUtils.tagName("matchCount");
-    public static final String TAG_MATCH_DAMAGE = SwiftUtils.tagName("matchDamage");
-    public static final String TAG_MATCH_MOD = SwiftUtils.tagName("matchMod");
-    public static final String TAG_MATCH_NBT = SwiftUtils.tagName("matchNBT");
-    public static final String TAG_MATCH_ORE_DICTIONARY = SwiftUtils.tagName("matchOreDictionary");
-    public static final String TAG_SLOTS = SwiftUtils.tagName("slots");
 }

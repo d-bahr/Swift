@@ -1,0 +1,83 @@
+{
+    "multipart":
+    [
+        {
+        	"when":
+        	{
+        		"AND" :
+        		[
+            		{ "a": "0|1|3" },
+            		{ "b": "0|1|3" },
+            		{ "c": "0|1|3" },
+            		{ "d": "0|1|3" },
+            		{ "e": "0|1|3" },
+            		{ "f": "0|1|3" }
+        		]
+    		},
+            "apply": { "model": "swift:block/advanced_omni_pipe/base" }
+        },
+        {
+        	"when":
+        	{
+        		"OR" :
+        		[
+            		{ "a": "2" },
+            		{ "b": "2" },
+            		{ "c": "2" },
+            		{ "d": "2" },
+            		{ "e": "2" },
+            		{ "f": "2" }
+        		]
+    		}, 
+            "apply": { "model": "swift:block/advanced_omni_pipe/base_connected" }
+        },
+        {
+            "when": { "a": "1" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/up_line" }
+        },
+        {
+            "when": { "a": "2" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/up_attach" }
+        },
+        {
+            "when": { "b": "1" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/down_line" }
+        },
+        {
+            "when": { "b": "2" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/down_attach" }
+        },
+        {
+            "when": { "c": "1" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/west_line" }
+        },
+        {
+            "when": { "c": "2" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/west_attach" }
+        },
+        {
+            "when": { "d": "1" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/east_line" }
+        },
+        {
+            "when": { "d": "2" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/east_attach" }
+        },
+        {
+            "when": { "e": "1" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/north_line" }
+        },
+        {
+            "when": { "e": "2" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/north_attach" }
+        },
+        {
+            "when": { "f": "1" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/south_line" }
+        },
+        {
+            "when": { "f": "2" },
+            "apply": { "model": "swift:block/advanced_omni_pipe/south_attach" }
+        }
+    ]
+}

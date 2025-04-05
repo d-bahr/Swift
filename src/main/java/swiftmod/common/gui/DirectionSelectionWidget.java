@@ -5,9 +5,9 @@ import java.awt.Point;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftUtils;
 
@@ -27,7 +27,7 @@ public class DirectionSelectionWidget extends GuiWidget
 
     public DirectionSelectionWidget(GuiContainerScreen<?> screen, int x, int y)
     {
-        super(screen, x, y, 54, 54, TextComponent.EMPTY);
+        super(screen, x, y, 54, 54, Component.empty());
         m_buttons = new GuiButton[Direction.values().length];
         for (Direction d : Direction.values())
             clearItemForDirection(d);
@@ -54,6 +54,7 @@ public class DirectionSelectionWidget extends GuiWidget
                     {
                         onDirectionButtonPress(dir);
                     });
+            m_buttons[dirIndex].setBackgroundInactiveTexture(GuiButton.s_inactiveTexture);
         }
         else
         {
@@ -63,14 +64,22 @@ public class DirectionSelectionWidget extends GuiWidget
                     {
                         onDirectionButtonPress(dir);
                     });
+            m_buttons[dirIndex].setBackgroundInactiveTexture(GuiButton.s_inactiveTexture);
         }
 
         String name = dir.getName();
         String cap = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-        m_buttons[dirIndex].setTooltip(new TextComponent(cap));
+        m_buttons[dirIndex].setTooltip(Component.literal(cap));
 
         if (m_buttons[dirIndex] != null)
             addChild(m_buttons[dirIndex]);
+    }
+    
+    public void setDirectionEnabled(Direction dir, boolean enabled)
+    {
+        int dirIndex = SwiftUtils.dirToIndex(dir);
+        if (m_buttons[dirIndex] != null)
+        	m_buttons[dirIndex].active = enabled;
     }
 
     public void clearItemForDirection(Direction dir)
@@ -114,7 +123,7 @@ public class DirectionSelectionWidget extends GuiWidget
             default:
                 continue;
             }
-            resources[SwiftUtils.dirToIndex(dirs[i])] = new ResourceLocation(Swift.MOD_NAME, loc);
+            resources[SwiftUtils.dirToIndex(dirs[i])] = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, loc);
         }
         return resources;
     }

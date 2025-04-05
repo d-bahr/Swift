@@ -1,0 +1,14 @@
+{
+	"replace": false,
+	"values":
+	[
+		"swift:basic_item_pipe",
+		"swift:advanced_item_pipe",
+		"swift:basic_fluid_pipe",
+		"swift:advanced_fluid_pipe",
+		"swift:basic_energy_pipe",
+		"swift:advanced_energy_pipe",
+		"swift:wormhole",
+		"swift:tank"
+	]
+}

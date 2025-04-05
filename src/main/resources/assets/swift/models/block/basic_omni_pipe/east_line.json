@@ -1,0 +1,7 @@
+{
+    "parent": "swift:block/pipe_model_east",
+    "textures":
+    {
+        "line": "swift:block/basic_pipe_vertical"
+    }
+}

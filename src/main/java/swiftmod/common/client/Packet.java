@@ -1,32 +1,37 @@
 package swiftmod.common.client;
 
-import java.util.function.Supplier;
-
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public abstract class Packet
+public abstract class Packet implements CustomPacketPayload
 {
-    public void handle(Supplier<NetworkEvent.Context> supplier)
+    public Packet(CustomPacketPayload.Type<? extends CustomPacketPayload> t)
     {
-        NetworkEvent.Context context = supplier.get();
-        LogicalSide sideReceived = context.getDirection().getReceptionSide();
-        context.setPacketHandled(true);
+    	m_type = t;
+    }
+    
+    public static void handle(final Packet data, final IPayloadContext context)
+    {
+        Player p = context.player();
 
-        if (sideReceived != LogicalSide.SERVER)
+        if (!(p instanceof ServerPlayer))
             return;
 
-        ServerPlayer player = context.getSender();
+        ServerPlayer player = (ServerPlayer)context.player();
 
         // Dispatch from the network thread to the main server processing thread.
-        context.enqueueWork(() -> process(player));
+        context.enqueueWork(() -> data.process(player));
     }
 
-    public abstract void decode(FriendlyByteBuf buffer);
-
-    public abstract void encode(FriendlyByteBuf buffer);
-
     public abstract void process(ServerPlayer player);
+
+    @Override
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type()
+    {
+    	return m_type;
+    }
+    
+    private CustomPacketPayload.Type<? extends CustomPacketPayload> m_type;
 }

@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " D ",
+        "DD ",
+        "  D"
+    ],
+    "key": {
+        "D": {
+            "tag": "c:ingots/iron"
+        }
+    },
+    "result": {
+        "id": "swift:wrench"
+    }
+}

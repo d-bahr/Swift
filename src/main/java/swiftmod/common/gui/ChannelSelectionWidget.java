@@ -6,15 +6,13 @@ import java.util.SortedSet;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
-import swiftmod.common.Notification;
 import swiftmod.common.Swift;
 import swiftmod.common.channels.ChannelOwner;
 import swiftmod.common.channels.ChannelSpec;
+import swiftmod.common.channels.ChannelType;
 
 @OnlyIn(Dist.CLIENT)
 public class ChannelSelectionWidget extends GuiWidget
@@ -23,6 +21,12 @@ public class ChannelSelectionWidget extends GuiWidget
     public interface ChannelCallback
     {
         void onChannel(ChannelSpec channel);
+    }
+    
+    @FunctionalInterface
+    public interface ChannelTypeCallback
+    {
+        void onChannelType(ChannelType type);
     }
 
     public ChannelSelectionWidget(GuiContainerScreen<?> screen)
@@ -42,7 +46,7 @@ public class ChannelSelectionWidget extends GuiWidget
 
     public ChannelSelectionWidget(GuiContainerScreen<?> screen, int x, int y, int width, int numScrollPanelRows)
     {
-        super(screen, x, y, width, 148, TextComponent.EMPTY);
+        super(screen, x, y, width, 148, Component.empty());
 
         final int verticalMargin = 2;
         final int horizontalMargin = 2;
@@ -50,9 +54,10 @@ public class ChannelSelectionWidget extends GuiWidget
         m_privateChannelNames = new ArrayList<Component>();
         m_publicChannelNames = new ArrayList<Component>();
         m_showPrivateChannels = true;
+        m_channelType = ChannelType.Items;
 
         m_publicButton = new GuiTextButton(screen, 0, 0, width / 2 - horizontalMargin, 20, BIG_BUTTON_TEXTURE,
-                BIG_BUTTON_HIGHLIGHTED_TEXTURE, new TranslatableComponent("swift.text.public"),
+                BIG_BUTTON_HIGHLIGHTED_TEXTURE, Component.translatable("swift.text.public"),
                 this::onPublicButtonClick);
         m_publicButton.active = true;
         m_publicButton.setBackgroundInactiveTexture(BIG_BUTTON_INACTIVE_TEXTURE);
@@ -60,7 +65,7 @@ public class ChannelSelectionWidget extends GuiWidget
 
         m_privateButton = new GuiTextButton(screen, m_publicButton.right() + horizontalMargin * 2, m_publicButton.top(),
                 m_publicButton.width(), 20, BIG_BUTTON_TEXTURE, BIG_BUTTON_HIGHLIGHTED_TEXTURE,
-                new TranslatableComponent("swift.text.private"), this::onPrivateButtonClick);
+                Component.translatable("swift.text.private"), this::onPrivateButtonClick);
         m_privateButton.active = false;
         m_privateButton.setBackgroundInactiveTexture(BIG_BUTTON_INACTIVE_TEXTURE);
         addChild(m_privateButton);
@@ -73,15 +78,15 @@ public class ChannelSelectionWidget extends GuiWidget
         GuiButton deleteButton = new GuiTextureButton(screen, m_privateButton.right() - 20,
                 m_panel.bottom() + verticalMargin, 20, 20, DELETE_BUTTON_TEXTURE,
                 this::onDeleteButtonClick);
-        deleteButton.setTooltip(new TextComponent("Delete channel"));
+        deleteButton.setTooltip(Component.literal("Delete channel"));
         addChild(deleteButton);
 
-        GuiButton addButton = new GuiTextureButton(screen, deleteButton.left() - 20, deleteButton.y, 20, 20,
+        GuiButton addButton = new GuiTextureButton(screen, deleteButton.left() - 20, deleteButton.getY(), 20, 20,
                 ADD_BUTTON_TEXTURE, this::onAddButtonClick);
-        addButton.setTooltip(new TextComponent("Add channel"));
+        addButton.setTooltip(Component.literal("Add channel"));
         addChild(addButton);
 
-        m_textField = new GuiTextField(screen, 0, addButton.y, addButton.left() - 2, 20, TextComponent.EMPTY);
+        m_textField = new GuiTextField(screen, 0, addButton.getY(), addButton.left() - 2, 20, Component.empty());
         m_textField.setTextColor(-1);
         m_textField.setDisabledTextColour(-1);
         m_textField.setEnableBackgroundDrawing(false);
@@ -92,12 +97,12 @@ public class ChannelSelectionWidget extends GuiWidget
 
         GuiButton setButton = new GuiTextButton(screen, m_publicButton.left(), m_textField.bottom() + verticalMargin,
                 m_publicButton.getWidth(), 20, BIG_BUTTON_TEXTURE, BIG_BUTTON_HIGHLIGHTED_TEXTURE,
-                new TranslatableComponent("swift.text.set"), this::onSetButtonClick);
+                Component.translatable("swift.text.set"), this::onSetButtonClick);
         addChild(setButton);
 
         GuiButton unsetButton = new GuiTextButton(screen, m_privateButton.left(), setButton.top(),
                 m_privateButton.getWidth(), 20, BIG_BUTTON_TEXTURE, BIG_BUTTON_HIGHLIGHTED_TEXTURE,
-                new TranslatableComponent("swift.text.unset"), this::onUnsetButtonClick);
+                Component.translatable("swift.text.unset"), this::onUnsetButtonClick);
         addChild(unsetButton);
         
         // Easiest to do this at the end...
@@ -109,6 +114,16 @@ public class ChannelSelectionWidget extends GuiWidget
         m_channelDeleteCallback = null;
         m_channelSetCallback = null;
         m_channelUnsetCallback = null;
+    }
+    
+    public void setChannelType(ChannelType type)
+    {
+    	m_channelType = type;
+    }
+    
+    public ChannelType getChannelType()
+    {
+    	return m_channelType;
     }
     
     public void requestTextFieldFocus()
@@ -131,7 +146,7 @@ public class ChannelSelectionWidget extends GuiWidget
         m_channelSetCallback = callback;
     }
 
-    public void setUnsetChannelCallback(Notification callback)
+    public void setUnsetChannelCallback(ChannelTypeCallback callback)
     {
         m_channelUnsetCallback = callback;
     }
@@ -140,14 +155,14 @@ public class ChannelSelectionWidget extends GuiWidget
     {
         m_privateChannelNames.clear();
         for (String s : channels)
-            m_privateChannelNames.add(new TextComponent(s));
+            m_privateChannelNames.add(Component.literal(s));
     }
 
     public void setPrivateChannels(List<String> channels)
     {
         m_privateChannelNames.clear();
         for (String s : channels)
-            m_privateChannelNames.add(new TextComponent(s));
+            m_privateChannelNames.add(Component.literal(s));
         m_privateChannelNames.sort((a, b) ->
         {
             return a.getString().compareTo(b.getString());
@@ -158,14 +173,14 @@ public class ChannelSelectionWidget extends GuiWidget
     {
         m_publicChannelNames.clear();
         for (String s : channels)
-            m_publicChannelNames.add(new TextComponent(s));
+            m_publicChannelNames.add(Component.literal(s));
     }
 
     public void setPublicChannels(List<String> channels)
     {
         m_publicChannelNames.clear();
         for (String s : channels)
-            m_publicChannelNames.add(new TextComponent(s));
+            m_publicChannelNames.add(Component.literal(s));
         m_publicChannelNames.sort((a, b) ->
         {
             return a.getString().compareTo(b.getString());
@@ -240,7 +255,7 @@ public class ChannelSelectionWidget extends GuiWidget
 
             if (m_showPrivateChannels)
             {
-                spec = new ChannelSpec(new ChannelOwner(getPlayer().getUUID()), text);
+                spec = new ChannelSpec(m_channelType, new ChannelOwner(getPlayer().getUUID()), text);
 
                 boolean inserted = false;
                 for (int i = 0; i < m_privateChannelNames.size(); ++i)
@@ -263,7 +278,7 @@ public class ChannelSelectionWidget extends GuiWidget
             }
             else
             {
-                spec = new ChannelSpec(ChannelOwner.Public, text);
+                spec = new ChannelSpec(m_channelType, ChannelOwner.Public, text);
 
                 boolean inserted = false;
                 for (int i = 0; i < m_publicChannelNames.size(); ++i)
@@ -300,7 +315,7 @@ public class ChannelSelectionWidget extends GuiWidget
             ChannelSpec spec;
             if (m_showPrivateChannels)
             {
-                spec = new ChannelSpec(new ChannelOwner(getPlayer().getUUID()), text);
+                spec = new ChannelSpec(m_channelType, new ChannelOwner(getPlayer().getUUID()), text);
                 for (int i = 0; i < m_privateChannelNames.size(); ++i)
                 {
                     if (text.compareTo(m_privateChannelNames.get(i).getString()) == 0)
@@ -312,7 +327,7 @@ public class ChannelSelectionWidget extends GuiWidget
             }
             else
             {
-                spec = new ChannelSpec(ChannelOwner.Public, text);
+                spec = new ChannelSpec(m_channelType, ChannelOwner.Public, text);
                 for (int i = 0; i < m_publicChannelNames.size(); ++i)
                 {
                     if (text.compareTo(m_publicChannelNames.get(i).getString()) == 0)
@@ -339,7 +354,7 @@ public class ChannelSelectionWidget extends GuiWidget
             if (unsetChannel)
             {
                 if (m_channelUnsetCallback != null)
-                    m_channelUnsetCallback.invoke();
+                    m_channelUnsetCallback.onChannelType(m_channelType);
             }
 
             if (m_channelDeleteCallback != null)
@@ -359,7 +374,7 @@ public class ChannelSelectionWidget extends GuiWidget
 
             if (m_showPrivateChannels)
             {
-                spec = new ChannelSpec(new ChannelOwner(getPlayer().getUUID()), text);
+                spec = new ChannelSpec(m_channelType, new ChannelOwner(getPlayer().getUUID()), text);
 
                 boolean inserted = false;
                 for (int i = 0; i < m_privateChannelNames.size(); ++i)
@@ -387,7 +402,7 @@ public class ChannelSelectionWidget extends GuiWidget
             }
             else
             {
-                spec = new ChannelSpec(ChannelOwner.Public, text);
+                spec = new ChannelSpec(m_channelType, ChannelOwner.Public, text);
 
                 boolean inserted = false;
                 for (int i = 0; i < m_publicChannelNames.size(); ++i)
@@ -433,7 +448,7 @@ public class ChannelSelectionWidget extends GuiWidget
         updateChannelsList();
 
         if (m_channelUnsetCallback != null)
-            m_channelUnsetCallback.invoke();
+            m_channelUnsetCallback.onChannelType(m_channelType);
     }
 
     private void onChannelItemSelected(int index, Component name)
@@ -453,19 +468,20 @@ public class ChannelSelectionWidget extends GuiWidget
      * super.keyPressed(keyCode, scanCode, modifiers) : true; }
      */
 
-    protected static final ResourceLocation ADD_BUTTON_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation ADD_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/add_button.png");
-    protected static final ResourceLocation DELETE_BUTTON_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation DELETE_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/subtract_button.png");
-    protected static final ResourceLocation BIG_BUTTON_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BIG_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/big_button.png");
-    protected static final ResourceLocation BIG_BUTTON_HIGHLIGHTED_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BIG_BUTTON_HIGHLIGHTED_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/big_button_highlighted.png");
-    protected static final ResourceLocation BIG_BUTTON_INACTIVE_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BIG_BUTTON_INACTIVE_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/big_button_inactive.png");
 
     protected List<Component> m_privateChannelNames;
     protected List<Component> m_publicChannelNames;
+    protected ChannelType m_channelType;
     protected ChannelSpec m_currentChannel;
     protected GuiButton m_publicButton;
     protected GuiButton m_privateButton;
@@ -475,5 +491,5 @@ public class ChannelSelectionWidget extends GuiWidget
     protected ChannelCallback m_channelAddCallback;
     protected ChannelCallback m_channelDeleteCallback;
     protected ChannelCallback m_channelSetCallback;
-    protected Notification m_channelUnsetCallback;
+    protected ChannelTypeCallback m_channelUnsetCallback;
 }

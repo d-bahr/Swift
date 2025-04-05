@@ -1,39 +1,40 @@
 package swiftmod.common;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.IFluidTank;
 
-public class FluidTank extends net.minecraftforge.fluids.capability.templates.FluidTank implements IFluidTank, DataCache
+public class FluidTank extends net.neoforged.neoforge.fluids.capability.templates.FluidTank implements IFluidTank, DataCache
 {
     public FluidTank(int capacity)
     {
         super(capacity);
     }
 
-    public void write(CompoundTag nbt)
+    public void write(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        writeToNBT(nbt);
+        writeToNBT(provider, nbt);
     }
 
-    public void read(CompoundTag nbt)
+    public void read(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        readFromNBT(nbt);
+        readFromNBT(provider, nbt);
     }
 
-    public void write(FriendlyByteBuf buffer)
+    public void write(RegistryFriendlyByteBuf buffer)
     {
-        fluid.writeToPacket(buffer);
+    	FluidStack.STREAM_CODEC.encode(buffer, fluid);
     }
 
-    public void read(FriendlyByteBuf buffer)
+    public void read(RegistryFriendlyByteBuf buffer)
     {
-        setFluid(FluidStack.readFromPacket(buffer));
+    	setFluid(FluidStack.STREAM_CODEC.decode(buffer));
     }
     
-    public static FluidStack readFluidStack(CompoundTag nbt)
+    public static FluidStack readFluidStack(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        return FluidStack.loadFluidStackFromNBT(nbt);
+    	return FluidStack.parseOptional(provider, nbt);
     }
 }

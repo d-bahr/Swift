@@ -1,14 +1,11 @@
 package swiftmod.common.upgrades;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import swiftmod.common.ItemStackDataCache;
-import swiftmod.common.SwiftUtils;
+import swiftmod.common.SwiftDataComponents;
 
 public class WildcardFilterUpgradeDataCache extends ItemStackDataCache
 {
@@ -22,27 +19,16 @@ public class WildcardFilterUpgradeDataCache extends ItemStackDataCache
         super(itemStack);
     }
 
-    public ArrayList<String> getFilters()
+    public List<String> getFilters()
     {
         return getFilters(itemStack);
     }
 
-    public static ArrayList<String> getFilters(ItemStack itemStack)
+    public static List<String> getFilters(ItemStack itemStack)
     {
-        ArrayList<String> filters = new ArrayList<String>();
-        if (itemStack == null)
-            return filters;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return filters;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        if (nbt == null)
-            return filters;
-        ListTag filterNBT = nbt.getList(TAG_FILTERS, Tag.TAG_STRING);
-        if (filterNBT == null || filterNBT.isEmpty())
-            return filters;
-        for (int i = 0; i < filterNBT.size(); ++i)
-            filters.add(filterNBT.getString(i));
-        return filters;
+        if (itemStack == null || itemStack.isEmpty())
+            return new ArrayList<String>();
+        return itemStack.getOrDefault(SwiftDataComponents.WILDCARD_LIST_DATA_COMPONENT, new ArrayList<String>());
     }
 
     public int numFilters()
@@ -52,17 +38,7 @@ public class WildcardFilterUpgradeDataCache extends ItemStackDataCache
 
     public static int numFilters(ItemStack itemStack)
     {
-        if (itemStack == null)
-            return 0;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return 0;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        if (nbt == null)
-            return 0;
-        ListTag filterNBT = nbt.getList(TAG_FILTERS, Tag.TAG_STRING);
-        if (filterNBT == null)
-            return 0;
-        return filterNBT.size();
+        return getFilters(itemStack).size();
     }
 
     public void removeFilter(String filter)
@@ -72,21 +48,13 @@ public class WildcardFilterUpgradeDataCache extends ItemStackDataCache
     
     public static void removeFilter(String filter, ItemStack itemStack)
     {
-        if (!filter.isEmpty() && itemStack != null && !itemStack.isEmpty())
+        if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            ListTag filterNBT = nbt.getList(TAG_FILTERS, Tag.TAG_STRING);
-            if (filterNBT == null || filterNBT.isEmpty())
-                return;
-
-            for (int i = 0; i < filterNBT.size(); ++i)
-            {
-                if (filterNBT.getString(i).equals(filter))
-                {
-                    filterNBT.remove(i);
-                    return;
-                }
-            }
+        	itemStack.update(SwiftDataComponents.WILDCARD_LIST_DATA_COMPONENT, new ArrayList<String>(), (f) -> 
+        	{
+        		f.remove(filter);
+        		return f;
+        	});
         }
     }
     
@@ -97,14 +65,14 @@ public class WildcardFilterUpgradeDataCache extends ItemStackDataCache
 
     public static void removeFilter(int index, ItemStack itemStack)
     {
-        if (index >= 0 && itemStack != null && !itemStack.isEmpty())
+        if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            ListTag filterNBT = nbt.getList(TAG_FILTERS, Tag.TAG_STRING);
-            if (filterNBT == null || index >= filterNBT.size())
-                return;
-
-            filterNBT.remove(index);
+        	itemStack.update(SwiftDataComponents.WILDCARD_LIST_DATA_COMPONENT, new ArrayList<String>(), (f) -> 
+        	{
+        		if (index >= 0 && index < f.size())
+        			f.remove(index);
+        		return f;
+        	});
         }
     }
 
@@ -117,24 +85,13 @@ public class WildcardFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (!filter.isEmpty() && itemStack != null && !itemStack.isEmpty())
         {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            ListTag filterNBT = nbt.getList(TAG_FILTERS, Tag.TAG_STRING);
-            if (filterNBT == null || filterNBT.isEmpty())
-            {
-                filterNBT = new ListTag();
-                nbt.put(TAG_FILTERS, filterNBT);
-            }
-
-            for (int i = 0; i < filterNBT.size(); ++i)
-            {
-                if (filterNBT.getString(i).equals(filter))
-                {
-                    // Already exists; don't add another.
-                    return;
-                }
-            }
-
-            filterNBT.add(StringTag.valueOf(filter));
+        	itemStack.update(SwiftDataComponents.WILDCARD_LIST_DATA_COMPONENT, new ArrayList<String>(), (f) -> 
+        	{
+        		// Prevent duplicates.
+        		if (!f.contains(filter))
+        			f.add(filter);
+        		return f;
+        	});
         }
     }
 
@@ -145,14 +102,6 @@ public class WildcardFilterUpgradeDataCache extends ItemStackDataCache
 
     public static void clearAllFilters(ItemStack itemStack)
     {
-        if (itemStack != null && !itemStack.isEmpty() && !itemStack.hasTag())
-        {
-            CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-            if (nbt != null)
-                nbt.remove(TAG_FILTERS);
-        }
+    	itemStack.remove(SwiftDataComponents.WILDCARD_LIST_DATA_COMPONENT);
     }
-
-    // TODO: Move this to WildcardFilterUpgradeItem.
-    public static final String TAG_FILTERS = SwiftUtils.tagName("filters");
 }

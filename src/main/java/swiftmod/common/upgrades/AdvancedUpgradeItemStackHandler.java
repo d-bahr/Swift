@@ -12,12 +12,6 @@ public class AdvancedUpgradeItemStackHandler extends UpgradeItemStackHandler
     {
         switch (type)
         {
-        case SpeedUpgrade:
-            return 19;
-        case SpeedDowngrade:
-            return 64;
-        case StackUpgrade:
-            return 1;
         case ChunkLoaderUpgrade:
             return 1;
         default:
@@ -30,14 +24,8 @@ public class AdvancedUpgradeItemStackHandler extends UpgradeItemStackHandler
     {
         switch (type)
         {
-        case SpeedUpgrade:
-            return 0;
-        case SpeedDowngrade:
-            return 0;
-        case StackUpgrade:
-            return 1;
         case ChunkLoaderUpgrade:
-            return 2;
+            return 0;
         default:
             return -1;
         }

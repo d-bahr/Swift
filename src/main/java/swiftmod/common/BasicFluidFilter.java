@@ -2,11 +2,14 @@ package swiftmod.common;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class BasicFluidFilter implements Filter<FluidStack>
 {
@@ -18,6 +21,47 @@ public class BasicFluidFilter implements Filter<FluidStack>
         matchCount = false;
         matchMod = false;
         matchOreDictionary = false;
+    }
+
+    public BasicFluidFilter(ItemStack itemStack)
+    {
+        super();
+        
+        if (itemStack == null || itemStack.isEmpty())
+        {
+            filterStacks = new ArrayList<FluidStack>();
+            whiteListState = WhiteListState.WhiteList;
+            matchCount = false;
+            matchMod = false;
+            matchOreDictionary = false;
+        }
+        else
+        {
+            List<ImmutableFluidStack> fluidStacks = itemStack.get(SwiftDataComponents.FLUID_STACK_LIST_DATA_COMPONENT);
+            if (fluidStacks != null)
+            {
+	            filterStacks = new ArrayList<FluidStack>(fluidStacks.size());
+	            for (ImmutableFluidStack fluidStack : fluidStacks)
+	            	filterStacks.add(fluidStack.fluidStack());
+            }
+            else
+            {
+                filterStacks = new ArrayList<FluidStack>();
+            }
+	        
+	        whiteListState = itemStack.get(SwiftDataComponents.WHITELIST_DATA_COMPONENT);
+	        if (whiteListState == null)
+	        	whiteListState = WhiteListState.WhiteList;
+	        
+	        Boolean match = itemStack.get(SwiftDataComponents.MATCH_COUNT_DATA_COMPONENT);
+	        matchCount = match != null ? match : false;
+	        
+	        match = itemStack.get(SwiftDataComponents.MATCH_MOD_DATA_COMPONENT);
+	        matchMod = match != null ? match : false;
+	        
+	        match = itemStack.get(SwiftDataComponents.MATCH_ORE_DICT_DATA_COMPONENT);
+	        matchOreDictionary = match != null ? match : false;
+        }
     }
 
     public BasicFluidFilter(FluidStack f, WhiteListState w, boolean c, boolean m, boolean o)
@@ -92,8 +136,8 @@ public class BasicFluidFilter implements Filter<FluidStack>
 
         if (fluidStack.getFluid() != filterStack.getFluid())
         {
-            if (matchMod && fluidStack.getFluid().getRegistryName().getNamespace() == filterStack.getFluid()
-                    .getRegistryName().getNamespace())
+            if (matchMod && NeoForgeRegistries.FLUID_TYPES.getKey(fluidStack.getFluidType()).getNamespace() ==
+            		NeoForgeRegistries.FLUID_TYPES.getKey(filterStack.getFluidType()).getNamespace())
             {
                 return createReturnValue(reduceFilter, filterStack);
             }
@@ -134,7 +178,7 @@ public class BasicFluidFilter implements Filter<FluidStack>
         return new FilterMatchResult<Filter<FluidStack>>(this, matched);
     }
 
-    public ArrayList<FluidStack> filterStacks;
+    public List<FluidStack> filterStacks;
     public WhiteListState whiteListState;
     public boolean matchCount;
     public boolean matchMod;

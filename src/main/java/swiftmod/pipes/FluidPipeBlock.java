@@ -2,8 +2,9 @@ package swiftmod.pipes;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import swiftmod.common.SwiftUtils;
 
@@ -15,28 +16,41 @@ public abstract class FluidPipeBlock extends PipeBlock
     }
 
     @Override
-    protected void openGui(ServerPlayer player, MenuProvider menuProvider,
-            PipeTileEntity<?, ?, ?> blockEntity, Direction startingDir)
+    protected void openScreen(ServerPlayer player, MenuProvider menuProvider,
+            PipeTileEntity blockEntity, Direction startingDir)
     {
         if (blockEntity instanceof FluidPipeTileEntity)
         {
             FluidPipeTileEntity fluidPipeTE = (FluidPipeTileEntity) blockEntity;
-            NetworkHooks.openGui((ServerPlayer) player, menuProvider, (FriendlyByteBuf) ->
+            player.openMenu(menuProvider, (FriendlyByteBuf) ->
             {
                 fluidPipeTE.serializeBufferForContainer(FriendlyByteBuf, player, startingDir);
             });
         }
     }
 
-    public boolean canConnect(BlockEntity blockEntity, Direction direction)
+    public boolean canConnect(Level level, BlockPos pos, Direction direction)
     {
-        return canConnectTo(blockEntity, direction);
+        return canConnectTo(level, pos, direction);
     }
 
-    public static boolean canConnectTo(BlockEntity blockEntity, Direction direction)
+    public static boolean canConnectTo(Level level, BlockPos pos, Direction direction)
     {
-        if (blockEntity != null)
-            return SwiftUtils.isFluidHandler(blockEntity, direction);
-        return false;
+    	return SwiftUtils.isFluidHandler(level, pos, direction);
+    }
+
+    public static boolean isConnectableNeighbor(Level level, BlockPos pos, Direction direction)
+    {
+    	BlockEntity entity = level.getBlockEntity(pos);
+        return entity instanceof WormholeTileEntity || SwiftUtils.isFluidHandler(level, pos, direction);
+    }
+    
+    @Override
+    protected boolean matchesPipe(BlockEntity blockEntity)
+    {
+    	if (blockEntity instanceof PipeTileEntity)
+    		return ((PipeTileEntity)blockEntity).isPipeType(PipeType.Fluid);
+    	else
+    		return blockEntity instanceof WormholeTileEntity && PipeType.Fluid.canConvertToChannel();
     }
 }

@@ -7,31 +7,32 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 
@@ -112,6 +113,8 @@ public class GuiTextField extends GuiTextWidget
     
     public void setFocused(boolean focused)
     {
+    	//if ((visible && isEnabled) || !focus)
+    	//	setFocused(focus);
         super.setFocused(focused);
         if (!focused)
             m_lastMouseClickPos = Integer.MIN_VALUE;
@@ -133,7 +136,7 @@ public class GuiTextField extends GuiTextWidget
     protected Component getNarrationMessage()
     {
         Component itextcomponent = this.getMessage();
-        return new TranslatableComponent("gui.narrate.editBox", itextcomponent, this.text);
+        return Component.translatable("gui.narrate.editBox", itextcomponent, this.text);
     }
 
     /**
@@ -172,7 +175,7 @@ public class GuiTextField extends GuiTextWidget
      */
     public Component getText()
     {
-        return new TextComponent(text);
+        return Component.literal(text);
     }
 
     /**
@@ -199,7 +202,7 @@ public class GuiTextField extends GuiTextWidget
         int i = this.cursorPosition < this.selectionEnd ? this.cursorPosition : this.selectionEnd;
         int j = this.cursorPosition < this.selectionEnd ? this.selectionEnd : this.cursorPosition;
         int k = this.maxStringLength - this.text.length() - (i - j);
-        String s = SharedConstants.filterText(textToWrite);
+        String s = StringUtil.filterText(textToWrite);
         int l = s.length();
         if (k < l)
         {
@@ -518,7 +521,7 @@ public class GuiTextField extends GuiTextWidget
         {
             return false;
         }
-        else if (SharedConstants.isAllowedChatCharacter(codePoint))
+        else if (StringUtil.isAllowedChatCharacter(codePoint))
         {
             if (isEnabled)
             {
@@ -593,40 +596,40 @@ public class GuiTextField extends GuiTextWidget
     }
 
     @Override
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
-
-        RenderSystem.setShaderTexture(0, m_background);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
 
         RenderSystem.enableDepthTest();
-        blit(matrixStack, x, y, 0.0f, 0.0f, width, height, width, height);
+
+        graphics.blit(m_background, getX(), getY(), 0.0f, 0.0f, width, height, width, height);
 
         if (m_scale == 1.0f)
         {
-            drawWorker(matrixStack, mouseX, mouseY, partialTicks);
+            drawWorker(graphics, mouseX, mouseY, partialTicks);
         }
         else
         {
             final float defaultFontHeight = 8.0f;
             float inverse = 1.0f / m_scale - 1;
             float yOffset = ((1.0f - m_scale) * defaultFontHeight) / (2.0f * m_scale);
-            matrixStack.pushPose();
-            matrixStack.translate(2.0f, (height - defaultFontHeight) / 2.0f, 0.0f);
-            matrixStack.scale(m_scale, m_scale, 1.0f);
-            matrixStack.translate(x * inverse, y * inverse + yOffset, 0.0f);
-            drawWorker(matrixStack, mouseX, mouseY, partialTicks);
-            matrixStack.popPose();
+            PoseStack pose = graphics.pose();
+            pose.pushPose();
+            pose.translate(2.0f, (height - defaultFontHeight) / 2.0f, 0.0f);
+            pose.scale(m_scale, m_scale, 1.0f);
+            pose.translate(getX() * inverse, getY() * inverse + yOffset, 0.0f);
+            drawWorker(graphics, mouseX, mouseY, partialTicks);
+            pose.popPose();
         }
     }
 
-    private void drawWorker(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    private void drawWorker(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
         if (this.getEnableBackgroundDrawing())
         {
             int i = this.isFocused() ? -1 : -6250336;
-            fill(matrixStack, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, i);
-            fill(matrixStack, this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
+            graphics.fill(getX() - 1, getY() - 1, getX() + this.width + 1, getY() + this.height + 1, i);
+            graphics.fill(getX(), getY(), getX() + this.width, getY() + this.height, -16777216);
         }
 
         int i2 = this.isEnabled ? this.enabledColor : this.disabledColor;
@@ -635,8 +638,8 @@ public class GuiTextField extends GuiTextWidget
         String s = m_font.plainSubstrByWidth(this.text.substring(this.lineScrollOffset), this.getAdjustedWidth());
         boolean flag = j >= 0 && j <= s.length();
         boolean flag1 = this.isFocused() && cursorCounter / 12 % 2 == 0 && flag;
-        int l = this.enableBackgroundDrawing ? this.x + 4 : this.x;
-        int i1 = this.enableBackgroundDrawing ? this.y + (this.height - 8) / 2 : this.y;
+        int l = this.enableBackgroundDrawing ? getX() + 4 : getX();
+        int i1 = this.enableBackgroundDrawing ? getY() + (this.height - 8) / 2 : getY();
         int j1 = l;
         if (k > s.length())
         {
@@ -646,8 +649,8 @@ public class GuiTextField extends GuiTextWidget
         if (!s.isEmpty())
         {
             String s1 = flag ? s.substring(0, j) : s;
-            j1 = m_font.draw(matrixStack, this.textFormatter.apply(s1, this.lineScrollOffset), (float) l,
-                    (float) i1, i2);
+            j1 = graphics.drawString(m_font, this.textFormatter.apply(s1, this.lineScrollOffset), (float) l,
+                    (float) i1, i2, false);
         }
 
         boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
@@ -664,38 +667,38 @@ public class GuiTextField extends GuiTextWidget
 
         if (!s.isEmpty() && flag && j < s.length())
         {
-            m_font.draw(matrixStack, this.textFormatter.apply(s.substring(j), this.cursorPosition),
-                    (float) j1 + 1, (float) i1, i2);
+        	graphics.drawString(m_font, this.textFormatter.apply(s.substring(j), this.cursorPosition),
+                    (float) j1 + 1, (float) i1, i2, false);
         }
 
         if (!flag2 && this.suggestion != null)
         {
-            m_font.drawShadow(matrixStack, this.suggestion, (float) (k1 - 1), (float) i1, -8355712);
+        	graphics.drawString(m_font, this.suggestion, (float) (k1 - 1), (float) i1, -8355712, true);
         }
 
         if (flag1)
         {
             if (flag2)
             {
-                GuiComponent.fill(matrixStack, k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
+            	graphics.fill(k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
             }
             else
             {
-                m_font.drawShadow(matrixStack, "_", (float) k1, (float) i1, i2);
+            	graphics.drawString(m_font, "_", (float) k1, (float) i1, i2, false);
             }
         }
 
         if (k != j)
         {
             int l1 = l + m_font.width(s.substring(0, k));
-            this.drawSelectionBox(matrixStack, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
+            this.drawSelectionBox(graphics, k1, i1 - 1, l1 - 1, i1 + 1 + 9);
         }
     }
 
     /**
      * Draws the blue selection box.
      */
-    private void drawSelectionBox(PoseStack matrixStack, int startX, int startY, int endX, int endY)
+    private void drawSelectionBox(GuiGraphics graphics, int startX, int startY, int endX, int endY)
     {
         if (startX < endX)
         {
@@ -711,31 +714,29 @@ public class GuiTextField extends GuiTextWidget
             endY = j;
         }
 
-        if (endX > this.x + this.width)
+        if (endX > getX() + this.width)
         {
-            endX = this.x + this.width;
+            endX = getX() + this.width;
         }
 
-        if (startX > this.x + this.width)
+        if (startX > getX() + this.width)
         {
-            startX = this.x + this.width;
+            startX = getX() + this.width;
         }
 
         Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionShader);
         RenderSystem.setShaderColor(0.0F, 0.0F, 255.0F, 255.0F);
-        RenderSystem.disableTexture();
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        Matrix4f pose = matrixStack.last().pose();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex(pose, (float) startX, (float) endY, 0.0f).endVertex();
-        bufferbuilder.vertex(pose, (float) endX, (float) endY, 0.0f).endVertex();
-        bufferbuilder.vertex(pose, (float) endX, (float) startY, 0.0f).endVertex();
-        bufferbuilder.vertex(pose, (float) startX, (float) startY, 0.0f).endVertex();
-        tessellator.end();
+        Matrix4f pose = graphics.pose().last().pose();
+        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferBuilder.addVertex(pose, (float) startX, (float) endY, 0.0f);
+        bufferBuilder.addVertex(pose, (float) endX, (float) endY, 0.0f);
+        bufferBuilder.addVertex(pose, (float) endX, (float) startY, 0.0f);
+        bufferBuilder.addVertex(pose, (float) startX, (float) startY, 0.0f);
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
         RenderSystem.disableColorLogicOp();
-        RenderSystem.enableTexture();
     }
 
     /**
@@ -802,24 +803,17 @@ public class GuiTextField extends GuiTextWidget
         this.disabledColor = color;
     }
 
-    public boolean changeFocus(boolean focus)
-    {
-        return this.visible && this.isEnabled ? super.changeFocus(focus) : false;
-    }
-
     public boolean isMouseOver(double mouseX, double mouseY)
     {
-        return this.visible && mouseX >= (double) this.x && mouseX < (double) (this.x + this.width)
-                && mouseY >= (double) this.y && mouseY < (double) (this.y + this.height);
+        return this.visible && mouseX >= (double) getX() && mouseX < (double) (getX() + this.width)
+                && mouseY >= (double) getY() && mouseY < (double) (getY() + this.height);
     }
 
+    @Override
     protected void onFocusedChanged(boolean focused)
     {
         if (focused)
-        {
             cursorCounter = 0;
-        }
-
     }
 
     private boolean isEnabled()
@@ -903,13 +897,8 @@ public class GuiTextField extends GuiTextWidget
 
     public int func_195611_j(int p_195611_1_)
     {
-        return p_195611_1_ > this.text.length() ? this.x
-                : this.x + m_font.width(this.text.substring(0, p_195611_1_));
-    }
-
-    public void setX(int xIn)
-    {
-        this.x = xIn;
+        return p_195611_1_ > this.text.length() ? getX()
+                : getX() + m_font.width(this.text.substring(0, p_195611_1_));
     }
 
     public void setScale(float scale)
@@ -932,7 +921,7 @@ public class GuiTextField extends GuiTextWidget
         setText("");
     }
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/inner_screen.png");
 
     private float m_scale;

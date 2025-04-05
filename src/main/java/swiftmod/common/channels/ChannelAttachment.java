@@ -39,7 +39,7 @@ public class ChannelAttachment
     public int hashCode()
     {
         ResourceKey<Level> key = world.dimension();
-        return key.getRegistryName().hashCode() ^ key.location().hashCode() ^ pos.hashCode();
+        return key.registry().hashCode() ^ key.location().hashCode() ^ pos.hashCode();
     }
 
     @Override

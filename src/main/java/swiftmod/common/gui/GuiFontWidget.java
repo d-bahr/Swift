@@ -1,15 +1,13 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiFontWidget extends GuiWidget
@@ -17,7 +15,7 @@ public class GuiFontWidget extends GuiWidget
     @SuppressWarnings("resource")
     public GuiFontWidget(GuiContainerScreen<?> screen, int width, int height)
     {
-        super(screen, width, height, TextComponent.EMPTY);
+        super(screen, width, height, Component.empty());
         m_font = Minecraft.getInstance().font;
         m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
@@ -26,7 +24,7 @@ public class GuiFontWidget extends GuiWidget
 
     public GuiFontWidget(GuiContainerScreen<?> screen, int width, int height, Font font)
     {
-        super(screen, width, height, TextComponent.EMPTY);
+        super(screen, width, height, Component.empty());
         m_font = font;
         m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
@@ -36,7 +34,7 @@ public class GuiFontWidget extends GuiWidget
     @SuppressWarnings("resource")
     public GuiFontWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         m_font = Minecraft.getInstance().font;
         m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
@@ -45,7 +43,7 @@ public class GuiFontWidget extends GuiWidget
 
     public GuiFontWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, Font font)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         m_font = font;
         m_fontColor = TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY);
         m_fontScale = 1.0f;
@@ -92,37 +90,36 @@ public class GuiFontWidget extends GuiWidget
         return m_drawDropShadow;
     }
 
-    protected void drawText(PoseStack matrixStack, String text, float x, float y)
+    protected void drawText(GuiGraphics graphics, String text, float x, float y)
     {
-        drawText(matrixStack, new TextComponent(text), x, y);
+        drawText(graphics, Component.literal(text), x, y);
     }
 
-    protected void drawText(PoseStack matrixStack, String text, float x, float y, TextColor color)
+    protected void drawText(GuiGraphics graphics, String text, float x, float y, TextColor color)
     {
-        drawText(matrixStack, new TextComponent(text), x, y, color);
+        drawText(graphics, Component.literal(text), x, y, color);
     }
 
-    protected void drawText(PoseStack matrixStack, String text, float x, float y, int color)
+    protected void drawText(GuiGraphics graphics, String text, float x, float y, int color)
     {
-        drawText(matrixStack, new TextComponent(text), x, y, color);
+        drawText(graphics, Component.literal(text), x, y, color);
     }
 
-    protected void drawText(PoseStack matrixStack, Component text, float x, float y)
+    protected void drawText(GuiGraphics graphics, Component text, float x, float y)
     {
-        drawText(matrixStack, text, x, y, m_fontColor.getValue());
+        drawText(graphics, text, x, y, m_fontColor.getValue());
     }
 
-    protected void drawText(PoseStack matrixStack, Component text, float x, float y, TextColor color)
+    protected void drawText(GuiGraphics graphics, Component text, float x, float y, TextColor color)
     {
-        drawText(matrixStack, text, x, y, color.getValue());
+        drawText(graphics, text, x, y, color.getValue());
     }
 
-    protected void drawText(PoseStack matrixStack, Component text, float x, float y, int color)
+    protected void drawText(GuiGraphics graphics, Component text, float x, float y, int color)
     {
-        if (m_drawDropShadow)
-            m_font.drawShadow(matrixStack, text, x, y, color);
-        else
-            m_font.draw(matrixStack, text, x, y, color);
+    	// Note: There is no overload which takes floats (x,y) and also a Component,
+    	// so we have to get the underlying formatted text. See GuiGraphics class.
+    	graphics.drawString(m_font, text.getVisualOrderText(), x, y, color, m_drawDropShadow);
     }
 
     protected Font m_font;

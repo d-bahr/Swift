@@ -4,8 +4,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 import swiftmod.common.WhiteListState;
 import swiftmod.common.client.ItemFilterConfigurationPacket;
@@ -112,7 +112,7 @@ public class BasicItemFilterUpgradeContainerScreen extends GuiContainerScreen<Ba
         menu.sendUpdatePacketToServer(updatePacket);
     }
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/basic_filter_background.png");
 
     protected BasicItemFilterWidget m_filterWidget;

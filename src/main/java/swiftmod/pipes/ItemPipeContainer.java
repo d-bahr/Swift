@@ -8,90 +8,144 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import swiftmod.common.BigItemStack;
+import swiftmod.common.SlotBase;
 import swiftmod.common.SwiftItems;
-import swiftmod.common.SwiftNetwork;
-import swiftmod.common.SwiftUtils;
-import swiftmod.common.channels.BaseChannelManager;
-import swiftmod.common.channels.ChannelSpec;
-import swiftmod.common.client.ChannelConfigurationPacket;
-import swiftmod.common.client.ClearFilterPacket;
+import swiftmod.common.WhiteListState;
+import swiftmod.common.client.ItemClearFilterPacket;
 import swiftmod.common.client.ItemFilterConfigurationPacket;
 import swiftmod.common.client.ItemFilterSlotPacket;
+import swiftmod.common.client.ItemWildcardFilterPacket;
+import swiftmod.common.gui.SideIOConfigurationWidget;
 import swiftmod.common.upgrades.BasicItemFilterUpgradeDataCache;
-import swiftmod.common.upgrades.ChannelConfigurationDataCache;
-import swiftmod.common.upgrades.TeleporterUpgradeItem;
 import swiftmod.common.upgrades.UpgradeInventory;
 import swiftmod.common.upgrades.UpgradeType;
+import swiftmod.common.upgrades.WildcardFilterUpgradeDataCache;
+import swiftmod.pipes.PipeTileEntity.SideUpgradeInventoryBuilder;
 
 public class ItemPipeContainer extends PipeContainer implements ItemFilterConfigurationPacket.Handler,
-        ItemFilterSlotPacket.Handler, ClearFilterPacket.Handler, ChannelConfigurationPacket.Handler
+        ItemFilterSlotPacket.Handler, ItemClearFilterPacket.Handler, ItemWildcardFilterPacket.Handler
 {
     protected ItemPipeContainer(@Nullable MenuType<?> type, int windowID, Inventory playerInventory,
-            FriendlyByteBuf extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
-            Supplier<UpgradeInventory> sideUpgradeInventorySupplier, int x, int y)
+    		RegistryFriendlyByteBuf extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
+    		int numSideUpgradeInventories, SideUpgradeInventoryBuilder sideUpgradeInventorySupplier, int x, int y)
     {
-        super(type, windowID, playerInventory, extraData, upgradeInventorySupplier, sideUpgradeInventorySupplier, x, y);
+        super(type, windowID, playerInventory, extraData, upgradeInventorySupplier, numSideUpgradeInventories, sideUpgradeInventorySupplier, x, y);
+        
+        initSideUpgradeSlots();
     }
 
-    protected ItemPipeContainer(@Nullable MenuType<?> type, BlockEntity blockEntity, int windowID,
-            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
-            ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
-            UpgradeInventory[] sideUpgradeInventories, int x, int y)
+    protected ItemPipeContainer(@Nullable MenuType<?> type, int windowID,
+            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback, BlockPos pos,
+            UpgradeInventory upgradeInventory, UpgradeInventory[] sideUpgradeInventories, int x, int y)
     {
-        super(type, blockEntity, windowID, playerInventory, cache, refreshFilterCallback, channelManagerCallback,
+        super(type, windowID, playerInventory, cache, refreshFilterCallback, pos,
                 upgradeInventory, sideUpgradeInventories, x, y);
+        
+        initSideUpgradeSlots();
     }
 
-    public BasicItemFilterUpgradeDataCache getBasicFilterCache(Direction direction)
+    protected void initSideUpgradeSlots()
+    {
+        int x = PipeContainerScreen.BASE_PANEL_X + SideIOConfigurationWidget.SPEED_UPGRADE_SLOT_X + 1;
+        int y = PipeContainerScreen.BASE_PANEL_Y + SideIOConfigurationWidget.SPEED_UPGRADE_SLOT_Y + 1;
+
+        for (int i = 0; i < m_sideUpgradeInventories.length; ++i)
+        {
+            m_sideUpgradeInventoryStartingSlots[i] = getNumSlots();
+            SlotBase[] upgradeSlots = m_sideUpgradeInventories[i].createSlots(x, y, 2, 1);
+            SlotBase filterUpgradeSlot = m_sideUpgradeInventories[i].createSlot(upgradeSlots.length,
+            		PipeContainerScreen.BASE_PANEL_X + SideIOConfigurationWidget.FILTER_UPGRADE_SLOT_X + 1,
+            		PipeContainerScreen.BASE_PANEL_Y + SideIOConfigurationWidget.FILTER_UPGRADE_SLOT_Y + 1);
+
+        	int transferIndex = i;
+            filterUpgradeSlot.setChangedCallback((slot) -> onFilterUpgradeSlotChanged(slot, transferIndex));
+
+            addSlots(upgradeSlots);
+            addSlot(filterUpgradeSlot);
+        }
+    }
+
+    protected BasicItemFilterUpgradeDataCache getBasicFilterCache(int index)
     {
         BasicItemFilterUpgradeDataCache cache = new BasicItemFilterUpgradeDataCache();
-        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(direction)];
-        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
+        UpgradeInventory inventory = m_sideUpgradeInventories[index];
+        int slot = getFilterUpgradeSlot(inventory);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 cache.itemStack = itemStack;
             }
         }
         return cache;
     }
-
-    public void updateFilter(Direction direction, int slot, ItemStack itemStack, int quantity)
+    
+    protected void updateFilter(int index, int slot, ItemStack itemStack, int quantity)
     {
         ItemFilterSlotPacket updatePacket = new ItemFilterSlotPacket();
-        updatePacket.direction = direction;
+        updatePacket.index = index;
         updatePacket.slot = slot;
         updatePacket.itemStack = new BigItemStack(itemStack, quantity);
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+        PacketDistributor.sendToServer(updatePacket);
     }
 
-    public void clearAllFilters(Direction direction)
+    protected void clearAllFilters(int index)
     {
-        ClearFilterPacket updatePacket = new ClearFilterPacket();
-        updatePacket.direction = direction;
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+    	ItemClearFilterPacket updatePacket = new ItemClearFilterPacket();
+        updatePacket.index = index;
+        PacketDistributor.sendToServer(updatePacket);
     }
 
-    public void sendUpdatePacketToServer(ItemFilterConfigurationPacket updatePacket)
+    protected void addWildcardFilter(int index, String filter)
     {
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+        getWildcardFilterCache(index).addFilter(filter);
+
+        ItemWildcardFilterPacket updatePacket = new ItemWildcardFilterPacket();
+        updatePacket.index = index;
+        updatePacket.filter = filter;
+        updatePacket.add = true;
+        PacketDistributor.sendToServer(updatePacket);
+    }
+
+    protected void removeWildcardFilter(int index, String filter)
+    {
+        getWildcardFilterCache(index).removeFilter(filter);
+
+        ItemWildcardFilterPacket updatePacket = new ItemWildcardFilterPacket();
+        updatePacket.index = index;
+        updatePacket.filter = filter;
+        updatePacket.add = false;
+        PacketDistributor.sendToServer(updatePacket);
+    }
+
+    protected void updateFilterConfiguration(int index, WhiteListState whitelist,
+    		boolean matchCount, boolean matchDamage, boolean matchMod, boolean matchNBT, boolean matchOreDict)
+    {
+        ItemFilterConfigurationPacket updatePacket = new ItemFilterConfigurationPacket();
+        updatePacket.index = index;
+        updatePacket.whiteListState = whitelist;
+        updatePacket.matchCount = matchCount;
+        updatePacket.matchDamage = matchDamage;
+        updatePacket.matchMod = matchMod;
+        updatePacket.matchNBT = matchNBT;
+        updatePacket.matchOreDictionary = matchOreDict;
+        PacketDistributor.sendToServer(updatePacket);
     }
 
     @Override
     public void handle(ServerPlayer player, ItemFilterConfigurationPacket packet)
     {
-        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 BasicItemFilterUpgradeDataCache.setWhiteListState(packet.whiteListState, itemStack);
                 BasicItemFilterUpgradeDataCache.setMatchCount(packet.matchCount, itemStack);
@@ -100,7 +154,7 @@ public class ItemPipeContainer extends PipeContainer implements ItemFilterConfig
                 BasicItemFilterUpgradeDataCache.setMatchNBT(packet.matchNBT, itemStack);
                 BasicItemFilterUpgradeDataCache.setMatchOreDictionary(packet.matchOreDictionary, itemStack);
 
-                refreshFilter(packet.direction);
+                refreshFilter(packet.index);
             }
         }
     }
@@ -108,72 +162,53 @@ public class ItemPipeContainer extends PipeContainer implements ItemFilterConfig
     @Override
     public void handle(ServerPlayer player, ItemFilterSlotPacket packet)
     {
-        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 BasicItemFilterUpgradeDataCache.setFilterSlot(packet.slot, packet.itemStack, itemStack);
 
-                refreshFilter(packet.direction);
+                refreshFilter(packet.index);
             }
         }
     }
 
     @Override
-    public void handle(ServerPlayer player, ClearFilterPacket packet)
+    public void handle(ServerPlayer player, ItemClearFilterPacket packet)
     {
-        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicItemFilterUpgrade);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicItemFilterUpgradeItem.get())
             {
                 BasicItemFilterUpgradeDataCache.clearAllFilters(itemStack);
 
-                refreshFilter(packet.direction);
+                refreshFilter(packet.index);
             }
         }
     }
 
     @Override
-    public void handle(ServerPlayer player, ChannelConfigurationPacket packet)
+    public void handle(ServerPlayer player, ItemWildcardFilterPacket packet)
     {
-        int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
-        if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
+        int slot = inventory.getSlotForUpgrade(UpgradeType.WildcardFilterUpgrade);
+        if (slot >= 0 && slot < inventory.getContainerSize())
         {
-            ItemStack itemStack = m_baseUpgradeInventory.getItem(slot);
-            if (itemStack.getItem() instanceof TeleporterUpgradeItem)
+            ItemStack itemStack = inventory.getItem(slot);
+            if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem.get())
             {
-                packet.channel.spec.tag = ChannelSpec.TAG_ITEMS;
-                switch (packet.type)
-                {
-                case Add:
-                    {
-                        BaseChannelManager manager = BaseChannelManager.getManager();
-                        manager.put(packet.channel);
-                        manager.save();
-                    }
-                    break;
-                case Delete:
-                    {
-                        BaseChannelManager manager = BaseChannelManager.getManager();
-                        manager.delete(packet.channel.spec);
-                        manager.save();
-                    }
-                    break;
-                case Set:
-                    ChannelConfigurationDataCache.setChannel(itemStack, packet.channel.spec);
-                    m_channelManagerCallback.manage(packet.channel.spec);
-                    break;
-                case Unset:
-                    ChannelConfigurationDataCache.clearChannel(itemStack);
-                    m_channelManagerCallback.manage(null);
-                    break;
-                }
+                if (packet.add)
+                    WildcardFilterUpgradeDataCache.addFilter(packet.filter, itemStack);
+                else
+                    WildcardFilterUpgradeDataCache.removeFilter(packet.filter, itemStack);
+
+                refreshFilter(packet.index);
             }
         }
     }

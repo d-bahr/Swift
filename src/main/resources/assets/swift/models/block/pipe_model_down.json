@@ -1,5 +1,6 @@
 {
     "parent": "block/cube",
+    "render_type": "minecraft:cutout",
     "textures":
     {
         "particle": "block/stone"
@@ -7,7 +8,7 @@
     "elements":
     [
         {
-            "from": [ 6, 0.5, 6 ],
+            "from": [ 6, 0, 6 ],
             "to": [ 10, 6, 10 ],
             "faces":
             {
@@ -30,43 +31,6 @@
                 {
                     "uv": [0, 0, 16, 16],
                     "texture": "#line"
-                }
-            }
-        },
-        {
-            "from": [ 2, 0, 2 ],
-            "to": [ 14, 0.5, 14 ],
-            "faces":
-            {
-                "east":
-                {
-                    "uv": [0, 0, 16, 16],
-                    "texture": "#attachment"
-                },
-                "west":
-                {
-                    "uv": [0, 0, 16, 16],
-                    "texture": "#attachment"
-                },
-                "north":
-                {
-                    "uv": [0, 0, 16, 16],
-                    "texture": "#attachment"
-                },
-                "south":
-                {
-                    "uv": [0, 0, 16, 16],
-                    "texture": "#attachment"
-                },
-                "up":
-                {
-                    "uv": [0, 0, 16, 16],
-                    "texture": "#attachment"
-                },
-                "down":
-                {
-                    "uv": [0, 0, 16, 16],
-                    "texture": "#attachment"
                 }
             }
         }

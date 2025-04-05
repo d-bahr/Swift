@@ -6,9 +6,8 @@ import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.BigItemStack;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Notification;
@@ -36,7 +35,7 @@ public class BasicItemFilterWidget extends GuiWidget
 
     public BasicItemFilterWidget(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation backgroundTexture)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
 
         m_backgroundTexture = new GuiTexture(screen, 0, 0, width, height, backgroundTexture);
         addChild(m_backgroundTexture);
@@ -72,7 +71,7 @@ public class BasicItemFilterWidget extends GuiWidget
         m_filterSlots = new ArrayList<GhostItemSlot>();
 
         GuiDeleteButton deleteButton = new GuiDeleteButton(screen, GUI_DELETE_X, GUI_DELETE_Y, this::onDeleteButtonPressed);
-        deleteButton.setTooltip(new TextComponent("Remove all filters"));
+        deleteButton.setTooltip(Component.literal("Remove all filters"));
         addChild(deleteButton);
         
         GuiTexture infoTexture = new GuiTexture(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16, INFO_TEXTURE);
@@ -80,11 +79,11 @@ public class BasicItemFilterWidget extends GuiWidget
         
         GuiTooltip infoTooltip = new GuiTooltip(screen, GUI_INFO_X, GUI_INFO_Y, 16, 16);
         List<Component> tooltip = new ArrayList<Component>();
-        tooltip.add(new TextComponent("Left click on a slot to add or increment a filter."));
-        tooltip.add(new TextComponent("Right click on a slot to remove or decrement a filter."));
-        tooltip.add(new TextComponent("Shift + click to add/remove one stack."));
-        tooltip.add(new TextComponent("Ctrl + click to add/remove one item."));
-        tooltip.add(new TextComponent("Max quantity: " + MAX_SLOT_QUANTITY + " items"));
+        tooltip.add(Component.literal("Left click on a slot to add or increment a filter."));
+        tooltip.add(Component.literal("Right click on a slot to remove or decrement a filter."));
+        tooltip.add(Component.literal("Shift + click to add/remove one stack."));
+        tooltip.add(Component.literal("Ctrl + click to add/remove one item."));
+        tooltip.add(Component.literal("Max quantity: " + MAX_SLOT_QUANTITY + " items"));
         infoTooltip.setText(tooltip);
         infoTooltip.setZ(1000.0f);
         addChild(infoTooltip);
@@ -269,7 +268,9 @@ public class BasicItemFilterWidget extends GuiWidget
             	// When matching any sort of NBT, allow multiple items of the same
             	// type but with different NBT; this allows sorting e.g. items
             	// of different durabilities.
-	            if (ItemStack.isSameItemSameTags(s, stack))
+            	
+            	// TODO: Maybe this? ItemStack.isSameItemSameComponents(s, stack)
+	            if (ItemStack.isSameItemSameComponents(s, stack))
 	            {
 	                // Item already exists; abort.
 	                return false;
@@ -349,10 +350,10 @@ public class BasicItemFilterWidget extends GuiWidget
 
     protected static final int MAX_SLOT_QUANTITY = 99999;
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/basic_filter_upgrade.png");
 
-    protected static final ResourceLocation INFO_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation INFO_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/info.png");
 
     protected GuiTexture m_backgroundTexture;

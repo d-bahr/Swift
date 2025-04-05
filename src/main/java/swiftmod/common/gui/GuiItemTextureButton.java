@@ -1,20 +1,20 @@
 package swiftmod.common.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.platform.GlStateManager;
+
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiItemTextureButton extends GuiButton
@@ -53,45 +53,36 @@ public class GuiItemTextureButton extends GuiButton
         return m_itemStack;
     }
 
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    @Override
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
-        renderItem(getItemRenderer(), m_itemStack, leftAbsolute(), topAbsolute(), width - m_xTexMargin, height - m_yTexMargin);
+        super.draw(graphics, mouseX, mouseY, partialTicks);
+        doRenderItem(graphics);
+    }
+    
+    protected void doRenderItem(GuiGraphics graphics)
+    {
+        renderItem(graphics, m_itemStack, getX(), getY(), width - m_xTexMargin, height - m_yTexMargin);
     }
 
-    @SuppressWarnings("deprecation")
-    public static void renderItem(ItemRenderer renderer, ItemStack stack, int x, int y, int xScale, int yScale)
+    public static void renderItem(GuiGraphics graphics, ItemStack stack, int x, int y, int xScale, int yScale)
     {
     	Minecraft minecraft = Minecraft.getInstance();
-    	minecraft.getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
-        BakedModel model = renderer.getModel(stack, null, null, 0);
-	    RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
-	    RenderSystem.enableBlend();
-	    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-	    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-	    PoseStack posestack = RenderSystem.getModelViewStack();
-	    posestack.pushPose();
-	    posestack.translate((double)x, (double)y, 100.0F);
-	    posestack.translate(8.0D, 8.0D, 0.0D);
-	    posestack.scale(1.0F, -1.0F, 1.0F);
-	    posestack.scale(xScale, yScale, xScale);
-	    RenderSystem.applyModelViewMatrix();
-	    PoseStack posestack1 = new PoseStack();
-	    MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-	    boolean flag = !model.usesBlockLight();
-	    if (flag) {
-	       Lighting.setupForFlatItems();
-	    }
-	
-	    renderer.render(stack, ItemTransforms.TransformType.GUI, false, posestack1, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, model);
-	    multibuffersource$buffersource.endBatch();
-	    RenderSystem.enableDepthTest();
-	    if (flag) {
-	       Lighting.setupFor3DItems();
-	    }
-	
-	    posestack.popPose();
-	    RenderSystem.applyModelViewMatrix();
+    	ItemRenderer renderer = minecraft.getItemRenderer();
+        BakedModel bakedmodel = minecraft.getItemRenderer().getModel(stack, minecraft.level, minecraft.player, 0);
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(x + 8.0f, y + 8.0f, 150.0f);
+	    pose.mulPose((new Matrix4f()).scaling(1.0F, -1.0F, 1.0F));
+	    pose.scale(xScale, yScale, xScale);
+	    boolean flag = !bakedmodel.usesBlockLight();
+	    if (flag)
+	        Lighting.setupForFlatItems();
+	    renderer.render(stack, ItemDisplayContext.GUI, false, pose, graphics.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+	    graphics.flush();
+	    if (flag)
+	        Lighting.setupFor3DItems();
+	    pose.popPose();
     }
 
     protected ItemStack m_itemStack;

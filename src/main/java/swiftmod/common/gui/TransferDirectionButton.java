@@ -1,9 +1,9 @@
 package swiftmod.common.gui;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 import swiftmod.common.TransferDirection;
@@ -15,6 +15,11 @@ public class TransferDirectionButton extends GuiTextureButton
     public interface StateChangeHandler
     {
         public void onStateChanged(TransferDirectionButton button, TransferDirection state);
+    }
+
+    public TransferDirectionButton(GuiContainerScreen<?> screen, int x, int y, int width, int height)
+    {
+        this(screen, x, y, width, height, null);
     }
 
     public TransferDirectionButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, StateChangeHandler handler)
@@ -78,14 +83,14 @@ public class TransferDirectionButton extends GuiTextureButton
     private void updateTooltip()
     {
         if (m_state == TransferDirection.Extract)
-            setTooltip(new TextComponent("Extract"));
+            setTooltip(Component.literal("Extract"));
         else
-            setTooltip(new TextComponent("Insert"));
+            setTooltip(Component.literal("Insert"));
     }
 
-    public static final ResourceLocation INSERT_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation INSERT_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/insert.png");
-    public static final ResourceLocation EXTRACT_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation EXTRACT_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/extract.png");
 
     private TransferDirection m_state;

@@ -4,16 +4,15 @@ import java.util.ArrayList;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiMultiPagePanel extends GuiWidget
 {
     public GuiMultiPagePanel(GuiContainerScreen<?> screen, int width, int height)
     {
-        super(screen, width, height, TextComponent.EMPTY);
+        super(screen, width, height, Component.empty());
         m_pages = new ArrayList<GuiPanel>();
     }
 
@@ -25,7 +24,7 @@ public class GuiMultiPagePanel extends GuiWidget
 
     public GuiMultiPagePanel(GuiContainerScreen<?> screen, int x, int y, int width, int height)
     {
-        super(screen, x, y, width, height, TextComponent.EMPTY);
+        super(screen, x, y, width, height, Component.empty());
         m_pages = new ArrayList<GuiPanel>();
     }
 

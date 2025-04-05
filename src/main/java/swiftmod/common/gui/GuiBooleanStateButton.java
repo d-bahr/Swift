@@ -1,8 +1,8 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 
 @OnlyIn(Dist.CLIENT)
@@ -75,8 +75,8 @@ public class GuiBooleanStateButton extends GuiTextureButton
             setForegroundTexture(m_falseTexture);
     }
 
-    private boolean m_state;
-    private StateChangeHandler m_handler;
-    private ResourceLocation m_trueTexture;
-    private ResourceLocation m_falseTexture;
+    protected boolean m_state;
+    protected StateChangeHandler m_handler;
+    protected ResourceLocation m_trueTexture;
+    protected ResourceLocation m_falseTexture;
 }

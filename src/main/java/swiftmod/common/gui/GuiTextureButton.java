@@ -1,8 +1,8 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiTextureButton extends GuiButton
@@ -38,8 +38,8 @@ public class GuiTextureButton extends GuiButton
 
     public void setMargin(int x, int y)
     {
-        m_foregroundTexture.x = x;
-        m_foregroundTexture.y = y;
+        m_foregroundTexture.setX(x);
+        m_foregroundTexture.setY(y);
         m_foregroundTexture.setWidth(width - x * 2);
         m_foregroundTexture.setHeight(height - y * 2);
     }

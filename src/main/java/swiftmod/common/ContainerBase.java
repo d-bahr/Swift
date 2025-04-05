@@ -72,7 +72,7 @@ public class ContainerBase<T extends DataCache> extends PlayerInventoryContainer
                 boolean isSlotEnabled = true;
                 if (slot instanceof EnableableSlot)
                 	isSlotEnabled = ((EnableableSlot)slot).enable;
-                if (!itemstack.isEmpty() && isSlotEnabled && ItemStack.isSameItemSameTags(stack, itemstack))
+                if (!itemstack.isEmpty() && isSlotEnabled && ItemStack.isSameItemSameComponents(stack, itemstack))
                 {
                     int j = itemstack.getCount() + stack.getCount();
                     int maxSize = Math.min(slot.getMaxStackSize(stack), stack.getMaxStackSize());

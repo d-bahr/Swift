@@ -2,9 +2,10 @@ package swiftmod.common.channels;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -17,8 +18,8 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
     {
     	super(id, supplier, decoder);
 
-        m_channels = new HashMap<ChannelOwner, OwnedChannels<T>>();
-        m_attachments = new HashMap<ChannelOwner, OwnedChannelAttachments>();
+        m_channels = new HashMap<ChannelOwnership, OwnedChannels<T>>();
+        m_attachments = new HashMap<ChannelOwnership, OwnedChannelAttachments>();
         m_blocks = new HashMap<ChannelAttachment, ChannelSpec>();
     }
 
@@ -33,7 +34,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
     {
         if (exists(spec))
         {
-            OwnedChannelAttachments attachments = m_attachments.get(spec.owner);
+            OwnedChannelAttachments attachments = m_attachments.get(new ChannelOwnership(spec));
             if (attachments != null)
                 attachments.add(spec.getKey(), attachment);
             m_blocks.put(attachment, spec);
@@ -83,14 +84,14 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
 
     private void detachWorker(ChannelSpec spec, ChannelAttachment attachment)
     {
-        OwnedChannelAttachments attachments = m_attachments.get(spec.owner);
+        OwnedChannelAttachments attachments = m_attachments.get(new ChannelOwnership(spec));
         if (attachments != null)
             attachments.remove(spec.getKey(), attachment);
     }
 
     public Set<ChannelAttachment> getAttached(ChannelSpec spec)
     {
-        OwnedChannelAttachments attachments = m_attachments.get(spec.owner);
+        OwnedChannelAttachments attachments = m_attachments.get(new ChannelOwnership(spec));
         if (attachments == null)
             return new HashSet<ChannelAttachment>();
         else
@@ -98,7 +99,7 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
     }
 
     @Override
-    public void load(CompoundTag nbt)
+    public void load(HolderLookup.Provider provider, CompoundTag nbt)
     {
         clear();
         CompoundTag parent = nbt.getCompound(getId());
@@ -107,23 +108,24 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
         {
             CompoundTag tag = list.getCompound(i);
             ChannelSpec spec = new ChannelSpec(tag);
-            T data = decode(tag);
+            T data = decode(tag, spec);
             put(spec, data);
         }
     }
 
     @Override
-    public CompoundTag save(CompoundTag nbt)
+    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider)
     {
         CompoundTag parent = new CompoundTag();
         ListTag list = new ListTag();
-        for (HashMap.Entry<ChannelOwner, OwnedChannels<T>> entry1 : m_channels.entrySet())
+        for (HashMap.Entry<ChannelOwnership, OwnedChannels<T>> entry1 : m_channels.entrySet())
         {
             OwnedChannels<T> x = entry1.getValue();
             for (HashMap.Entry<String, T> entry2 : x.entrySet())
             {
                 CompoundTag tag = new CompoundTag();
-                ChannelSpec spec = new ChannelSpec(entry1.getKey(), entry2.getKey());
+                ChannelOwnership key = entry1.getKey();
+                ChannelSpec spec = new ChannelSpec(key.type, key.owner, entry2.getKey());
                 spec.write(tag);
                 entry2.getValue().write(tag);
                 list.add(tag);
@@ -141,25 +143,42 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
 
     public void put(ChannelSpec spec, T data)
     {
-        OwnedChannels<T> ownedChannels = get(spec.owner);
+        OwnedChannels<T> ownedChannels = get(spec.type, spec.owner);
         if (ownedChannels == null)
         {
             ownedChannels = new OwnedChannels<T>();
-            m_channels.put(spec.owner, ownedChannels);
-            m_attachments.put(spec.owner, new OwnedChannelAttachments());
+            m_channels.put(new ChannelOwnership(spec), ownedChannels);
+            m_attachments.put(new ChannelOwnership(spec), new OwnedChannelAttachments());
         }
         ownedChannels.put(spec.name, data);
     }
 
-    public T add(ChannelSpec spec)
+    public boolean putIfAbsent(Channel<T> channel)
     {
-        OwnedChannels<T> ownedChannels = get(spec.owner);
+    	return putIfAbsent(channel.spec, channel.data);
+    }
+
+    public boolean putIfAbsent(ChannelSpec spec, T data)
+    {
+        OwnedChannels<T> ownedChannels = get(spec.type, spec.owner);
         if (ownedChannels == null)
         {
             ownedChannels = new OwnedChannels<T>();
-            m_channels.put(spec.owner, ownedChannels);
-            m_attachments.put(spec.owner, new OwnedChannelAttachments());
-            T t = create();
+            m_channels.put(new ChannelOwnership(spec), ownedChannels);
+            m_attachments.put(new ChannelOwnership(spec), new OwnedChannelAttachments());
+        }
+        return ownedChannels.putIfAbsent(spec.name, data) == null;
+    }
+
+    public T add(ChannelSpec spec)
+    {
+        OwnedChannels<T> ownedChannels = get(spec.type, spec.owner);
+        if (ownedChannels == null)
+        {
+            ownedChannels = new OwnedChannels<T>();
+            m_channels.put(new ChannelOwnership(spec), ownedChannels);
+            m_attachments.put(new ChannelOwnership(spec), new OwnedChannelAttachments());
+            T t = create(spec);
             ownedChannels.put(spec.name, t);
             return t;
         }
@@ -172,21 +191,21 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
             }
             else
             {
-                T t = create();
+                T t = create(spec);
                 ownedChannels.put(spec.name, t);
                 return t;
             }
         }
     }
 
-    public OwnedChannels<T> get(ChannelOwner owner)
+    public OwnedChannels<T> get(ChannelType type, ChannelOwner owner)
     {
-        return m_channels.get(owner);
+        return m_channels.get(new ChannelOwnership(type, owner));
     }
 
     public T get(ChannelSpec spec)
     {
-        OwnedChannels<T> ownedChannels = get(spec.owner);
+        OwnedChannels<T> ownedChannels = get(spec.type, spec.owner);
         if (ownedChannels == null)
             return null;
         else
@@ -195,27 +214,28 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
 
     public boolean exists(ChannelSpec spec)
     {
-        OwnedChannels<T> ownedChannels = get(spec.owner);
+        OwnedChannels<T> ownedChannels = get(spec.type, spec.owner);
         if (ownedChannels == null)
             return false;
         else
             return ownedChannels.containsKey(spec.name);
     }
 
-    public OwnedChannels<T> delete(ChannelOwner owner)
+    public OwnedChannels<T> delete(ChannelType type, ChannelOwner owner)
     {
-        OwnedChannelAttachments attachments = m_attachments.remove(owner);
+    	ChannelOwnership key = new ChannelOwnership(type, owner);
+        OwnedChannelAttachments attachments = m_attachments.remove(key);
         for (HashSet<ChannelAttachment> a : attachments.values())
         {
             for (ChannelAttachment attachment : a)
                 m_blocks.remove(attachment);
         }
-        return m_channels.remove(owner);
+        return m_channels.remove(key);
     }
 
     public T delete(ChannelSpec spec)
     {
-        OwnedChannelAttachments attachments = m_attachments.get(spec.owner);
+        OwnedChannelAttachments attachments = m_attachments.get(new ChannelOwnership(spec));
         if (attachments != null)
         {
             HashSet<ChannelAttachment> a = attachments.remove(spec.getKey());
@@ -225,14 +245,53 @@ public class OwnerBasedChannelManager<T extends ChannelData> extends ChannelMana
                     m_blocks.remove(attachment);
             }
         }
-        OwnedChannels<T> ownedChannels = m_channels.get(spec.owner);
+        OwnedChannels<T> ownedChannels = m_channels.get(new ChannelOwnership(spec));
         if (ownedChannels == null)
             return null;
         else
             return ownedChannels.remove(spec.name);
     }
+    
+    private class ChannelOwnership
+    {
+    	public ChannelOwnership(ChannelType t, ChannelOwner o)
+    	{
+    		type = t;
+    		owner = o;
+    	}
 
-    private HashMap<ChannelOwner, OwnedChannels<T>> m_channels;
-    private HashMap<ChannelOwner, OwnedChannelAttachments> m_attachments;
+    	public ChannelOwnership(ChannelSpec spec)
+    	{
+    		type = spec.type;
+    		owner = spec.owner;
+    	}
+    	
+    	@Override
+    	public int hashCode()
+    	{
+    		return Objects.hash(type, owner);
+    	}
+
+    	@Override
+    	public boolean equals(Object o)
+    	{
+    		if (this == o)
+    			return true;
+    		else if (o == null || getClass() != o.getClass())
+    			return false;
+    		else
+    		{
+    			@SuppressWarnings("unchecked")
+				ChannelOwnership other = (ChannelOwnership)o;
+    			return type == other.type && owner.equals(other.owner);
+    		}
+    	}
+    	
+    	public ChannelType type;
+    	public ChannelOwner owner;
+    }
+
+    private HashMap<ChannelOwnership, OwnedChannels<T>> m_channels;
+    private HashMap<ChannelOwnership, OwnedChannelAttachments> m_attachments;
     private HashMap<ChannelAttachment, ChannelSpec> m_blocks;
 }

@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import swiftmod.common.gui.SwiftGui;
 
@@ -19,45 +20,45 @@ public class ContainerInventory implements Container
 
     public ContainerInventory(int size)
     {
+        m_contents = new ContainerItemStackHandler(size);
         m_canPlayerAccessInventoryCallback = x -> true;
         m_canInsertItemCallback = (inventory, slot, stack) -> m_contents.isItemValid(slot, stack);
         m_contentsChangedCallback = (inventory) -> {};
         m_markDirtyCallback = () -> {};
         m_openInventoryCallback = () -> {};
         m_closeInventoryCallback = () -> {};
-        m_contents = new ContainerItemStackHandler(size);
     }
 
     public ContainerInventory(int size, SlotStackPredicate predicate)
     {
+        m_contents = new ContainerItemStackHandler(size);
         m_canPlayerAccessInventoryCallback = x -> true;
         m_canInsertItemCallback = predicate;
         m_contentsChangedCallback = (inventory) -> {};
         m_markDirtyCallback = () -> {};
         m_openInventoryCallback = () -> {};
         m_closeInventoryCallback = () -> {};
-        m_contents = new ContainerItemStackHandler(size);
     }
 
     public ContainerInventory(ContainerItemStackHandler handler)
     {
+        m_contents = handler;
         m_canPlayerAccessInventoryCallback = x -> true;
         m_canInsertItemCallback = (inventory, slot, stack) -> m_contents.isItemValid(slot, stack);
         m_contentsChangedCallback = (inventory) -> {};
         m_markDirtyCallback = () -> {};
         m_openInventoryCallback = () -> {};
         m_closeInventoryCallback = () -> {};
-        m_contents = handler;
     }
 
-    public CompoundTag serializeNBT()
+    public CompoundTag serializeNBT(HolderLookup.Provider provider)
     {
-        return m_contents.serializeNBT();
+        return m_contents.serializeNBT(provider);
     }
 
-    public void deserializeNBT(CompoundTag nbt)
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        m_contents.deserializeNBT(nbt);
+        m_contents.deserializeNBT(provider, nbt);
     }
 
     public void setCanPlayerAccessInventoryCallback(Predicate<Player> callback)
@@ -198,12 +199,32 @@ public class ContainerInventory implements Container
         return m_contents.getStackLimit(slot, stack);
     }
 
+    public SlotBase createSlot(int x, int y)
+    {
+    	return createSlot(0, x, y);
+    }
+
+    public SlotBase createSlot(int index, int x, int y)
+    {
+    	return new SlotBase(this, index, x, y);
+    }
+
     public SlotBase[] createSlots(int x, int y, int rows, int columns)
     {
-        return createSlots(x, y, rows, columns, SwiftGui.INVENTORY_SLOT_WIDTH, SwiftGui.INVENTORY_SLOT_HEIGHT);
+        return createSlots(0, x, y, rows, columns, SwiftGui.INVENTORY_SLOT_WIDTH, SwiftGui.INVENTORY_SLOT_HEIGHT);
+    }
+
+    public SlotBase[] createSlots(int index, int x, int y, int rows, int columns)
+    {
+        return createSlots(index, x, y, rows, columns, SwiftGui.INVENTORY_SLOT_WIDTH, SwiftGui.INVENTORY_SLOT_HEIGHT);
     }
 
     public SlotBase[] createSlots(int x, int y, int rows, int columns, int widthPerColumn, int heightPerRow)
+    {
+    	return createSlots(0, x, y, rows, columns, widthPerColumn, heightPerRow);
+    }
+
+    public SlotBase[] createSlots(int index, int x, int y, int rows, int columns, int widthPerColumn, int heightPerRow)
     {
         int numSlots = Math.min(rows * columns, getContainerSize());
         SlotBase[] slots = new SlotBase[numSlots];
@@ -215,7 +236,7 @@ public class ContainerInventory implements Container
             for (int c = 0; c < columns; ++c)
             {
                 int i = r * columns + c;
-                slots[i] = new SlotBase(this, i, x + widthPerColumn * c,
+                slots[i] = new SlotBase(this, i + index, x + widthPerColumn * c,
                         y + heightPerRow * r);
                 
                 --numSlots;
@@ -226,11 +247,11 @@ public class ContainerInventory implements Container
         return slots;
     }
 
+    protected ContainerItemStackHandler m_contents;
     private Predicate<Player> m_canPlayerAccessInventoryCallback;
     private SlotStackPredicate m_canInsertItemCallback;
     private Consumer<ContainerInventory> m_contentsChangedCallback;
     private Notification m_markDirtyCallback;
     private Notification m_openInventoryCallback;
     private Notification m_closeInventoryCallback;
-    protected ContainerItemStackHandler m_contents;
 }

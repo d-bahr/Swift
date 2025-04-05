@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "DED",
+        "ENE",
+        "DED"
+    ],
+    "key": {
+        "D": {
+            "item": "swift:stack_upgrade"
+        },
+        "E": {
+            "tag": "c:gems/emerald"
+        },
+        "N": {
+            "tag": "c:nether_stars"
+        }
+    },
+    "result": {
+        "id": "swift:ultimate_stack_upgrade"
+    }
+}

@@ -5,9 +5,8 @@ import java.util.List;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 
@@ -37,7 +36,7 @@ public class WildcardFilterWidget extends GuiWidget
 
     public WildcardFilterWidget(GuiContainerScreen<?> screen, int x, int y, int width, int numScrollPanelRows)
     {
-        super(screen, x, y, width, 104, TextComponent.EMPTY);
+        super(screen, x, y, width, 104, Component.empty());
 
         final int verticalMargin = 2;
 
@@ -48,15 +47,15 @@ public class WildcardFilterWidget extends GuiWidget
         GuiButton deleteButton = new GuiTextureButton(screen, m_panel.right() - 20,
                 m_panel.bottom() + verticalMargin, 20, 20, DELETE_BUTTON_TEXTURE,
                 this::onDeleteButtonClick);
-        deleteButton.setTooltip(new TextComponent("Delete filter"));
+        deleteButton.setTooltip(Component.literal("Delete filter"));
         addChild(deleteButton);
 
-        GuiButton addButton = new GuiTextureButton(screen, deleteButton.left() - 20, deleteButton.y, 20, 20,
+        GuiButton addButton = new GuiTextureButton(screen, deleteButton.left() - 20, deleteButton.getY(), 20, 20,
                 ADD_BUTTON_TEXTURE, this::onAddButtonClick);
-        addButton.setTooltip(new TextComponent("Add filter"));
+        addButton.setTooltip(Component.literal("Add filter"));
         addChild(addButton);
 
-        m_textField = new GuiTextField(screen, 0, addButton.y, addButton.left() - 2, 20, TextComponent.EMPTY);
+        m_textField = new GuiTextField(screen, 0, addButton.getY(), addButton.left() - 2, 20, Component.empty());
         m_textField.setTextColor(-1);
         m_textField.setDisabledTextColour(-1);
         m_textField.setEnableBackgroundDrawing(false);
@@ -91,7 +90,7 @@ public class WildcardFilterWidget extends GuiWidget
     {
         m_panel.clearText();
         for (String f : filters)
-            m_panel.addText(new TextComponent(f));
+            m_panel.addText(Component.literal(f));
     }
 
     private void onAddButtonClick(GuiWidget button, MouseButton mouseButton)
@@ -139,9 +138,9 @@ public class WildcardFilterWidget extends GuiWidget
             m_textField.clearText();
     }
 
-    protected static final ResourceLocation ADD_BUTTON_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation ADD_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/add_button.png");
-    protected static final ResourceLocation DELETE_BUTTON_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation DELETE_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/subtract_button.png");
 
     protected GuiTextField m_textField;

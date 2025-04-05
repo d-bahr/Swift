@@ -6,9 +6,8 @@ import java.util.List;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiMultiLineTextWidget extends GuiFontWidget
@@ -127,7 +126,7 @@ public class GuiMultiLineTextWidget extends GuiFontWidget
         if (text != null)
             m_text.set(line, text);
         else
-            m_text.set(line, TextComponent.EMPTY);
+            m_text.set(line, Component.empty());
         onTextChanged();
     }
 

@@ -14,6 +14,11 @@ public class WildcardItemFilter extends WildcardFilter<ItemStack, Item>
         super();
     }
 
+    public WildcardItemFilter(ItemStack itemStack)
+    {
+        super(itemStack);
+    }
+
     public WildcardItemFilter(String filter)
     {
         super(filter);

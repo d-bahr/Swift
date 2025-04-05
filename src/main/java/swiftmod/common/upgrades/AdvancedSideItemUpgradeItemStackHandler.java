@@ -4,7 +4,7 @@ public class AdvancedSideItemUpgradeItemStackHandler extends UpgradeItemStackHan
 {
     public AdvancedSideItemUpgradeItemStackHandler()
     {
-        super(2);
+        super(3);
     }
 
     @Override
@@ -12,11 +12,17 @@ public class AdvancedSideItemUpgradeItemStackHandler extends UpgradeItemStackHan
     {
         switch (type)
         {
+        case SpeedUpgrade:
+            return 19;
+        case SpeedDowngrade:
+            return 64;
+        case StackUpgrade:
+            return 64;
+        case UltimateStackUpgrade:
+            return 1;
         case BasicItemFilterUpgrade:
             return 1;
         case WildcardFilterUpgrade:
-            return 1;
-        case SideUpgrade:
             return 1;
         default:
             return 0;
@@ -28,12 +34,18 @@ public class AdvancedSideItemUpgradeItemStackHandler extends UpgradeItemStackHan
     {
         switch (type)
         {
-        case BasicItemFilterUpgrade:
+        case SpeedUpgrade:
             return 0;
-        case WildcardFilterUpgrade:
+        case SpeedDowngrade:
             return 0;
-        case SideUpgrade:
+        case StackUpgrade:
             return 1;
+        case UltimateStackUpgrade:
+            return 1;
+        case BasicItemFilterUpgrade:
+            return 2;
+        case WildcardFilterUpgrade:
+            return 2;
         default:
             return -1;
         }

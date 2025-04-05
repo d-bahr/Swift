@@ -1,14 +1,13 @@
 package swiftmod.common.upgrades;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+import swiftmod.common.ImmutableFluidStack;
 import swiftmod.common.ItemStackDataCache;
-import swiftmod.common.SwiftUtils;
+import swiftmod.common.SwiftDataComponents;
 import swiftmod.common.WhiteListState;
 
 public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
@@ -25,12 +24,9 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
 
     public WhiteListState getWhiteListState()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return WhiteListState.WhiteList;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return WhiteListState.WhiteList;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? WhiteListState.read(nbt) : WhiteListState.WhiteList;
+        return itemStack.getOrDefault(SwiftDataComponents.WHITELIST_DATA_COMPONENT, WhiteListState.WhiteList);
     }
 
     public void setWhiteListState(WhiteListState state)
@@ -41,20 +37,14 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     public static void setWhiteListState(WhiteListState state, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            WhiteListState.write(nbt, state);
-        }
+        	itemStack.set(SwiftDataComponents.WHITELIST_DATA_COMPONENT, state);
     }
 
     public boolean getMatchCount()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_COUNT) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_COUNT_DATA_COMPONENT, false);
     }
 
     public void setMatchCount(boolean match)
@@ -65,20 +55,14 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchCount(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_COUNT, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_COUNT_DATA_COMPONENT, match);
     }
 
     public boolean getMatchMod()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_MOD) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_MOD_DATA_COMPONENT, false);
     }
 
     public void setMatchMod(boolean match)
@@ -89,20 +73,14 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchMod(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_MOD, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_MOD_DATA_COMPONENT, match);
     }
 
     public boolean getMatchOreDictionary()
     {
-        if (itemStack == null)
+        if (itemStack == null || itemStack.isEmpty())
             return false;
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return false;
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        return nbt != null ? nbt.getBoolean(TAG_MATCH_ORE_DICTIONARY) : false;
+        return itemStack.getOrDefault(SwiftDataComponents.MATCH_ORE_DICT_DATA_COMPONENT, false);
     }
 
     public void setMatchOreDictionary(boolean match)
@@ -113,45 +91,36 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     public static void setMatchOreDictionary(boolean match, ItemStack itemStack)
     {
         if (itemStack != null && !itemStack.isEmpty())
-        {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            nbt.putBoolean(TAG_MATCH_ORE_DICTIONARY, match);
-        }
+        	itemStack.set(SwiftDataComponents.MATCH_ORE_DICT_DATA_COMPONENT, match);
     }
     
-    private ArrayList<FluidStack> createNewFilters()
+    private static List<FluidStack> createNewFilters()
     {
         ArrayList<FluidStack> filters = new ArrayList<FluidStack>(BasicFluidFilterUpgradeItem.NUM_SLOTS);
         for (int i = 0; i < BasicItemFilterUpgradeItem.NUM_SLOTS; ++i)
             filters.add(FluidStack.EMPTY);
         return filters;
     }
-
-    public ArrayList<FluidStack> getFilters()
+    
+    private static List<ImmutableFluidStack> createNewImmutableFilters()
     {
-        if (itemStack == null)
-            return createNewFilters();
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return createNewFilters();
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        if (nbt == null)
-            return createNewFilters();
-        ListTag filterNBT = nbt.getList(TAG_SLOTS, Tag.TAG_COMPOUND);
-        ArrayList<FluidStack> filters = new ArrayList<FluidStack>();
-        if (filterNBT == null || filterNBT.isEmpty())
-        {
-            return createNewFilters();
-        }
-        else
-        {
-            for (int i = 0; i < filterNBT.size(); ++i)
-            {
-                CompoundTag slotNBT = filterNBT.getCompound(i);
-                FluidStack stack = FluidStack.loadFluidStackFromNBT(slotNBT);
-                filters.add(stack);
-            }
-        }
+        ArrayList<ImmutableFluidStack> filters = new ArrayList<ImmutableFluidStack>(BasicFluidFilterUpgradeItem.NUM_SLOTS);
+        for (int i = 0; i < BasicItemFilterUpgradeItem.NUM_SLOTS; ++i)
+            filters.add(new ImmutableFluidStack(FluidStack.EMPTY));
         return filters;
+    }
+
+    public List<FluidStack> getFilters()
+    {
+        if (itemStack == null || itemStack.isEmpty())
+            return createNewFilters();
+        List<ImmutableFluidStack> fluidStacks = itemStack.get(SwiftDataComponents.FLUID_STACK_LIST_DATA_COMPONENT);
+        if (fluidStacks == null)
+        	return createNewFilters();
+        List<FluidStack> ret = new ArrayList<FluidStack>(fluidStacks.size());
+        for (ImmutableFluidStack fluidStack : fluidStacks)
+        	ret.add(fluidStack.fluidStack());
+        return ret;
     }
 
     public void setFilterSlot(int slot, FluidStack filter)
@@ -163,27 +132,14 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
     {
         if (itemStack != null && !itemStack.isEmpty())
         {
-            CompoundTag nbt = itemStack.getOrCreateTagElement(FilterUpgradeItem.NBT_TAG);
-            ListTag filterNBT = nbt.getList(TAG_SLOTS, Tag.TAG_COMPOUND);
-            if (filterNBT == null || filterNBT.isEmpty())
-            {
-                filterNBT = new ListTag();
-                FluidStack empty = FluidStack.EMPTY;
-                for (int i = 0; i < BasicItemFilterUpgradeItem.NUM_SLOTS; ++i)
-                {
-                    CompoundTag slotNBT = new CompoundTag();
-                    empty.writeToNBT(slotNBT);
-                    filterNBT.add(slotNBT);
-                }
-                nbt.put(TAG_SLOTS, filterNBT);
-            }
-
-            if (slot < filterNBT.size())
-            {
-                CompoundTag slotNBT = new CompoundTag();
-                filter.writeToNBT(slotNBT);
-                filterNBT.set(slot, slotNBT);
-            }
+        	List<ImmutableFluidStack> fluidStacks = itemStack.get(SwiftDataComponents.FLUID_STACK_LIST_DATA_COMPONENT);
+        	List<ImmutableFluidStack> newFluidStacks;
+        	if (fluidStacks == null)
+        		newFluidStacks = createNewImmutableFilters();
+        	else
+        		newFluidStacks = new ArrayList<ImmutableFluidStack>(fluidStacks); // Need to create a copy because data components are immutable.
+        	newFluidStacks.set(slot, new ImmutableFluidStack(filter));
+        	itemStack.set(SwiftDataComponents.FLUID_STACK_LIST_DATA_COMPONENT, newFluidStacks);
         }
     }
 
@@ -194,17 +150,6 @@ public class BasicFluidFilterUpgradeDataCache extends ItemStackDataCache
 
     public static void clearAllFilters(ItemStack itemStack)
     {
-        if (itemStack != null && !itemStack.isEmpty() && itemStack.hasTag())
-        {
-            CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-            if (nbt != null)
-                nbt.remove(TAG_SLOTS);
-        }
+    	itemStack.remove(SwiftDataComponents.FLUID_STACK_LIST_DATA_COMPONENT);
     }
-
-    // TODO: Move this to BasicFluidFilterUpgradeItem.
-    public static final String TAG_MATCH_COUNT = SwiftUtils.tagName("matchCount");
-    public static final String TAG_MATCH_MOD = SwiftUtils.tagName("matchMod");
-    public static final String TAG_MATCH_ORE_DICTIONARY = SwiftUtils.tagName("matchOreDictionary");
-    public static final String TAG_SLOTS = SwiftUtils.tagName("slots");
 }

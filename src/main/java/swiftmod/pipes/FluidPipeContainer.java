@@ -8,53 +8,78 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.network.PacketDistributor;
+import swiftmod.common.SlotBase;
 import swiftmod.common.SwiftItems;
-import swiftmod.common.SwiftNetwork;
 import swiftmod.common.SwiftUtils;
-import swiftmod.common.channels.BaseChannelManager;
-import swiftmod.common.channels.ChannelSpec;
-import swiftmod.common.client.ChannelConfigurationPacket;
-import swiftmod.common.client.ClearFilterPacket;
+import swiftmod.common.WhiteListState;
+import swiftmod.common.client.FluidClearFilterPacket;
 import swiftmod.common.client.FluidFilterConfigurationPacket;
 import swiftmod.common.client.FluidFilterSlotPacket;
+import swiftmod.common.client.FluidWildcardFilterPacket;
+import swiftmod.common.gui.SideIOConfigurationWidget;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeDataCache;
-import swiftmod.common.upgrades.ChannelConfigurationDataCache;
-import swiftmod.common.upgrades.TeleporterUpgradeItem;
 import swiftmod.common.upgrades.UpgradeInventory;
 import swiftmod.common.upgrades.UpgradeType;
+import swiftmod.common.upgrades.WildcardFilterUpgradeDataCache;
+import swiftmod.pipes.PipeTileEntity.SideUpgradeInventoryBuilder;
 
 public class FluidPipeContainer extends PipeContainer implements FluidFilterConfigurationPacket.Handler,
-        FluidFilterSlotPacket.Handler, ClearFilterPacket.Handler, ChannelConfigurationPacket.Handler
+        FluidFilterSlotPacket.Handler, FluidClearFilterPacket.Handler, FluidWildcardFilterPacket.Handler
 {
     protected FluidPipeContainer(@Nullable MenuType<?> type, int windowID, Inventory playerInventory,
-            FriendlyByteBuf extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
-            Supplier<UpgradeInventory> sideUpgradeInventorySupplier, int x, int y)
+    		RegistryFriendlyByteBuf extraData, Supplier<UpgradeInventory> upgradeInventorySupplier,
+            int numSideUpgradeInventories, SideUpgradeInventoryBuilder sideUpgradeInventorySupplier, int x, int y)
     {
-        super(type, windowID, playerInventory, extraData, upgradeInventorySupplier, sideUpgradeInventorySupplier, x, y);
+        super(type, windowID, playerInventory, extraData, upgradeInventorySupplier, numSideUpgradeInventories, sideUpgradeInventorySupplier, x, y);
+        
+        initSideUpgradeSlots();
     }
 
-    protected FluidPipeContainer(@Nullable MenuType<?> type, BlockEntity blockEntity, int windowID,
-            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback,
-            ChannelManagerCallback channelManagerCallback, UpgradeInventory upgradeInventory,
-            UpgradeInventory[] sideUpgradeInventories, int x, int y)
+    protected FluidPipeContainer(@Nullable MenuType<?> type, int windowID,
+            Inventory playerInventory, PipeDataCache cache, RefreshFilterCallback refreshFilterCallback, BlockPos pos,
+            UpgradeInventory upgradeInventory, UpgradeInventory[] sideUpgradeInventories, int x, int y)
     {
-        super(type, blockEntity, windowID, playerInventory, cache, refreshFilterCallback, channelManagerCallback,
+        super(type, windowID, playerInventory, cache, refreshFilterCallback, pos,
                 upgradeInventory, sideUpgradeInventories, x, y);
+        
+        initSideUpgradeSlots();
+    }
+
+    protected void initSideUpgradeSlots()
+    {
+        int x = PipeContainerScreen.BASE_PANEL_X + SideIOConfigurationWidget.SPEED_UPGRADE_SLOT_X + 1;
+        int y = PipeContainerScreen.BASE_PANEL_Y + SideIOConfigurationWidget.SPEED_UPGRADE_SLOT_Y + 1;
+
+        for (Direction dir : Direction.values())
+        {
+            int i = SwiftUtils.dirToIndex(dir);
+
+            m_sideUpgradeInventoryStartingSlots[i] = getNumSlots();
+            SlotBase[] upgradeSlots = m_sideUpgradeInventories[i].createSlots(x, y, 2, 1);
+            SlotBase filterUpgradeSlot = m_sideUpgradeInventories[i].createSlot(upgradeSlots.length,
+            		PipeContainerScreen.BASE_PANEL_X + SideIOConfigurationWidget.FILTER_UPGRADE_SLOT_X + 1,
+            		PipeContainerScreen.BASE_PANEL_Y + SideIOConfigurationWidget.FILTER_UPGRADE_SLOT_Y + 1);
+            filterUpgradeSlot.setChangedCallback((slot) -> onFilterUpgradeSlotChanged(slot, i));
+
+            addSlots(upgradeSlots);
+            addSlot(filterUpgradeSlot);
+        }
     }
 
     public BasicFluidFilterUpgradeDataCache getBasicFilterCache(Direction direction)
     {
         BasicFluidFilterUpgradeDataCache cache = new BasicFluidFilterUpgradeDataCache();
         UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(direction)];
-        int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
+        int slot = getFilterUpgradeSlot(inventory);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 cache.itemStack = itemStack;
             }
@@ -62,43 +87,77 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
         return cache;
     }
 
+    public WildcardFilterUpgradeDataCache getWildcardFilterCache(Direction direction)
+    {
+		return getWildcardFilterCache(SwiftUtils.dirToIndex(direction));
+    }
+
     public void updateFilter(Direction direction, int slot, FluidStack fluidStack)
     {
         FluidFilterSlotPacket updatePacket = new FluidFilterSlotPacket();
-        updatePacket.direction = direction;
+        updatePacket.index = SwiftUtils.dirToIndex(direction);
         updatePacket.slot = slot;
         updatePacket.fluidStack = fluidStack;
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+        PacketDistributor.sendToServer(updatePacket);
     }
 
     public void clearAllFilters(Direction direction)
     {
-        ClearFilterPacket updatePacket = new ClearFilterPacket();
-        updatePacket.direction = direction;
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+    	FluidClearFilterPacket updatePacket = new FluidClearFilterPacket();
+        updatePacket.index = SwiftUtils.dirToIndex(direction);
+        PacketDistributor.sendToServer(updatePacket);
     }
 
-    public void sendUpdatePacketToServer(FluidFilterConfigurationPacket updatePacket)
+    public void addWildcardFilter(Direction direction, String filter)
     {
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+        getWildcardFilterCache(SwiftUtils.dirToIndex(direction)).addFilter(filter);
+
+        FluidWildcardFilterPacket updatePacket = new FluidWildcardFilterPacket();
+        updatePacket.index = SwiftUtils.dirToIndex(direction);
+        updatePacket.filter = filter;
+        updatePacket.add = true;
+        PacketDistributor.sendToServer(updatePacket);
+    }
+
+    public void removeWildcardFilter(Direction direction, String filter)
+    {
+        getWildcardFilterCache(SwiftUtils.dirToIndex(direction)).removeFilter(filter);
+
+        FluidWildcardFilterPacket updatePacket = new FluidWildcardFilterPacket();
+        updatePacket.index = SwiftUtils.dirToIndex(direction);
+        updatePacket.filter = filter;
+        updatePacket.add = false;
+        PacketDistributor.sendToServer(updatePacket);
+    }
+    
+    public void updateFilterConfiguration(Direction direction, WhiteListState whitelist,
+    		boolean matchCount, boolean matchMod, boolean matchOreDict)
+    {
+        FluidFilterConfigurationPacket updatePacket = new FluidFilterConfigurationPacket();
+        updatePacket.index = SwiftUtils.dirToIndex(direction);
+        updatePacket.whiteListState = whitelist;
+        updatePacket.matchCount = matchCount;
+        updatePacket.matchMod = matchMod;
+        updatePacket.matchOreDictionary = matchOreDict;
+        PacketDistributor.sendToServer(updatePacket);
     }
 
     @Override
     public void handle(ServerPlayer player, FluidFilterConfigurationPacket packet)
     {
-        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 BasicFluidFilterUpgradeDataCache.setWhiteListState(packet.whiteListState, itemStack);
                 BasicFluidFilterUpgradeDataCache.setMatchCount(packet.matchCount, itemStack);
                 BasicFluidFilterUpgradeDataCache.setMatchMod(packet.matchMod, itemStack);
                 BasicFluidFilterUpgradeDataCache.setMatchOreDictionary(packet.matchOreDictionary, itemStack);
 
-                refreshFilter(packet.direction);
+                refreshFilter(packet.index);
             }
         }
     }
@@ -106,72 +165,53 @@ public class FluidPipeContainer extends PipeContainer implements FluidFilterConf
     @Override
     public void handle(ServerPlayer player, FluidFilterSlotPacket packet)
     {
-        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 BasicFluidFilterUpgradeDataCache.setFilterSlot(packet.slot, packet.fluidStack, itemStack);
 
-                refreshFilter(packet.direction);
+                refreshFilter(packet.index);
             }
         }
     }
 
     @Override
-    public void handle(ServerPlayer player, ClearFilterPacket packet)
+    public void handle(ServerPlayer player, FluidClearFilterPacket packet)
     {
-        UpgradeInventory inventory = m_sideUpgradeInventories[SwiftUtils.dirToIndex(packet.direction)];
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
             ItemStack itemStack = inventory.getItem(slot);
-            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem)
+            if (itemStack.getItem() == SwiftItems.s_basicFluidFilterUpgradeItem.get())
             {
                 BasicFluidFilterUpgradeDataCache.clearAllFilters(itemStack);
 
-                refreshFilter(packet.direction);
+                refreshFilter(packet.index);
             }
         }
     }
 
     @Override
-    public void handle(ServerPlayer player, ChannelConfigurationPacket packet)
+    public void handle(ServerPlayer player, FluidWildcardFilterPacket packet)
     {
-        int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
-        if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
+        UpgradeInventory inventory = m_sideUpgradeInventories[packet.index];
+        int slot = inventory.getSlotForUpgrade(UpgradeType.WildcardFilterUpgrade);
+        if (slot >= 0 && slot < inventory.getContainerSize())
         {
-            ItemStack itemStack = m_baseUpgradeInventory.getItem(slot);
-            if (itemStack.getItem() instanceof TeleporterUpgradeItem)
+            ItemStack itemStack = inventory.getItem(slot);
+            if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem.get())
             {
-                packet.channel.spec.tag = ChannelSpec.TAG_FLUIDS;
-                switch (packet.type)
-                {
-                case Add:
-                    {
-                        BaseChannelManager manager = BaseChannelManager.getManager();
-                        manager.put(packet.channel);
-                        manager.save();
-                    }
-                    break;
-                case Delete:
-                    {
-                        BaseChannelManager manager = BaseChannelManager.getManager();
-                        manager.delete(packet.channel.spec);
-                        manager.save();
-                    }
-                    break;
-                case Set:
-                    ChannelConfigurationDataCache.setChannel(itemStack, packet.channel.spec);
-                    m_channelManagerCallback.manage(packet.channel.spec);
-                    break;
-                case Unset:
-                    ChannelConfigurationDataCache.clearChannel(itemStack);
-                    m_channelManagerCallback.manage(null);
-                    break;
-                }
+                if (packet.add)
+                    WildcardFilterUpgradeDataCache.addFilter(packet.filter, itemStack);
+                else
+                    WildcardFilterUpgradeDataCache.removeFilter(packet.filter, itemStack);
+
+                refreshFilter(packet.index);
             }
         }
     }

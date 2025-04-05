@@ -4,18 +4,30 @@ public class BasicUpgradeItemStackHandler extends UpgradeItemStackHandler
 {
     public BasicUpgradeItemStackHandler()
     {
-        super(0);
+        super(1);
     }
 
     @Override
     public int getMaxUpgrades(UpgradeType type)
     {
-        return 0;
+        switch (type)
+        {
+        case ChunkLoaderUpgrade:
+            return 1;
+        default:
+            return 0;
+        }
     }
 
     @Override
     public int getSlotForUpgrade(UpgradeType type)
     {
-        return -1;
+        switch (type)
+        {
+        case ChunkLoaderUpgrade:
+            return 0;
+        default:
+            return -1;
+        }
     }
 }

@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "CDC",
+        "DED",
+        "CDC"
+    ],
+    "key": {
+        "C": {
+            "item": "minecraft:sugar"
+        },
+        "D": {
+            "tag": "c:dusts/redstone"
+        },
+        "E": {
+            "item": "minecraft:bucket"
+        }
+    },
+    "result": {
+        "id": "swift:basic_fluid_filter_upgrade"
+    }
+}

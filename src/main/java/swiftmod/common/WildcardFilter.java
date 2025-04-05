@@ -3,6 +3,7 @@ package swiftmod.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -10,6 +11,7 @@ import java.util.stream.Stream;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.ItemStack;
 
 public abstract class WildcardFilter<T, U> implements Filter<T>
 {
@@ -17,6 +19,24 @@ public abstract class WildcardFilter<T, U> implements Filter<T>
     {
         super();
         regexes = new ArrayList<Pattern>();
+    }
+    
+    public WildcardFilter(ItemStack itemStack)
+    {
+        super();
+        regexes = new ArrayList<Pattern>();
+    	if (itemStack != null && !itemStack.isEmpty())
+    	{
+	    	List<String> filters = itemStack.get(SwiftDataComponents.WILDCARD_LIST_DATA_COMPONENT);
+	        for (String filter : filters)
+	        {
+	            if (!filter.isEmpty())
+	            {
+	                Pattern regex = Pattern.compile(convertGlobToRegex(filter));
+	                regexes.add(regex);
+	            }
+	        }
+    	}
     }
 
     public WildcardFilter(String filter)

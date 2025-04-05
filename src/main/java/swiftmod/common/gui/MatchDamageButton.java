@@ -1,9 +1,9 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 
 @OnlyIn(Dist.CLIENT)
@@ -24,9 +24,9 @@ public class MatchDamageButton extends GuiBooleanStateButton
     private void setTooltip()
     {
         if (getState())
-            setTooltip(new TextComponent("Match item damage value"));
+            setTooltip(Component.literal("Match item damage value"));
         else
-            setTooltip(new TextComponent("Ignore item damage value"));
+            setTooltip(Component.literal("Ignore item damage value"));
     }
 
     protected void onStateChanged()
@@ -35,8 +35,8 @@ public class MatchDamageButton extends GuiBooleanStateButton
         setTooltip();
     }
 
-    public static final ResourceLocation MATCH_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation MATCH_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/match_damage.png");
-    public static final ResourceLocation IGNORE_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation IGNORE_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/ignore_damage.png");
 }

@@ -2,6 +2,8 @@ package swiftmod.common;
 
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
@@ -10,17 +12,11 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
-public class TileEntityBase<T extends DataCache> extends BlockEntity
+public class TileEntityBase extends BlockEntity
 {
-    protected TileEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state, T cache)
+    protected TileEntityBase(BlockEntityType<?> type, BlockPos pos, BlockState state)
     {
         super(type, pos, state);
-        m_cache = cache;
-    }
-    
-    public T getCache()
-    {
-        return m_cache;
     }
 
     // When the world loads from disk, the server needs to send the BlockEntity information to the client
@@ -40,9 +36,9 @@ public class TileEntityBase<T extends DataCache> extends BlockEntity
     }
 
     @Override
-    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
+    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider)
     {
-        load(pkt.getTag()); // read from the nbt in the packet
+    	loadAdditional(pkt.getTag(), provider); // read from the nbt in the packet
     }
 
     /*
@@ -50,10 +46,10 @@ public class TileEntityBase<T extends DataCache> extends BlockEntity
      * server to client
      */
     @Override
-    public final CompoundTag getUpdateTag()
+    public final CompoundTag getUpdateTag(HolderLookup.Provider provider)
     {
-    	CompoundTag tag = super.getUpdateTag();
-        write(tag);
+    	CompoundTag tag = super.getUpdateTag(provider);
+        write(provider, tag);
         return tag;
     }
 
@@ -62,32 +58,51 @@ public class TileEntityBase<T extends DataCache> extends BlockEntity
      * to client
      */
     @Override
-    public final void handleUpdateTag(CompoundTag nbt)
+    public final void handleUpdateTag(CompoundTag nbt, HolderLookup.Provider provider)
     {
-        load(nbt);
+    	loadAdditional(nbt, provider);
     }
 
     @Override
-    public final void load(CompoundTag nbt)
+    public final void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider)
     {
-        super.load(nbt);
-        read(nbt);
+        super.loadAdditional(nbt, provider);
+        read(provider, nbt);
     }
 
     @Override
-    public final void saveAdditional(CompoundTag nbt)
+    public final void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider)
     {
-    	super.saveAdditional(nbt);
-    	write(nbt);
+    	super.saveAdditional(nbt, provider);
+    	write(provider, nbt);
     }
 
-    public void read(CompoundTag nbt)
-    {
-    }
-
-    public void write(CompoundTag nbt)
+    public void read(HolderLookup.Provider provider, CompoundTag nbt)
     {
     }
 
-    protected final T m_cache;
+    public void write(HolderLookup.Provider provider, CompoundTag nbt)
+    {
+    }
+    
+    public BlockPos getNeighborPos(Direction dir)
+    {
+    	return worldPosition.relative(dir);
+    }
+    
+    public BlockEntity getNeighborEntity(Direction dir)
+    {
+    	return level.getBlockEntity(getNeighborPos(dir));
+    }
+    
+    public boolean hasRedstoneSignal()
+    {
+    	return level.hasNeighborSignal(worldPosition);
+    }
+    
+    @Override
+    public int hashCode()
+    {
+    	return worldPosition.hashCode();
+    }
 }

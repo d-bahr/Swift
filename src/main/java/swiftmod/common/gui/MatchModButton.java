@@ -1,9 +1,9 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 
 @OnlyIn(Dist.CLIENT)
@@ -24,9 +24,9 @@ public class MatchModButton extends GuiBooleanStateButton
     private void setTooltip()
     {
         if (getState())
-            setTooltip(new TextComponent("Match mod"));
+            setTooltip(Component.literal("Match mod"));
         else
-            setTooltip(new TextComponent("Ignore mod"));
+            setTooltip(Component.literal("Ignore mod"));
     }
 
     protected void onStateChanged()
@@ -35,8 +35,8 @@ public class MatchModButton extends GuiBooleanStateButton
         setTooltip();
     }
 
-    public static final ResourceLocation MATCH_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation MATCH_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/match_mod.png");
-    public static final ResourceLocation IGNORE_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation IGNORE_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/ignore_mod.png");
 }

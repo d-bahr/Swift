@@ -1,59 +1,49 @@
 package swiftmod.common;
 
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
+
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.IForgeRegistry;
 import swiftmod.pipes.*;
 
 public class SwiftTileEntities
 {
-    public static void registerTileEntities(final RegistryEvent.Register<BlockEntityType<?>> event)
+    public static void registerTileEntities(IEventBus bus)
     {
-        IForgeRegistry<BlockEntityType<?>> registry = event.getRegistry();
-
-        s_basicItemPipeTileEntityType = createTileEntityType(
-                BasicItemPipeTileEntity.getRegistryName(), BasicItemPipeTileEntity::new, SwiftBlocks.s_basicItemPipeBlock);
-        registry.register(s_basicItemPipeTileEntityType);
-
-        s_advancedItemPipeTileEntityType = createTileEntityType(
-                AdvancedItemPipeTileEntity.getRegistryName(), AdvancedItemPipeTileEntity::new, SwiftBlocks.s_advancedItemPipeBlock);
-        registry.register(s_advancedItemPipeTileEntityType);
-
-        s_ultimateItemPipeTileEntityType = createTileEntityType(
-                UltimateItemPipeTileEntity.getRegistryName(), UltimateItemPipeTileEntity::new, SwiftBlocks.s_ultimateItemPipeBlock);
-        registry.register(s_ultimateItemPipeTileEntityType);
-
-        s_basicFluidPipeTileEntityType = createTileEntityType(
-                BasicFluidPipeTileEntity.getRegistryName(), BasicFluidPipeTileEntity::new, SwiftBlocks.s_basicFluidPipeBlock);
-        registry.register(s_basicFluidPipeTileEntityType);
-
-        s_advancedFluidPipeTileEntityType = createTileEntityType(
-                AdvancedFluidPipeTileEntity.getRegistryName(), AdvancedFluidPipeTileEntity::new, SwiftBlocks.s_advancedFluidPipeBlock);
-        registry.register(s_advancedFluidPipeTileEntityType);
-
-        s_ultimateFluidPipeTileEntityType = createTileEntityType(
-                UltimateFluidPipeTileEntity.getRegistryName(), UltimateFluidPipeTileEntity::new, SwiftBlocks.s_ultimateFluidPipeBlock);
-        registry.register(s_ultimateFluidPipeTileEntityType);
-
-        s_tankTileEntityType = createTileEntityType(
-                TankTileEntity.getRegistryName(), TankTileEntity::new, SwiftBlocks.s_tankBlock);
-        registry.register(s_tankTileEntityType);
+    	s_basicItemPipeTileEntityType = s_tileEntities.register(BasicItemPipeTileEntity.getRegistryName(), () -> createTileEntityType(BasicItemPipeTileEntity::new, SwiftBlocks.s_basicItemPipeBlock.get()));
+    	s_advancedItemPipeTileEntityType = s_tileEntities.register(AdvancedItemPipeTileEntity.getRegistryName(), () -> createTileEntityType(AdvancedItemPipeTileEntity::new, SwiftBlocks.s_advancedItemPipeBlock.get()));
+    	s_basicFluidPipeTileEntityType = s_tileEntities.register(BasicFluidPipeTileEntity.getRegistryName(), () -> createTileEntityType(BasicFluidPipeTileEntity::new, SwiftBlocks.s_basicFluidPipeBlock.get()));
+    	s_advancedFluidPipeTileEntityType = s_tileEntities.register(AdvancedFluidPipeTileEntity.getRegistryName(), () -> createTileEntityType(AdvancedFluidPipeTileEntity::new, SwiftBlocks.s_advancedFluidPipeBlock.get()));
+    	s_basicEnergyPipeTileEntityType = s_tileEntities.register(BasicEnergyPipeTileEntity.getRegistryName(), () -> createTileEntityType(BasicEnergyPipeTileEntity::new, SwiftBlocks.s_basicEnergyPipeBlock.get()));
+    	s_advancedEnergyPipeTileEntityType = s_tileEntities.register(AdvancedEnergyPipeTileEntity.getRegistryName(), () -> createTileEntityType(AdvancedEnergyPipeTileEntity::new, SwiftBlocks.s_advancedEnergyPipeBlock.get()));
+    	s_basicOmniPipeTileEntityType = s_tileEntities.register(BasicOmniPipeTileEntity.getRegistryName(), () -> createTileEntityType(BasicOmniPipeTileEntity::new, SwiftBlocks.s_basicOmniPipeBlock.get()));
+    	s_advancedOmniPipeTileEntityType = s_tileEntities.register(AdvancedOmniPipeTileEntity.getRegistryName(), () -> createTileEntityType(AdvancedOmniPipeTileEntity::new, SwiftBlocks.s_advancedOmniPipeBlock.get()));
+    	s_tankTileEntityType = s_tileEntities.register(TankTileEntity.getRegistryName(), () -> createTileEntityType(TankTileEntity::new, SwiftBlocks.s_tankBlock.get()));
+    	s_wormholeTileEntityType = s_tileEntities.register(WormholeTileEntity.getRegistryName(), () -> createTileEntityType(WormholeTileEntity::new, SwiftBlocks.s_wormholeBlock.get()));
+    	
+        s_tileEntities.register(bus);
     }
 
-    private static <T extends BlockEntity> BlockEntityType<T> createTileEntityType(String registryName, BlockEntityType.BlockEntitySupplier<T> factory, Block... blocks)
+    private static <T extends BlockEntity> BlockEntityType<T> createTileEntityType(BlockEntityType.BlockEntitySupplier<T> factory, Block... blocks)
     {
-        BlockEntityType<T> type = BlockEntityType.Builder.of(factory, blocks).build(null);
-        type.setRegistryName(Swift.MOD_NAME, registryName);
-        return type;
+        return BlockEntityType.Builder.of(factory, blocks).build(null);
     }
+    
+    private static DeferredRegister<BlockEntityType<?>> s_tileEntities = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Swift.MOD_NAME);
 
-    public static BlockEntityType<BasicItemPipeTileEntity> s_basicItemPipeTileEntityType;
-    public static BlockEntityType<AdvancedItemPipeTileEntity> s_advancedItemPipeTileEntityType;
-    public static BlockEntityType<UltimateItemPipeTileEntity> s_ultimateItemPipeTileEntityType;
-    public static BlockEntityType<BasicFluidPipeTileEntity> s_basicFluidPipeTileEntityType;
-    public static BlockEntityType<AdvancedFluidPipeTileEntity> s_advancedFluidPipeTileEntityType;
-    public static BlockEntityType<UltimateFluidPipeTileEntity> s_ultimateFluidPipeTileEntityType;
-    public static BlockEntityType<TankTileEntity> s_tankTileEntityType;
+    public static Supplier<BlockEntityType<BasicItemPipeTileEntity>> s_basicItemPipeTileEntityType;
+    public static Supplier<BlockEntityType<AdvancedItemPipeTileEntity>> s_advancedItemPipeTileEntityType;
+    public static Supplier<BlockEntityType<BasicFluidPipeTileEntity>> s_basicFluidPipeTileEntityType;
+    public static Supplier<BlockEntityType<AdvancedFluidPipeTileEntity>> s_advancedFluidPipeTileEntityType;
+    public static Supplier<BlockEntityType<BasicEnergyPipeTileEntity>> s_basicEnergyPipeTileEntityType;
+    public static Supplier<BlockEntityType<AdvancedEnergyPipeTileEntity>> s_advancedEnergyPipeTileEntityType;
+    public static Supplier<BlockEntityType<BasicOmniPipeTileEntity>> s_basicOmniPipeTileEntityType;
+    public static Supplier<BlockEntityType<AdvancedOmniPipeTileEntity>> s_advancedOmniPipeTileEntityType;
+    public static Supplier<BlockEntityType<TankTileEntity>> s_tankTileEntityType;
+    public static Supplier<BlockEntityType<WormholeTileEntity>> s_wormholeTileEntityType;
 }

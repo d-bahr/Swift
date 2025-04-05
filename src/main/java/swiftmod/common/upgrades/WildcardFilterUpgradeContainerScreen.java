@@ -3,8 +3,8 @@ package swiftmod.common.upgrades;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 import swiftmod.common.gui.GuiContainerScreen;
 import swiftmod.common.gui.WildcardFilterWidget;
@@ -50,7 +50,7 @@ public class WildcardFilterUpgradeContainerScreen extends GuiContainerScreen<Wil
         menu.removeFilter(filter);
     }
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/wildcard_filter_background.png");
 
     protected WildcardFilterWidget m_filterWidget;

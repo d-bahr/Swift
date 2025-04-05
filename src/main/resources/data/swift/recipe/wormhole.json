@@ -1,0 +1,25 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "CFC",
+        "DED",
+        "CFC"
+    ],
+    "key": {
+        "C": {
+            "tag": "c:ingots/iron"
+        },
+        "D": {
+            "tag": "c:ingots/gold"
+        },
+        "E": {
+            "tag": "c:ender_pearls"
+        },
+        "F": {
+            "tag": "c:gems/diamond"
+        }
+    },
+    "result": {
+        "id": "swift:wormhole"
+    }
+}

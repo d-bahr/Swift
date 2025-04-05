@@ -5,8 +5,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftTileEntities;
 import swiftmod.common.upgrades.AdvancedSideFluidUpgradeItemStackHandler;
@@ -17,8 +17,8 @@ public class AdvancedFluidPipeTileEntity extends FluidPipeTileEntity
 {
     public AdvancedFluidPipeTileEntity(BlockPos pos, BlockState state)
     {
-        super(SwiftTileEntities.s_advancedFluidPipeTileEntityType, pos, state, createUpgradeInventory(),
-                AdvancedFluidPipeTileEntity::createSideUpgradeInventory);
+        super(SwiftTileEntities.s_advancedFluidPipeTileEntityType.get(), pos, state, createUpgradeInventory(),
+        		Direction.values().length * Direction.values().length, AdvancedFluidPipeTileEntity::createSideUpgradeInventory);
     }
 
     @Override
@@ -40,15 +40,9 @@ public class AdvancedFluidPipeTileEntity extends FluidPipeTileEntity
     }
 
     @Override
-    protected boolean canAcceptTeleportUpgrade()
-    {
-        return false;
-    }
-
-    @Override
     public Component getDisplayName()
     {
-        return new TranslatableComponent(DISPLAY_NAME);
+        return Component.translatable(DISPLAY_NAME);
     }
 
     public static String getRegistryName()
@@ -68,8 +62,8 @@ public class AdvancedFluidPipeTileEntity extends FluidPipeTileEntity
     @Override
     public AbstractContainerMenu createMenu(int windowID, Inventory playerInventory, Player playerEntity)
     {
-        return AdvancedFluidPipeContainer.createContainerServerSide(this, windowID, playerInventory, m_cache,
-                this::refreshFilter, this::onChannelUpdate, m_baseUpgradeInventory, m_sideUpgradeInventories);
+        return AdvancedFluidPipeContainer.createContainerServerSide(windowID, playerInventory, m_cache,
+                this::refreshFilter, getBlockPos(), m_baseUpgradeInventory, m_sideUpgradeInventories);
     }
 
     public static UpgradeInventory createUpgradeInventory()
@@ -77,13 +71,10 @@ public class AdvancedFluidPipeTileEntity extends FluidPipeTileEntity
         return new UpgradeInventory(new AdvancedUpgradeItemStackHandler());
     }
 
-    public static UpgradeInventory createSideUpgradeInventory()
+    public static UpgradeInventory createSideUpgradeInventory(int index)
     {
         return new UpgradeInventory(new AdvancedSideFluidUpgradeItemStackHandler());
     }
-
-    public static int NUM_BASE_UPGRADE_SLOTS = 3;
-    public static int NUM_SIDE_UPGRADE_SLOTS = 2;
 
     private static final String DISPLAY_NAME = "container." + Swift.MOD_NAME + "." + getRegistryName();
 }

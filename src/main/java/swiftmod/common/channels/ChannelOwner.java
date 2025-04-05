@@ -2,8 +2,11 @@ package swiftmod.common.channels;
 
 import java.util.UUID;
 
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import swiftmod.common.SwiftUtils;
 
 public class ChannelOwner
@@ -114,6 +117,10 @@ public class ChannelOwner
         else
             return uuid.compareTo(other.uuid);
     }
+    
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChannelOwner> STREAM_CODEC =
+    		StreamCodec.composite(UUIDUtil.STREAM_CODEC, ChannelOwner::get,
+    				ChannelOwner::new);
 
     private UUID uuid;
 

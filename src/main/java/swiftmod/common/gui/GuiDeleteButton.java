@@ -1,9 +1,9 @@
 package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 
 @OnlyIn(Dist.CLIENT)
@@ -35,8 +35,8 @@ public class GuiDeleteButton extends GuiTextureButton
 
     private void initTooltip()
     {
-        setTooltip(new TextComponent("Delete"));
+        setTooltip(Component.literal("Delete"));
     }
 
-    public static final ResourceLocation TEXTURE = new ResourceLocation(Swift.MOD_NAME, "textures/gui/delete_button.png");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "textures/gui/delete_button.png");
 }

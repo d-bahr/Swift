@@ -3,30 +3,29 @@ package swiftmod.common;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.Util;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
 
-public class TankBlock extends BaseEntityBlock
+public class TankBlock extends AbstractBlock
 {
     public TankBlock()
     {
-        super(PROPERTIES);
+    	super(PROPERTIES);
     }
 
     @Override
@@ -35,42 +34,39 @@ public class TankBlock extends BaseEntityBlock
         return new TankTileEntity(pos, state);
     }
 
-    // render using a BakedModel (mbe01_block_simple.json --> mbe01_block_simple_model.json)
-    // not strictly required because the default (super method) is MODEL.
     @Override
-    public RenderShape getRenderShape(BlockState blockState)
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult traceResult)
     {
-        return RenderShape.MODEL;
+        if (level.isClientSide)
+            return ItemInteractionResult.SUCCESS; // on client side, don't do anything
+
+        if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, traceResult.getDirection()))
+            return ItemInteractionResult.SUCCESS;
+        else
+        	return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
-    public InteractionResult use(BlockState blockState, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult traceResult)
+    public InteractionResult useWithoutItem(BlockState blockState, Level world, BlockPos pos, Player player, BlockHitResult traceResult)
     {
         if (world.isClientSide)
             return InteractionResult.SUCCESS; // on client side, don't do anything
 
-        if (FluidUtil.interactWithFluidHandler(player, hand, world, pos, traceResult.getDirection()))
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof TankTileEntity)
         {
-            return InteractionResult.SUCCESS;
-        }
-        else
-        {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity != null && blockEntity instanceof TankTileEntity)
+            FluidStack stack = ((TankTileEntity) blockEntity).getCache().getFluid();
+            if (stack != null && !stack.isEmpty())
             {
-                FluidStack stack = ((TankTileEntity) blockEntity).getCache().getFluid();
-                if (stack != null && !stack.isEmpty())
-                {
-                    String fluidName = Integer.toString(stack.getAmount()) + " mb "
-                            + stack.getDisplayName().getString();
-                    player.sendMessage(new TextComponent(fluidName), Util.NIL_UUID);
-                    return InteractionResult.SUCCESS;
-                }
+                String fluidName = Integer.toString(stack.getAmount()) + " mb "
+                        + stack.getHoverName().getString();
+                player.sendSystemMessage(Component.literal(fluidName));
+                return InteractionResult.SUCCESS;
             }
-
-            player.sendMessage(new TextComponent("Empty"), Util.NIL_UUID);
-            return InteractionResult.SUCCESS;
         }
+
+        player.sendSystemMessage(Component.literal("Empty"));
+        return InteractionResult.SUCCESS;
     }
     
     @Override
@@ -97,5 +93,5 @@ public class TankBlock extends BaseEntityBlock
         world.sendBlockUpdated(pos, state, state, 3);
     }
 
-    private static final Properties PROPERTIES = Block.Properties.of(Material.STONE).strength(0.5f, 0.5f);
+    private static final Properties PROPERTIES = BlockBehaviour.Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(0.5F, 0.5F);
 }

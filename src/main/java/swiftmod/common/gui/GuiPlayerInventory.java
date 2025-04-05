@@ -2,8 +2,8 @@ package swiftmod.common.gui;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.PlayerInventoryContainer;
 import swiftmod.common.Swift;
 
@@ -37,5 +37,5 @@ public class GuiPlayerInventory extends GuiTexture
     }
 
     public static final ResourceLocation DEFAULT_TEXTURE =
-            new ResourceLocation(Swift.MOD_NAME, "textures/gui/player_inventory.png");
+            ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "textures/gui/player_inventory.png");
 }

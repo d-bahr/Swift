@@ -1,15 +1,12 @@
 package swiftmod.common.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.ChatFormatting;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftUtils;
@@ -34,8 +31,8 @@ public class ColoredDirectionButton extends GuiTextureButton
         m_state = 0;
         m_rainbowTickCounter = 0;
         m_handler = handler;
-        m_disabledTexture = new ResourceLocation(Swift.MOD_NAME, "textures/gui/disabled_button.png");
-        m_textOverlay = new GuiLabel(screen, 0, 0, width + 1, height + 1, TextComponent.EMPTY);
+        m_disabledTexture = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "textures/gui/disabled_button.png");
+        m_textOverlay = new GuiLabel(screen, 0, 0, width + 1, height + 1, Component.empty());
         m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
         m_textOverlay.setAlignment(GuiVerticalAlignment.Middle, GuiHorizontalAlignment.Center);
         m_textOverlay.setFontScale(1.4f);
@@ -98,12 +95,6 @@ public class ColoredDirectionButton extends GuiTextureButton
             m_handler.onStateChanged(this, m_state);
 
         return true;
-    }
-    
-    @Override
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
-    {
-        super.draw(matrixStack, mouseX, mouseY, partialTicks);
     }
     
     @Override
@@ -175,10 +166,10 @@ public class ColoredDirectionButton extends GuiTextureButton
                 m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN));
                 break;
             case 11:
-                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.AQUA));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_AQUA));
                 break;
             case 12:
-                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_AQUA));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.AQUA));
                 break;
             case 13:
                 m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_BLUE));
@@ -202,7 +193,7 @@ public class ColoredDirectionButton extends GuiTextureButton
         Component[] strs = new Component[dirs.length];
         for (int i = 0; i < dirs.length; ++i)
         {
-            strs[i] = new TextComponent(dirs[i].getName().substring(0, 1).toUpperCase()).withStyle(ChatFormatting.BOLD);
+            strs[i] = Component.literal(dirs[i].getName().substring(0, 1).toUpperCase()).withStyle(ChatFormatting.BOLD);
         }
         return strs;
     }

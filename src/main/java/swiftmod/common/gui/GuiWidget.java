@@ -6,13 +6,13 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 
 @OnlyIn(Dist.CLIENT)
@@ -37,7 +37,7 @@ public class GuiWidget extends AbstractWidget implements IDrawable
 
     public int top()
     {
-        return y;
+        return getY();
     }
 
     public int bottom()
@@ -47,7 +47,7 @@ public class GuiWidget extends AbstractWidget implements IDrawable
 
     public int left()
     {
-        return x;
+        return getX();
     }
 
     public int right()
@@ -113,12 +113,6 @@ public class GuiWidget extends AbstractWidget implements IDrawable
         return containsMouseRelative((int) mouseX, (int) mouseY);
     }
 
-    public void setPosition(int x, int y)
-    {
-        this.x = x;
-        this.y = y;
-    }
-
     public final void addChild(GuiWidget child)
     {
         child.m_parent = this;
@@ -165,11 +159,6 @@ public class GuiWidget extends AbstractWidget implements IDrawable
         return m_screen.getMinecraft();
     }
 
-    public ItemRenderer getItemRenderer()
-    {
-    	return m_screen.getItemRenderer();
-    }
-
     @SuppressWarnings("resource")
     public LocalPlayer getPlayer()
     {
@@ -205,6 +194,10 @@ public class GuiWidget extends AbstractWidget implements IDrawable
                 onFocusedChanged(focused);
             }
         }
+    }
+    
+    protected void onFocusedChanged(boolean focused)
+    {
     }
 
     public void setCanLoseFocus(boolean canLoseFocus)
@@ -448,8 +441,15 @@ public class GuiWidget extends AbstractWidget implements IDrawable
         }
     }
 
+    // Note: Don't override mouseClicked event because this messes with focus
+    // (see ContainerEventHandler.mosueClicked). Just implement mousePressed instead.
     @Override
     public final boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
+        return false;
+    }
+
+    public boolean mousePressed(double mouseX, double mouseY, int button)
     {
         if (active && visible)
         {
@@ -497,13 +497,13 @@ public class GuiWidget extends AbstractWidget implements IDrawable
     }
 
     @Override
-    public final boolean mouseScrolled(double mouseX, double mouseY, double delta)
+    public final boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY)
     {
         if (active && visible)
         {
             if (containsMouse(mouseX, mouseY))
             {
-                return onMouseScrollWorker(mouseX, mouseY, delta);
+                return onMouseScrollWorker(mouseX, mouseY, scrollY);
             }
         }
         return false;
@@ -521,27 +521,29 @@ public class GuiWidget extends AbstractWidget implements IDrawable
         // User can also just override to process additional mouse buttons.
         return button == 0 || button == 1 || button == 2;
     }
-
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    
+    @Override
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
 
     }
 
-    private final void drawWorker(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    private final void drawWorker(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
         if (visible)
         {
-            draw(matrixStack, mouseX, mouseY, partialTicks);
-            matrixStack.pushPose();
-            matrixStack.translate(x, y, z);
+            draw(graphics, mouseX, mouseY, partialTicks);
+            PoseStack pose = graphics.pose();
+            pose.pushPose();
+            pose.translate(getX(), getY(), getZ());
             for (int i = 0; i < m_children.size(); ++i)
-                m_children.get(i).drawWorker(matrixStack, mouseX, mouseY, partialTicks);
-            matrixStack.popPose();
+                m_children.get(i).drawWorker(graphics, mouseX, mouseY, partialTicks);
+            pose.popPose();
         }
     }
 
     @Override
-    public final void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+    public final void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
         if (visible)
         {
@@ -558,10 +560,11 @@ public class GuiWidget extends AbstractWidget implements IDrawable
                 top = m_parent.topAbsolute();
             }
 
-            matrixStack.pushPose();
-            matrixStack.translate(left, top, 0.0);
-            drawWorker(matrixStack, mouseX, mouseY, partialTicks);
-            matrixStack.popPose();
+            PoseStack pose = graphics.pose();
+            pose.pushPose();
+            pose.translate(left, top, 0.0);
+            drawWorker(graphics, mouseX, mouseY, partialTicks);
+            pose.popPose();
         }
     }
 
@@ -632,7 +635,7 @@ public class GuiWidget extends AbstractWidget implements IDrawable
     }
 
 	@Override
-	public void updateNarration(NarrationElementOutput output)
+	public void updateWidgetNarration(NarrationElementOutput output)
 	{
 		//defaultButtonNarrationText(output);
 	}

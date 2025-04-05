@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "minecraft:wheat"
+        },
+        {
+            "item": "minecraft:wheat"
+        },
+        {
+            "item": "minecraft:wheat"
+        },
+        {
+            "item": "minecraft:wheat"
+        },
+        {
+            "tag": "c:dusts/redstone"
+        }
+    ],
+    "result": {
+        "id": "swift:copy_pasta"
+    }
+}

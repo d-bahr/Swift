@@ -1,62 +1,38 @@
 package swiftmod.common;
 
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import swiftmod.pipes.*;
 
 public class SwiftBlocks
 {
-    public static void registerBlocks(final RegistryEvent.Register<Block> event)
+    public static void registerBlocks(IEventBus bus)
     {
-        IForgeRegistry<Block> registry = event.getRegistry();
-
-        s_basicItemPipeBlock = createBlock("basic_item_pipe", new BasicItemPipeBlock());
-        registry.register(s_basicItemPipeBlock);
-
-        s_advancedItemPipeBlock = createBlock("advanced_item_pipe", new AdvancedItemPipeBlock());
-        registry.register(s_advancedItemPipeBlock);
-
-        s_ultimateItemPipeBlock = createBlock("ultimate_item_pipe", new UltimateItemPipeBlock());
-        registry.register(s_ultimateItemPipeBlock);
-
-        s_basicFluidPipeBlock = createBlock("basic_fluid_pipe", new BasicFluidPipeBlock());
-        registry.register(s_basicFluidPipeBlock);
-
-        s_advancedFluidPipeBlock = createBlock("advanced_fluid_pipe", new AdvancedFluidPipeBlock());
-        registry.register(s_advancedFluidPipeBlock);
-
-        s_ultimateFluidPipeBlock = createBlock("ultimate_fluid_pipe", new UltimateFluidPipeBlock());
-        registry.register(s_ultimateFluidPipeBlock);
-
-        s_tankBlock = createBlock("tank", new TankBlock());
-        registry.register(s_tankBlock);
+    	s_basicItemPipeBlock      = s_blocks.register("basic_item_pipe", BasicItemPipeBlock::new);
+    	s_advancedItemPipeBlock   = s_blocks.register("advanced_item_pipe", AdvancedItemPipeBlock::new);
+    	s_basicFluidPipeBlock     = s_blocks.register("basic_fluid_pipe", BasicFluidPipeBlock::new);
+    	s_advancedFluidPipeBlock  = s_blocks.register("advanced_fluid_pipe", AdvancedFluidPipeBlock::new);
+    	s_basicEnergyPipeBlock    = s_blocks.register("basic_energy_pipe", BasicEnergyPipeBlock::new);
+    	s_advancedEnergyPipeBlock = s_blocks.register("advanced_energy_pipe", AdvancedEnergyPipeBlock::new);
+    	s_basicOmniPipeBlock      = s_blocks.register("basic_omni_pipe", BasicOmniPipeBlock::new);
+    	s_advancedOmniPipeBlock   = s_blocks.register("advanced_omni_pipe", AdvancedOmniPipeBlock::new);
+    	s_tankBlock               = s_blocks.register("tank", TankBlock::new);
+    	s_wormholeBlock           = s_blocks.register("wormhole", WormholeBlock::new);
+    	
+    	s_blocks.register(bus);
     }
+    
+    private static DeferredRegister.Blocks s_blocks = DeferredRegister.createBlocks(Swift.MOD_NAME);
 
-    public static void registerRenderTypes()
-    {
-        ItemBlockRenderTypes.setRenderLayer(s_basicItemPipeBlock, RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(s_advancedItemPipeBlock, RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(s_ultimateItemPipeBlock, RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(s_basicFluidPipeBlock, RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(s_advancedFluidPipeBlock, RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(s_ultimateFluidPipeBlock, RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(s_tankBlock, RenderType.solid());
-    }
-
-    private static <T extends Block> T createBlock(String registryName, T t)
-    {
-        t.setRegistryName(Swift.MOD_NAME, registryName);
-        return t;
-    }
-
-    public static BasicItemPipeBlock s_basicItemPipeBlock;
-    public static AdvancedItemPipeBlock s_advancedItemPipeBlock;
-    public static UltimateItemPipeBlock s_ultimateItemPipeBlock;
-    public static BasicFluidPipeBlock s_basicFluidPipeBlock;
-    public static AdvancedFluidPipeBlock s_advancedFluidPipeBlock;
-    public static UltimateFluidPipeBlock s_ultimateFluidPipeBlock;
-    public static TankBlock s_tankBlock;
+    public static DeferredBlock<BasicItemPipeBlock> s_basicItemPipeBlock;
+    public static DeferredBlock<AdvancedItemPipeBlock> s_advancedItemPipeBlock;
+    public static DeferredBlock<BasicFluidPipeBlock> s_basicFluidPipeBlock;
+    public static DeferredBlock<AdvancedFluidPipeBlock> s_advancedFluidPipeBlock;
+    public static DeferredBlock<BasicEnergyPipeBlock> s_basicEnergyPipeBlock;
+    public static DeferredBlock<AdvancedEnergyPipeBlock> s_advancedEnergyPipeBlock;
+    public static DeferredBlock<BasicOmniPipeBlock> s_basicOmniPipeBlock;
+    public static DeferredBlock<AdvancedOmniPipeBlock> s_advancedOmniPipeBlock;
+    public static DeferredBlock<TankBlock> s_tankBlock;
+    public static DeferredBlock<WormholeBlock> s_wormholeBlock;
 }

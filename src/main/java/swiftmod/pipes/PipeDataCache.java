@@ -2,117 +2,262 @@ package swiftmod.pipes;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.core.Direction;
+import swiftmod.common.Color;
 import swiftmod.common.DataCache;
 import swiftmod.common.NeighboringItems;
 import swiftmod.common.RedstoneControl;
-import swiftmod.common.SwiftUtils;
 import swiftmod.common.TransferDirection;
-import swiftmod.common.upgrades.ChannelConfigurationDataCache;
 
 public class PipeDataCache implements DataCache
 {
+    @FunctionalInterface
+    public interface TransferDirectionChangedCallback
+    {
+        void onChanged(int index, TransferDirection transferDir);
+    };
+
+    @FunctionalInterface
+    public interface RedstoneControlChangedCallback
+    {
+        void onChanged(int index, RedstoneControl rcOld, RedstoneControl rcNew);
+    };
+
+    @FunctionalInterface
+    public interface ColorChangedCallback
+    {
+        void onChanged(int index, Color cOld, Color cNew);
+    };
+
+    @FunctionalInterface
+    public interface PriorityChangedCallback
+    {
+        void onChanged(int index, int priorityNew, int priorityOld);
+    };
+    
     public PipeDataCache()
     {
-        int len = Direction.values().length;
-
-        redstoneControls = new RedstoneControl[len];
-        for (int i = 0; i < redstoneControls.length; ++i)
+    	this(Direction.values().length);
+    }
+    
+    public PipeDataCache(int numIndices)
+    {
+        redstoneControls = new RedstoneControl[numIndices];
+        transferDirections = new TransferDirection[numIndices];
+        colors = new Color[numIndices];
+        priorities = new int[numIndices];
+        
+        for (int i = 0; i < numIndices; ++i)
+        {
             redstoneControls[i] = RedstoneControl.Disabled;
-
-        transferDirections = new TransferDirection[len];
-        for (int i = 0; i < transferDirections.length; ++i)
             transferDirections[i] = TransferDirection.Extract;
-
-        channelConfiguration = new ChannelConfigurationDataCache();
+        	colors[i] = Color.Transparent;
+        	priorities[i] = 0;
+        }
+        
+        m_transferDirectionChangedCallback = null;
+        m_redstoneControlChangedCallback = null;
+        m_colorChangedCallback = null;
+        m_priorityChangedCallback = null;
+    }
+    
+    public int getDataSize()
+    {
+    	return redstoneControls.length;
     }
 
-    public void serialize(FriendlyByteBuf buffer, NeighboringItems items)
+    public void setTransferDirectionChangedCallback(TransferDirectionChangedCallback callback)
+    {
+    	m_transferDirectionChangedCallback = callback;
+    }
+
+    public void setRedstoneControlChangedCallback(RedstoneControlChangedCallback callback)
+    {
+    	m_redstoneControlChangedCallback = callback;
+    }
+
+    public void setColorChangedCallback(ColorChangedCallback callback)
+    {
+    	m_colorChangedCallback = callback;
+    }
+
+    public void setPriorityChangedCallback(PriorityChangedCallback callback)
+    {
+    	m_priorityChangedCallback = callback;
+    }
+
+    public void serialize(RegistryFriendlyByteBuf buffer, NeighboringItems items)
     {
         write(buffer);
         items.serialize(buffer);
     }
 
-    public NeighboringItems deserialize(FriendlyByteBuf buffer)
+    public NeighboringItems deserialize(RegistryFriendlyByteBuf buffer)
     {
         read(buffer);
         return NeighboringItems.deserialize(buffer);
     }
 
-    public void write(CompoundTag nbt, boolean writeChannelData)
+    public void write(CompoundTag nbt)
     {
         RedstoneControl.writeArray(nbt, redstoneControls);
         TransferDirection.writeArray(nbt, transferDirections);
-        channelConfiguration.write(nbt, writeChannelData);
-    }
-
-    public void write(CompoundTag nbt)
-    {
-        write(nbt, true);
+        Color.writeArray(nbt, colors);
+        nbt.putIntArray("priorities", priorities);
     }
 
     public void read(CompoundTag nbt)
     {
         redstoneControls = RedstoneControl.readArray(nbt);
         transferDirections = TransferDirection.readArray(nbt);
-        channelConfiguration.read(nbt);
+        colors = Color.readArray(nbt);
+        priorities = nbt.getIntArray("priorities");
     }
 
     public void write(FriendlyByteBuf buffer)
     {
         RedstoneControl.writeArray(buffer, redstoneControls);
         TransferDirection.writeArray(buffer, transferDirections);
-        channelConfiguration.write(buffer);
+        Color.writeArray(buffer, colors);
+        buffer.writeVarIntArray(priorities);
     }
 
     public void read(FriendlyByteBuf buffer)
     {
         redstoneControls = RedstoneControl.readArray(buffer);
         transferDirections = TransferDirection.readArray(buffer);
-        channelConfiguration.read(buffer);
+        colors = Color.readArray(buffer);
+        priorities = buffer.readVarIntArray();
     }
 
-    public void writeTransferDirection(FriendlyByteBuf buffer, Direction direction)
+    public void writeTransferDirection(FriendlyByteBuf buffer, int index)
     {
-        TransferDirection.write(buffer, transferDirections[SwiftUtils.dirToIndex(direction)]);
+        TransferDirection.write(buffer, transferDirections[index]);
     }
 
-    public void readTransferDirection(FriendlyByteBuf buffer, Direction direction)
+    public void readTransferDirection(FriendlyByteBuf buffer, int index)
     {
-        transferDirections[SwiftUtils.dirToIndex(direction)] = TransferDirection.read(buffer);
+        transferDirections[index] = TransferDirection.read(buffer);
     }
 
-    public void writeRedstoneControl(FriendlyByteBuf buffer, Direction direction)
+    public TransferDirection getTransferDirection(int index)
     {
-        RedstoneControl.write(buffer, redstoneControls[SwiftUtils.dirToIndex(direction)]);
+        return transferDirections[index];
     }
-
-    public void readRedstoneControl(FriendlyByteBuf buffer, Direction direction)
+    
+    public TransferDirection[] getTransferDirections()
     {
-        redstoneControls[SwiftUtils.dirToIndex(direction)] = RedstoneControl.read(buffer);
+    	return transferDirections;
     }
 
-    public RedstoneControl getRedstoneControl(Direction direction)
+    public void setTransferDirection(int index, TransferDirection td)
     {
-        return redstoneControls[SwiftUtils.dirToIndex(direction)];
+        transferDirections[index] = td;
+        if (m_transferDirectionChangedCallback != null)
+        	m_transferDirectionChangedCallback.onChanged(index, td);
     }
 
-    public void setRedstoneControl(Direction direction, RedstoneControl rc)
+    public void writeRedstoneControl(FriendlyByteBuf buffer, int index)
     {
-        redstoneControls[SwiftUtils.dirToIndex(direction)] = rc;
+        RedstoneControl.write(buffer, redstoneControls[index]);
     }
 
-    public TransferDirection getTransferDirection(Direction direction)
+    public void readRedstoneControl(FriendlyByteBuf buffer, int index)
     {
-        return transferDirections[SwiftUtils.dirToIndex(direction)];
+        redstoneControls[index] = RedstoneControl.read(buffer);
     }
 
-    public void setTransferDirection(Direction direction, TransferDirection td)
+    public RedstoneControl getRedstoneControl(int index)
     {
-        transferDirections[SwiftUtils.dirToIndex(direction)] = td;
+        return redstoneControls[index];
+    }
+    
+    public RedstoneControl[] getRedstoneControls()
+    {
+    	return redstoneControls;
     }
 
-    public RedstoneControl[] redstoneControls;
-    public TransferDirection[] transferDirections;
-    public ChannelConfigurationDataCache channelConfiguration;
+    public void setRedstoneControl(int index, RedstoneControl rc)
+    {
+    	RedstoneControl rcOld = redstoneControls[index];
+    	if (rcOld != rc)
+    	{
+	        redstoneControls[index] = rc;
+	        if (m_redstoneControlChangedCallback != null)
+	        	m_redstoneControlChangedCallback.onChanged(index, rcOld, rc);
+    	}
+    }
+
+    public void writeColor(FriendlyByteBuf buffer, int index)
+    {
+    	Color.write(buffer, colors[index]);
+    }
+
+    public void readColor(FriendlyByteBuf buffer, int index)
+    {
+    	colors[index] = Color.read(buffer);
+    }
+
+    public Color getColor(int index)
+    {
+        return colors[index];
+    }
+    
+    public Color[] getColors()
+    {
+    	return colors;
+    }
+
+    public void setColor(int index, Color color)
+    {
+    	Color cOld = colors[index];
+    	if (cOld != color)
+    	{
+	    	colors[index] = color;
+	    	if (m_colorChangedCallback != null)
+	    		m_colorChangedCallback.onChanged(index, cOld, color);
+    	}
+    }
+
+    public void writePriority(FriendlyByteBuf buffer, int index)
+    {
+    	buffer.writeInt(priorities[index]);
+    }
+
+    public void readPriority(FriendlyByteBuf buffer, int index)
+    {
+    	priorities[index] = buffer.readInt();
+    }
+
+    public int getPriority(int index)
+    {
+        return priorities[index];
+    }
+    
+    public int[] getPriorities()
+    {
+    	return priorities;
+    }
+
+    public void setPriority(int index, int priority)
+    {
+    	int priorityOld = priorities[index];
+    	if (priority != priorityOld)
+    	{
+	    	priorities[index] = priority;
+	    	if (m_priorityChangedCallback != null)
+	    		m_priorityChangedCallback.onChanged(index, priorityOld, priority);
+    	}
+    }
+
+    protected RedstoneControl[] redstoneControls;
+    protected TransferDirection[] transferDirections;
+    protected Color[] colors;
+    protected int[] priorities;
+    
+    protected TransferDirectionChangedCallback m_transferDirectionChangedCallback;
+    protected RedstoneControlChangedCallback m_redstoneControlChangedCallback;
+    protected ColorChangedCallback m_colorChangedCallback;
+    protected PriorityChangedCallback m_priorityChangedCallback;
 }

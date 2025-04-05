@@ -1,5 +1,6 @@
 {
     "parent": "block/cube",
+    "render_type": "minecraft:solid",
     "textures": {
         "down": "swift:block/tank",
         "up": "swift:block/tank",
