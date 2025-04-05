@@ -5,24 +5,26 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import swiftmod.common.IDataCacheContainer;
 import swiftmod.common.SwiftContainers;
 import swiftmod.common.SwiftItems;
-import swiftmod.common.SwiftNetwork;
-import swiftmod.common.client.WildcardFilterPacket;
+import swiftmod.common.client.ItemWildcardFilterPacket;
 
-public class WildcardFilterUpgradeContainer extends AbstractContainerMenu implements WildcardFilterPacket.Handler, IDataCacheContainer<WildcardFilterUpgradeDataCache>
+public class WildcardFilterUpgradeContainer extends AbstractContainerMenu
+	// In this case using ItemWildcard vs FluidWildcard doesn't matter; we just pick one.
+	implements ItemWildcardFilterPacket.Handler, IDataCacheContainer<WildcardFilterUpgradeDataCache>
 {
     protected WildcardFilterUpgradeContainer(int windowID, Inventory playerInventory)
     {
-        super(SwiftContainers.s_wildcardFilterContainertype.get(), windowID);
+        super(SwiftContainers.s_wildcardFilterContainerType.get(), windowID);
         m_cache = new WildcardFilterUpgradeDataCache();
     }
 
-    protected WildcardFilterUpgradeContainer(int windowID, Inventory playerInventory, FriendlyByteBuf extraData)
+    protected WildcardFilterUpgradeContainer(int windowID, Inventory playerInventory, RegistryFriendlyByteBuf extraData)
     {
-        super(SwiftContainers.s_wildcardFilterContainertype.get(), windowID);
+        super(SwiftContainers.s_wildcardFilterContainerType.get(), windowID);
         m_cache = new WildcardFilterUpgradeDataCache();
         decode(extraData);
     }
@@ -47,34 +49,34 @@ public class WildcardFilterUpgradeContainer extends AbstractContainerMenu implem
     {
         getCache().addFilter(filter);
 
-        WildcardFilterPacket updatePacket = new WildcardFilterPacket();
+        ItemWildcardFilterPacket updatePacket = new ItemWildcardFilterPacket();
         updatePacket.filter = filter;
         updatePacket.add = true;
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+        PacketDistributor.sendToServer(updatePacket);
     }
 
     public void removeFilter(String filter)
     {
         getCache().removeFilter(filter);
 
-        WildcardFilterPacket updatePacket = new WildcardFilterPacket();
+        ItemWildcardFilterPacket updatePacket = new ItemWildcardFilterPacket();
         updatePacket.filter = filter;
         updatePacket.add = false;
-        SwiftNetwork.mainChannel.sendToServer(updatePacket);
+        PacketDistributor.sendToServer(updatePacket);
     }
 
-    public static void encode(Player player, ItemStack heldItem, FriendlyByteBuf buffer)
+    public static void encode(Player player, ItemStack heldItem, RegistryFriendlyByteBuf buffer)
     {
-        buffer.writeItemStack(heldItem, false);
+    	ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, heldItem);
     }
 
-    public void decode(FriendlyByteBuf buffer)
+    public void decode(RegistryFriendlyByteBuf buffer)
     {
         m_cache.read(buffer);
     }
 
     @Override
-    public void handle(ServerPlayer player, WildcardFilterPacket packet)
+    public void handle(ServerPlayer player, ItemWildcardFilterPacket packet)
     {
         ItemStack itemStack = player.getMainHandItem();
         if (itemStack.getItem() == SwiftItems.s_wildcardFilterUpgradeItem.get())
@@ -98,7 +100,7 @@ public class WildcardFilterUpgradeContainer extends AbstractContainerMenu implem
     }
 
     public static WildcardFilterUpgradeContainer createContainerClientSide(int windowID, Inventory playerInventory,
-            FriendlyByteBuf extraData)
+    		RegistryFriendlyByteBuf extraData)
     {
         return new WildcardFilterUpgradeContainer(windowID, playerInventory, extraData);
     }

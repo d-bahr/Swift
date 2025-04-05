@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " D ",
+        "DED",
+        " D "
+    ],
+    "key": {
+        "D": {
+            "tag": "c:ingots/gold"
+        },
+        "E": {
+            "item": "swift:basic_fluid_pipe"
+        }
+    },
+    "result": {
+        "id": "swift:advanced_fluid_pipe"
+    }
+}

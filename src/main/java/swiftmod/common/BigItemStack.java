@@ -1,8 +1,15 @@
 package swiftmod.common;
 
 import net.minecraft.world.item.ItemStack;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 /**
  * An item stack with the capability to hold more than 255 items (which is the maximum a vanilla
@@ -27,14 +34,9 @@ public class BigItemStack
         itemStack = stack;
     }
 
-    public BigItemStack(CompoundTag nbt)
+    public BigItemStack(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        read(nbt);
-    }
-
-    public BigItemStack(FriendlyByteBuf buffer)
-    {
-        read(buffer);
+        read(provider, nbt);
     }
 
     public void clear()
@@ -43,28 +45,16 @@ public class BigItemStack
         itemStack = ItemStack.EMPTY;
     }
 
-    public void write(CompoundTag nbt)
+    public void write(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        itemStack.save(nbt);
+        itemStack.save(provider, nbt);
         nbt.putInt(SwiftUtils.tagName("bigCount"), count);
     }
 
-    public void read(CompoundTag nbt)
+    public void read(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        itemStack = ItemStack.of(nbt);
+        itemStack = ItemStack.parseOptional(provider, nbt);
         count = nbt.getInt(SwiftUtils.tagName("bigCount"));
-    }
-
-    public void write(FriendlyByteBuf buffer)
-    {
-        buffer.writeItemStack(itemStack, false);
-        buffer.writeInt(count);
-    }
-
-    public void read(FriendlyByteBuf buffer)
-    {
-        itemStack = buffer.readItem();
-        count = buffer.readInt();
     }
 
     public void setCount(int c)
@@ -99,4 +89,15 @@ public class BigItemStack
 
     private int count;
     private ItemStack itemStack;
+
+    public static final Codec<BigItemStack> CODEC = RecordCodecBuilder.create(instance ->
+    	instance.group(
+    			ItemStack.OPTIONAL_CODEC.fieldOf("i").forGetter(BigItemStack::getItemStack),
+    			Codec.INT.fieldOf("c").forGetter(BigItemStack::getCount))
+    	.apply(instance, BigItemStack::new));
+    
+    public static final StreamCodec<RegistryFriendlyByteBuf, BigItemStack> STREAM_CODEC =
+    		StreamCodec.composite(ItemStack.OPTIONAL_STREAM_CODEC, BigItemStack::getItemStack,
+    				ByteBufCodecs.VAR_INT, BigItemStack::getCount,
+    				BigItemStack::new);
 }

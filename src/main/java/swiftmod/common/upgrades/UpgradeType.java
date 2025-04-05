@@ -1,5 +1,10 @@
 package swiftmod.common.upgrades;
 
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
+
 public enum UpgradeType
 {
     SpeedUpgrade(0),
@@ -25,6 +30,10 @@ public enum UpgradeType
     {
         return index;
     }
+    
+    private static final java.util.function.IntFunction<UpgradeType> BY_ID = ByIdMap.continuous(UpgradeType::ordinal, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
+    
+    public static final StreamCodec<ByteBuf, UpgradeType> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, UpgradeType::ordinal);
 
     private static final UpgradeType[] BY_INDEX =
     {

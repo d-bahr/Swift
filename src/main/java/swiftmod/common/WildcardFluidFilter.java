@@ -4,14 +4,20 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 
 import net.minecraft.core.Holder.Reference;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class WildcardFluidFilter extends WildcardFilter<FluidStack, Fluid>
 {
     public WildcardFluidFilter()
     {
         super();
+    }
+
+    public WildcardFluidFilter(ItemStack itemStack)
+    {
+        super(itemStack);
     }
 
     public WildcardFluidFilter(String filter)

@@ -1,0 +1,91 @@
+{
+    "parent": "block/cube",
+    "render_type": "minecraft:cutout",
+    "textures":
+    {
+        "particle": "block/stone",
+        "attachment": "swift:block/pipe_attachment",
+        "edge": "swift:block/pipe_attachment_edge"
+    },
+    "elements":
+    [
+        {
+            "from": [ 10, 6, 6 ],
+            "to": [ 15.5, 10, 10 ],
+            "faces":
+            {
+                "down":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#line",
+                    "rotation": 90
+                },
+                "up":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#line",
+                    "rotation": 90
+                },
+                "north":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#line",
+                    "rotation": 90
+                },
+                "south":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#line",
+                    "rotation": 90
+                }
+            }
+        },
+        {
+            "from": [ 15.5, 2, 2 ],
+            "to": [ 16, 14, 14 ],
+            "faces":
+            {
+                "down":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#edge",
+                    "rotation": 90,
+                    "tintindex": 5
+                },
+                "up":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#edge",
+                    "rotation": 90,
+                    "tintindex": 5
+                },
+                "north":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#edge",
+                    "rotation": 90,
+                    "tintindex": 5
+                },
+                "south":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#edge",
+                    "rotation": 90,
+                    "tintindex": 5
+                },
+                "east":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#attachment",
+                    "tintindex": 5
+                },
+                "west":
+                {
+                    "uv": [0, 0, 16, 16],
+                    "texture": "#attachment",
+                    "tintindex": 5
+                }
+            }
+        }
+    ]
+}

@@ -1,11 +1,19 @@
 package swiftmod.common.client;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraft.util.ByIdMap;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import swiftmod.common.Swift;
 import swiftmod.common.channels.Channel;
 import swiftmod.common.channels.ChannelData;
 import swiftmod.common.channels.ChannelSpec;
+import swiftmod.common.channels.ChannelType;
 
 public class ChannelConfigurationPacket extends Packet
 {
@@ -20,6 +28,10 @@ public class ChannelConfigurationPacket extends Packet
         Delete(1),
         Set(2),
         Unset(3);
+        
+        private static final java.util.function.IntFunction<Type> BY_ID = ByIdMap.continuous(Type::ordinal, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
+        
+        public static final StreamCodec<ByteBuf, Type> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, Type::ordinal);
 
         private static final Type[] BY_INDEX = { Add, Delete, Set, Unset};
 
@@ -41,9 +53,9 @@ public class ChannelConfigurationPacket extends Packet
         }
     };
 
-    public ChannelConfigurationPacket()
+    public ChannelConfigurationPacket(ChannelType t)
     {
-        this(new Channel<ChannelData>(ChannelData::new), Type.Unset);
+        this(new Channel<ChannelData>(t, ChannelData::new), Type.Unset);
     }
 
     public ChannelConfigurationPacket(Channel<ChannelData> ch)
@@ -53,6 +65,7 @@ public class ChannelConfigurationPacket extends Packet
 
     public ChannelConfigurationPacket(Channel<ChannelData> ch, Type t)
     {
+    	super(TYPE);
         type = t;
         channel = ch;
     }
@@ -61,41 +74,34 @@ public class ChannelConfigurationPacket extends Packet
     {
         this(new Channel<ChannelData>(spec, ChannelData::new), t);
     }
-
-    public ChannelConfigurationPacket(FriendlyByteBuf buffer)
+    
+    public Type getType()
     {
-        this();
-        decode(buffer);
+    	return type;
     }
-
-    public void decode(FriendlyByteBuf buffer)
+    
+    public Channel<ChannelData> getChannel()
     {
-        type = Type.fromInt(buffer.readByte());
-        channel.read(buffer);
-    }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        buffer.writeByte((byte)type.toInt());
-        channel.write(buffer);
+    	return channel;
     }
 
     public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
-        {
-            Handler handler = (Handler) player.containerMenu;
-            handler.handle(player, this);
-        }
+        	((Handler) player.containerMenu).handle(player, this);
     }
 
-    public static void register(SimpleChannel channel)
+    public static void register(PayloadRegistrar registrar)
     {
-        channel.registerMessage(PacketIDs.ChannelConfiguration.value(),
-                ChannelConfigurationPacket.class, ChannelConfigurationPacket::encode,
-                ChannelConfigurationPacket::new, ChannelConfigurationPacket::handle);
+    	registrar.playToServer(TYPE, STREAM_CODEC, ChannelConfigurationPacket::handle);
     }
 
     public Type type;
     public Channel<ChannelData> channel;
+    
+    public static final CustomPacketPayload.Type<ChannelConfigurationPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "channel_cfg"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChannelConfigurationPacket> STREAM_CODEC =
+    		StreamCodec.composite(Channel.makeStreamCodec(), ChannelConfigurationPacket::getChannel,
+    				Type.STREAM_CODEC, ChannelConfigurationPacket::getType,
+    				ChannelConfigurationPacket::new);
 }

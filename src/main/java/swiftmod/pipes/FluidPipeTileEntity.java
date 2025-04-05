@@ -1,63 +1,119 @@
 package swiftmod.pipes;
 
-import java.util.function.Supplier;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.neoforged.neoforge.fluids.FluidStack;
+import swiftmod.common.Color;
 import swiftmod.common.Filter;
 import swiftmod.common.NeighboringItems;
 import swiftmod.common.SwiftUtils;
-import swiftmod.common.channels.BaseChannelManager;
-import swiftmod.common.channels.ChannelData;
-import swiftmod.common.channels.ChannelSpec;
-import swiftmod.common.channels.OwnerBasedChannelManager;
 import swiftmod.common.upgrades.IFluidFilterUpgradeItem;
 import swiftmod.common.upgrades.UpgradeInventory;
 import swiftmod.common.upgrades.UpgradeType;
+import swiftmod.pipes.networks.PipeNetwork;
 
-public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, IFluidHandler, FluidStack>
+public abstract class FluidPipeTileEntity extends PipeTileEntity
 {
+    @SuppressWarnings("unchecked")
     public FluidPipeTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, UpgradeInventory upgradeInventory,
-            Supplier<UpgradeInventory> sideUpgradeInventorySupplier)
+    		int numSideInventories, SideUpgradeInventoryBuilder sideUpgradeInventorySupplier)
     {
-        super(type, pos, state, new PipeDataCache(), upgradeInventory, sideUpgradeInventorySupplier);
+        super(type, EnumSet.of(PipeType.Fluid), pos, state, upgradeInventory, numSideInventories, sideUpgradeInventorySupplier);
+        
+        m_network = null;
+
+    	m_filters = new Filter[numSideInventories];
+        for (int i = 0; i < numSideInventories; ++i)
+            m_filters[i] = null;
     }
 
-    protected PipeTileEntity<PipeDataCache, IFluidHandler, FluidStack> castToSelf(BlockEntity entity)
-    {
-        if (entity instanceof FluidPipeTileEntity)
-            return (FluidPipeTileEntity) entity;
-        else
-            return null;
-    }
+	@Override
+	public List<PipeNetwork> getNetworks()
+	{
+		LinkedList<PipeNetwork> networks = new LinkedList<PipeNetwork>();
+		if (m_network != null)
+			networks.add(m_network);
+		return networks;
+	}
 
-    public void serializeBufferForContainer(FriendlyByteBuf buffer, Player player, Direction startingDir)
+	@Override
+    public PipeTransferData<?> getTransferData(PipeType type, Direction neighborDir, Direction handlerDir)
     {
-        NeighboringItems items = new NeighboringItems(level, worldPosition, FluidPipeBlock::canConnectTo);
-        items.setStartingDirection(startingDir);
-        int slot = m_baseUpgradeInventory.getSlotForUpgrade(UpgradeType.TeleportUpgrade);
-        if (slot >= 0 && slot < m_baseUpgradeInventory.getContainerSize())
-            getCache().channelConfiguration.itemStack = m_baseUpgradeInventory.getItem(slot);
-        else
-            getCache().channelConfiguration.itemStack = ItemStack.EMPTY;
-        getCache().channelConfiguration.assignCurrentChannels(BaseChannelManager.getManager(), player);
-        getCache().serialize(buffer, items);
+    	int dirIndex = SwiftUtils.dirToIndex(neighborDir);
+		PipeTransferData<FluidStack> td = new PipeTransferData<FluidStack>();
+    	td.maxTransferQuantity = m_transferQuantities[dirIndex];
+    	td.tickRate = m_tickRates[dirIndex];
+    	td.redstoneControl = m_cache.redstoneControls[dirIndex];
+    	td.color = m_cache.colors[dirIndex];
+		td.filter = m_filters[dirIndex];
+    	return td;
     }
 
     @Override
-    protected void refreshFilter(Direction dir)
+    protected void assignNetwork(PipeNetwork network, PipeType type)
     {
-        int index = SwiftUtils.dirToIndex(dir);
-        UpgradeInventory inventory = m_sideUpgradeInventories[index];
+    	if (network == null || type == PipeType.Fluid)
+    		m_network = network;
+    }
+    
+    public PipeNetwork getNetwork(PipeType type)
+    {
+    	if (type == PipeType.Fluid)
+    		return m_network;
+    	else
+    		return null;
+    }
+	
+    @Override
+	public Color getRenderColorForSide(Direction dir)
+	{
+    	if (m_cache == null)
+    		return Color.Transparent;
+		return m_cache.getColor(SwiftUtils.dirToIndex(dir));
+	}
+
+    @Override
+    public void read(HolderLookup.Provider provider, CompoundTag nbt)
+    {
+        super.read(provider, nbt);
+
+        for (int i = 0; i < m_filters.length; ++i)
+        {
+            m_filters[i] = null;
+            refreshFilter(i);
+        }
+    }
+
+    public void serializeBufferForContainer(RegistryFriendlyByteBuf buffer, Player player, Direction startingDir)
+    {
+        NeighboringItems items = new NeighboringItems(level, worldPosition, FluidPipeBlock::isConnectableNeighbor);
+        items.setStartingDirection(startingDir);
+        m_cache.serialize(buffer, items);
+        BlockPos.STREAM_CODEC.encode(buffer, getBlockPos());
+    }
+
+    @Override
+    protected void onSideUpgradesChanged(int transferIndex)
+    {
+    	super.onSideUpgradesChanged(transferIndex);
+        refreshFilter(transferIndex);
+    	setChanged();
+    }
+
+    protected void refreshFilter(int transferIndex)
+    {
+        UpgradeInventory inventory = m_sideUpgradeInventories[transferIndex];
         int slot = inventory.getSlotForUpgrade(UpgradeType.BasicFluidFilterUpgrade);
         if (slot >= 0 && slot < inventory.getContainerSize())
         {
@@ -67,79 +123,46 @@ public abstract class FluidPipeTileEntity extends PipeTileEntity<PipeDataCache, 
                 if (stack.getItem() instanceof IFluidFilterUpgradeItem)
                 {
                     Filter<FluidStack> filter = ((IFluidFilterUpgradeItem) stack.getItem()).createFluidFilter(stack);
-                    m_filters[index] = filter;
+                    m_filters[transferIndex] = filter;
                     return;
                 }
             }
         }
 
-        m_filters[index] = null;
+        m_filters[transferIndex] = null;
     }
-
+    
     @Override
-    protected IFluidHandler getHandler(BlockEntity blockEntity, Direction dir)
+    protected PipeTransferHandler<?> createTransferHandler(int transferIndex)
     {
-        return SwiftUtils.getFluidHandler(blockEntity, dir);
+    	FluidPipeTransferHandler newHandler = new FluidPipeTransferHandler();
+    	newHandler.pipe = this;
+    	newHandler.neighborDir = SwiftUtils.indexToDir(transferIndex);
+    	newHandler.handlerDir = newHandler.neighborDir.getOpposite();
+    	return newHandler;
     }
 
     @Override
-    protected int getSize(IFluidHandler handler)
+    protected PipeTransferQuantity getTransferQuantity(int transferIndex, int stacks)
     {
-        return handler.getTanks();
+        return getTransferQuantity(stacks);
     }
 
-    @Override
-    protected int transfer(IFluidHandler extractHandler, int extractSlot, IFluidHandler insertHandler, int insertSlot, FluidStack stack, int numToTransfer)
-    {
-        FluidStack copy = stack.copy();
-        copy.setAmount(numToTransfer);
-        FluidStack extractedStack = extractHandler.drain(copy, FluidAction.EXECUTE);
-        return insertHandler.fill(extractedStack, FluidAction.EXECUTE);
-    }
-
-    @Override
-    protected int simulateInsertion(IFluidHandler insertHandler, int insertSlot, FluidStack stack)
-    {
-        return insertHandler.fill(stack, FluidAction.SIMULATE);
-    }
-
-    @Override
-    protected FluidStack getStack(IFluidHandler handler, int slot)
-    {
-        return handler.getFluidInTank(slot);
-    }
-
-    @Override
-    protected int getCount(FluidStack stack)
-    {
-        return stack.getAmount();
-    }
-
-    @Override
-    protected boolean isEmpty(FluidStack stack)
-    {
-        return stack.isEmpty();
-    }
-
-    @Override
-    protected OwnerBasedChannelManager<ChannelData> getChannelManager()
-    {
-        return BaseChannelManager.getManager();
-    }
-
-    @Override
-    protected int getChannelTag()
-    {
-        return ChannelSpec.TAG_FLUIDS;
-    }
-
-    @Override
-    protected TransferQuantity getTransferQuantity(int stacks)
+    public static PipeTransferQuantity getTransferQuantity(int stacks)
     {
         // Multiply by 1000 to convert from millibuckets to buckets.
         long stacksLong = 1000L * ((long)stacks + 1L);
         if (stacksLong > (long)Integer.MAX_VALUE)
             stacksLong = (long)Integer.MAX_VALUE;
-        return new TransferQuantity(false, (int)stacksLong);
+        return new PipeTransferQuantity(false, (int)stacksLong);
     }
+    
+    @Override
+    protected PipeType getTypeForIndex(int transferIndex)
+    {
+    	return PipeType.Fluid;
+    }
+
+    protected PipeNetwork m_network;
+    protected Filter<FluidStack>[] m_filters;
 }

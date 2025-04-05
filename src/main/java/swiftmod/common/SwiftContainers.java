@@ -1,76 +1,74 @@
 package swiftmod.common;
 
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import java.util.function.Supplier;
+
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeContainer;
 import swiftmod.common.upgrades.BasicFluidFilterUpgradeContainerScreen;
 import swiftmod.common.upgrades.BasicItemFilterUpgradeContainer;
 import swiftmod.common.upgrades.BasicItemFilterUpgradeContainerScreen;
-import swiftmod.common.upgrades.SideUpgradeContainer;
-import swiftmod.common.upgrades.SideUpgradeContainerScreen;
-import swiftmod.common.upgrades.TeleporterUpgradeContainer;
-import swiftmod.common.upgrades.TeleporterUpgradeContainerScreen;
 import swiftmod.common.upgrades.WildcardFilterUpgradeContainer;
 import swiftmod.common.upgrades.WildcardFilterUpgradeContainerScreen;
 import swiftmod.pipes.*;
 
 public class SwiftContainers
 {
-    public static void registerContainers()
+    public static void registerContainers(IEventBus bus)
     {
-    	s_basicItemPipeContainerType = s_containers.register("basic_item_pipe", () -> createContainer(BasicItemPipeContainer::createContainerClientSide));
-    	s_advancedItemPipeContainerType = s_containers.register("advanced_item_pipe", () -> createContainer(AdvancedItemPipeContainer::createContainerClientSide));
-    	s_ultimateItemPipeContainerType = s_containers.register("ultimate_item_pipe", () -> createContainer(UltimateItemPipeContainer::createContainerClientSide));
-    	s_basicFluidPipeContainerType = s_containers.register("basic_fluid_pipe", () -> createContainer(BasicFluidPipeContainer::createContainerClientSide));
-    	s_advancedFluidPipeContainerType = s_containers.register("advanced_fluid_pipe", () -> createContainer(AdvancedFluidPipeContainer::createContainerClientSide));
-    	s_ultimateFluidPipeContainerType = s_containers.register("ultimate_fluid_pipe", () -> createContainer(UltimateFluidPipeContainer::createContainerClientSide));
-    	s_basicItemFilterContainerType = s_containers.register("basic_item_filter_upgrade", () -> createContainer(BasicItemFilterUpgradeContainer::createContainerClientSide));
-    	s_basicFluidFilterContainerType = s_containers.register("basic_fluid_filter_upgrade", () -> createContainer(BasicFluidFilterUpgradeContainer::createContainerClientSide));
-    	s_teleporterUpgradeContainerType = s_containers.register("teleporter_upgrade", () -> createContainer(TeleporterUpgradeContainer::createContainerClientSide));
-    	s_sideUpgradeContainerType = s_containers.register("side_upgrade", () -> createContainer(SideUpgradeContainer::createContainerClientSide));
-    	s_wildcardFilterContainertype = s_containers.register("wildcard_filter_upgrade", () -> createContainer(WildcardFilterUpgradeContainer::createContainerClientSide));
+    	s_basicItemPipeContainerType = s_containers.register("basic_item_pipe", () -> IMenuTypeExtension.create(BasicItemPipeContainer::createContainerClientSide));
+    	s_advancedItemPipeContainerType = s_containers.register("advanced_item_pipe", () -> IMenuTypeExtension.create(AdvancedItemPipeContainer::createContainerClientSide));
+    	s_basicFluidPipeContainerType = s_containers.register("basic_fluid_pipe", () -> IMenuTypeExtension.create(BasicFluidPipeContainer::createContainerClientSide));
+    	s_advancedFluidPipeContainerType = s_containers.register("advanced_fluid_pipe", () -> IMenuTypeExtension.create(AdvancedFluidPipeContainer::createContainerClientSide));
+    	s_basicEnergyPipeContainerType = s_containers.register("basic_energy_pipe", () -> IMenuTypeExtension.create(BasicEnergyPipeContainer::createContainerClientSide));
+    	s_advancedEnergyPipeContainerType = s_containers.register("advanced_energy_pipe", () -> IMenuTypeExtension.create(AdvancedEnergyPipeContainer::createContainerClientSide));
+    	s_basicOmniPipeContainerType = s_containers.register("basic_omni_pipe", () -> IMenuTypeExtension.create(BasicOmniPipeContainer::createContainerClientSide));
+    	s_advancedOmniPipeContainerType = s_containers.register("advanced_omni_pipe", () -> IMenuTypeExtension.create(AdvancedOmniPipeContainer::createContainerClientSide));
+    	s_basicItemFilterContainerType = s_containers.register("basic_item_filter_upgrade", () -> IMenuTypeExtension.create(BasicItemFilterUpgradeContainer::createContainerClientSide));
+    	s_basicFluidFilterContainerType = s_containers.register("basic_fluid_filter_upgrade", () -> IMenuTypeExtension.create(BasicFluidFilterUpgradeContainer::createContainerClientSide));
+    	s_wildcardFilterContainerType = s_containers.register("wildcard_filter_upgrade", () -> IMenuTypeExtension.create(WildcardFilterUpgradeContainer::createContainerClientSide));
+    	s_wormholeContainerType = s_containers.register("wormhole", () -> IMenuTypeExtension.create(WormholeContainer::createContainerClientSide));
 
-        s_containers.register(FMLJavaModLoadingContext.get().getModEventBus());
+        s_containers.register(bus);
     }
 
-    public static void registerScreenTypes()
+    public static void registerScreenTypes(RegisterMenuScreensEvent event)
     {
-    	MenuScreens.register(s_basicItemPipeContainerType.get(), BasicItemPipeContainerScreen::new);
-    	MenuScreens.register(s_advancedItemPipeContainerType.get(), AdvancedItemPipeContainerScreen::new);
-        MenuScreens.register(s_ultimateItemPipeContainerType.get(), UltimateItemPipeContainerScreen::new);
-        MenuScreens.register(s_basicFluidPipeContainerType.get(), BasicFluidPipeContainerScreen::new);
-        MenuScreens.register(s_advancedFluidPipeContainerType.get(), AdvancedFluidPipeContainerScreen::new);
-        MenuScreens.register(s_ultimateFluidPipeContainerType.get(), UltimateFluidPipeContainerScreen::new);
-        MenuScreens.register(s_basicItemFilterContainerType.get(), BasicItemFilterUpgradeContainerScreen::new);
-        MenuScreens.register(s_basicFluidFilterContainerType.get(), BasicFluidFilterUpgradeContainerScreen::new);
-        MenuScreens.register(s_teleporterUpgradeContainerType.get(), TeleporterUpgradeContainerScreen::new);
-        MenuScreens.register(s_sideUpgradeContainerType.get(), SideUpgradeContainerScreen::new);
-        MenuScreens.register(s_wildcardFilterContainertype.get(), WildcardFilterUpgradeContainerScreen::new);
+    	event.register(s_basicItemPipeContainerType.get(), BasicItemPipeContainerScreen::new);
+    	event.register(s_advancedItemPipeContainerType.get(), AdvancedItemPipeContainerScreen::new);
+        event.register(s_basicFluidPipeContainerType.get(), BasicFluidPipeContainerScreen::new);
+        event.register(s_advancedFluidPipeContainerType.get(), AdvancedFluidPipeContainerScreen::new);
+        event.register(s_basicEnergyPipeContainerType.get(), BasicEnergyPipeContainerScreen::new);
+        event.register(s_advancedEnergyPipeContainerType.get(), AdvancedEnergyPipeContainerScreen::new);
+        event.register(s_basicOmniPipeContainerType.get(), BasicOmniPipeContainerScreen::new);
+        event.register(s_advancedOmniPipeContainerType.get(), AdvancedOmniPipeContainerScreen::new);
+        event.register(s_basicItemFilterContainerType.get(), BasicItemFilterUpgradeContainerScreen::new);
+        event.register(s_basicFluidFilterContainerType.get(), BasicFluidFilterUpgradeContainerScreen::new);
+        event.register(s_wildcardFilterContainerType.get(), WildcardFilterUpgradeContainerScreen::new);
+        event.register(s_wormholeContainerType.get(), WormholeContainerScreen::new);
     }
 
-    private static <T extends AbstractContainerMenu> MenuType<T> createContainer(IContainerFactory<T> factory)
+    /*private static <T extends AbstractContainerMenu> MenuType<T> createContainer(IContainerFactory<T> factory)
     {
         return IForgeMenuType.create(factory);
-    }
+    }*/
     
-    private static DeferredRegister<MenuType<?>> s_containers = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Swift.MOD_NAME);
+    private static DeferredRegister<MenuType<?>> s_containers = DeferredRegister.create(Registries.MENU, Swift.MOD_NAME);
 
-    public static RegistryObject<MenuType<BasicItemPipeContainer>> s_basicItemPipeContainerType;
-    public static RegistryObject<MenuType<AdvancedItemPipeContainer>> s_advancedItemPipeContainerType;
-    public static RegistryObject<MenuType<UltimateItemPipeContainer>> s_ultimateItemPipeContainerType;
-    public static RegistryObject<MenuType<BasicFluidPipeContainer>> s_basicFluidPipeContainerType;
-    public static RegistryObject<MenuType<AdvancedFluidPipeContainer>> s_advancedFluidPipeContainerType;
-    public static RegistryObject<MenuType<UltimateFluidPipeContainer>> s_ultimateFluidPipeContainerType;
-    public static RegistryObject<MenuType<BasicItemFilterUpgradeContainer>> s_basicItemFilterContainerType;
-    public static RegistryObject<MenuType<BasicFluidFilterUpgradeContainer>> s_basicFluidFilterContainerType;
-    public static RegistryObject<MenuType<TeleporterUpgradeContainer>> s_teleporterUpgradeContainerType;
-    public static RegistryObject<MenuType<SideUpgradeContainer>> s_sideUpgradeContainerType;
-    public static RegistryObject<MenuType<WildcardFilterUpgradeContainer>> s_wildcardFilterContainertype;
+    public static Supplier<MenuType<BasicItemPipeContainer>> s_basicItemPipeContainerType;
+    public static Supplier<MenuType<AdvancedItemPipeContainer>> s_advancedItemPipeContainerType;
+    public static Supplier<MenuType<BasicFluidPipeContainer>> s_basicFluidPipeContainerType;
+    public static Supplier<MenuType<AdvancedFluidPipeContainer>> s_advancedFluidPipeContainerType;
+    public static Supplier<MenuType<BasicEnergyPipeContainer>> s_basicEnergyPipeContainerType;
+    public static Supplier<MenuType<AdvancedEnergyPipeContainer>> s_advancedEnergyPipeContainerType;
+    public static Supplier<MenuType<BasicOmniPipeContainer>> s_basicOmniPipeContainerType;
+    public static Supplier<MenuType<AdvancedOmniPipeContainer>> s_advancedOmniPipeContainerType;
+    public static Supplier<MenuType<BasicItemFilterUpgradeContainer>> s_basicItemFilterContainerType;
+    public static Supplier<MenuType<BasicFluidFilterUpgradeContainer>> s_basicFluidFilterContainerType;
+    public static Supplier<MenuType<WildcardFilterUpgradeContainer>> s_wildcardFilterContainerType;
+    public static Supplier<MenuType<WormholeContainer>> s_wormholeContainerType;
 }

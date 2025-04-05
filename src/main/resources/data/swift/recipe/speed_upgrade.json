@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " C ",
+        "CDC",
+        " C "
+    ],
+    "key": {
+        "C": {
+            "tag": "c:rods/wooden"
+        },
+        "D": {
+            "tag": "c:gems/lapis"
+        }
+    },
+    "result": {
+        "id": "swift:speed_upgrade"
+    }
+}

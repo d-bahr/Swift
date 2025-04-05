@@ -1,7 +1,0 @@
-{
-    "parent": "swift:item/upgrade",
-    "textures":
-    {
-        "layer0": "swift:item/teleporter_upgrade"
-    }
-}

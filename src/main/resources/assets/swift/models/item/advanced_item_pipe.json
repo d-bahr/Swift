@@ -1,3 +1,11 @@
 {
-    "parent": "swift:block/advanced_item_pipe/base"
+    "parent": "swift:block/advanced_item_pipe/base",
+    "display":
+    {
+        "gui":
+        {
+            "rotation": [30, 225, 0],
+            "scale": [1.8, 1.8, 1.8]
+        }
+    }
 }

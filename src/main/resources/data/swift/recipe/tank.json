@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "DCD",
+        "D D",
+        "DDD"
+    ],
+    "key": {
+        "C": {
+            "item": "minecraft:bucket"
+        },
+        "D": {
+            "tag": "c:ingots/iron"
+        }
+    },
+    "result": {
+        "id": "swift:tank"
+    }
+}

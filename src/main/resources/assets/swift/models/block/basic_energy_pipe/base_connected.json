@@ -1,0 +1,7 @@
+{
+    "parent": "swift:block/pipe_model_base_connected",
+    "textures":
+    {
+        "base": "swift:block/basic_energy_pipe"
+    }
+}

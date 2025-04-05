@@ -1,34 +1,32 @@
 package swiftmod.common;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import swiftmod.common.client.*;
 
 public class SwiftNetwork
 {
-    public static void registerPackets()
+    public static void registerPackets(RegisterPayloadHandlersEvent event)
     {
-        if (mainChannel == null)
-        {
-            mainChannel = NetworkRegistry.newSimpleChannel(new ResourceLocation(Swift.MOD_NAME, CHANNEL_NAME),
-                    () -> CHANNEL_PROTOCOL_VERSION, CHANNEL_PROTOCOL_VERSION::equals, CHANNEL_PROTOCOL_VERSION::equals);
-        }
-
-        ChannelConfigurationPacket.register(mainChannel);
-        ClearFilterPacket.register(mainChannel);
-        ItemFilterConfigurationPacket.register(mainChannel);
-        ItemFilterSlotPacket.register(mainChannel);
-        RedstoneControlConfigurationPacket.register(mainChannel);
-        TransferDirectionConfigurationPacket.register(mainChannel);
-        SideConfigurationPacket.register(mainChannel);
-        SlotConfigurationPacket.register(mainChannel);
-        WildcardFilterPacket.register(mainChannel);
-        FluidFilterConfigurationPacket.register(mainChannel);
-        FluidFilterSlotPacket.register(mainChannel);
+    	if (registrar == null)
+    		registrar = event.registrar(CHANNEL_PROTOCOL_VERSION);
+    	
+        RedstoneControlConfigurationPacket.register(registrar);
+        TransferDirectionConfigurationPacket.register(registrar);
+        ColorConfigurationPacket.register(registrar);
+        PriorityConfigurationPacket.register(registrar);
+        ItemFilterConfigurationPacket.register(registrar);
+        ItemFilterSlotPacket.register(registrar);
+        ItemClearFilterPacket.register(registrar);
+        ItemWildcardFilterPacket.register(registrar);
+        FluidFilterConfigurationPacket.register(registrar);
+        FluidFilterSlotPacket.register(registrar);
+        FluidClearFilterPacket.register(registrar);
+        FluidWildcardFilterPacket.register(registrar);
+        ChannelConfigurationPacket.register(registrar);
+        SlotConfigurationPacket.register(registrar);
     }
 
-    public static SimpleChannel mainChannel = null;
-    private static String CHANNEL_NAME = "main";
-    private static String CHANNEL_PROTOCOL_VERSION = "3";
+    public static PayloadRegistrar registrar = null;
+    private static String CHANNEL_PROTOCOL_VERSION = "4";
 }

@@ -4,14 +4,12 @@ import java.util.List;
 
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraft.nbt.Tag;
 import swiftmod.common.BasicItemFilter;
 import swiftmod.common.BigItemStack;
 import swiftmod.common.Filter;
@@ -28,35 +26,7 @@ public class BasicItemFilterUpgradeItem extends FilterUpgradeItem implements IIt
 
     public Filter<ItemStack> createItemFilter(ItemStack itemStack)
     {
-        if (itemStack == null)
-            return new BasicItemFilter();
-        if (itemStack.isEmpty() || !itemStack.hasTag())
-            return new BasicItemFilter();
-        CompoundTag nbt = itemStack.getTagElement(FilterUpgradeItem.NBT_TAG);
-        if (nbt == null)
-            return new BasicItemFilter();
-
-        BasicItemFilter filter = new BasicItemFilter();
-        filter.whiteListState = WhiteListState.read(nbt);
-        filter.matchCount = nbt.getBoolean(BasicItemFilterUpgradeDataCache.TAG_MATCH_COUNT);
-        filter.matchDamage = nbt.getBoolean(BasicItemFilterUpgradeDataCache.TAG_MATCH_DAMAGE);
-        filter.matchMod = nbt.getBoolean(BasicItemFilterUpgradeDataCache.TAG_MATCH_MOD);
-        filter.matchNBT = nbt.getBoolean(BasicItemFilterUpgradeDataCache.TAG_MATCH_NBT);
-        filter.matchOreDictionary = nbt.getBoolean(BasicItemFilterUpgradeDataCache.TAG_MATCH_ORE_DICTIONARY);
-
-        ListTag filterNBT = nbt.getList(BasicItemFilterUpgradeDataCache.TAG_SLOTS, Tag.TAG_COMPOUND);
-        if (filterNBT == null)
-            return filter;
-
-        for (int i = 0; i < filterNBT.size(); ++i)
-        {
-            CompoundTag slotNBT = filterNBT.getCompound(i);
-            BigItemStack stack = new BigItemStack(slotNBT);
-            if (!stack.isEmpty())
-                filter.filterStacks.add(stack);
-        }
-
-        return filter;
+    	return new BasicItemFilter(itemStack);
     }
 
     @Override
@@ -67,13 +37,13 @@ public class BasicItemFilterUpgradeItem extends FilterUpgradeItem implements IIt
     }
 
     @Override
-    public void addStandardInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
+    public void addStandardInformation(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag)
     {
         tooltip.add(Component.literal(SwiftTextUtils.color("Filters items.", SwiftTextUtils.AQUA)));
     }
 
     @Override
-    public void addShiftInformation(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag flag)
+    public void addShiftInformation(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag)
     {
         BasicItemFilterUpgradeDataCache cache = new BasicItemFilterUpgradeDataCache(stack);
         tooltip.add(Component.literal(SwiftTextUtils.color(cache.getWhiteListState() == WhiteListState.WhiteList ? "Whitelist" : "Blacklist", SwiftTextUtils.AQUA)));

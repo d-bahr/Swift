@@ -1,7 +1,13 @@
 package swiftmod.common;
 
+import com.mojang.serialization.Codec;
+
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 
 public enum TransferDirection
 {
@@ -19,6 +25,16 @@ public enum TransferDirection
     {
         return index;
     }
+    
+    public TransferDirection opposite()
+    {
+    	return index == 0 ? TransferDirection.Insert : TransferDirection.Extract;
+    }
+    
+    private static final java.util.function.IntFunction<TransferDirection> BY_ID = ByIdMap.continuous(TransferDirection::ordinal, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
+    
+    public static final Codec<TransferDirection> CODEC = SwiftDataComponents.makeEnumCodec("t", TransferDirection::getIndex, TransferDirection::fromIndex);
+    public static final StreamCodec<ByteBuf, TransferDirection> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, TransferDirection::ordinal);
 
     private static final TransferDirection[] BY_INDEX = { Extract, Insert };
 

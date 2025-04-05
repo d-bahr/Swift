@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class ContainerItemStackHandler extends ItemStackHandler
 {

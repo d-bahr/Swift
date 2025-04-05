@@ -1,12 +1,14 @@
 package swiftmod.common;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import swiftmod.pipes.PipeType;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 
@@ -15,54 +17,74 @@ public class NeighboringItems
     @FunctionalInterface
     public interface Predicate
     {
-        public boolean test(BlockEntity blockEntity, Direction dir);
+        public boolean test(Level level, BlockPos pos, Direction dir);
+    }
+
+    @FunctionalInterface
+    public interface PipeTypeGetter
+    {
+        public PipeType get(Level level, BlockPos pos, Direction dir);
     }
 
     private NeighboringItems(int size)
     {
         m_stacks = new ArrayList<NeighboringItem>(size);
         m_startingDirection = null;
+        m_startingPipeType = PipeType.Item;
     }
 
-    public NeighboringItems(BlockGetter blockGetter, BlockPos pos)
+    public NeighboringItems(Level level, BlockPos pos)
     {
-        this(blockGetter, pos, (blockEntity, dir) -> true);
+        this(level, pos, (lvl, blockPos, dir) -> true, null, null);
     }
 
-    public NeighboringItems(BlockGetter blockGetter, BlockPos pos, Predicate predicate)
+    public NeighboringItems(Level level, BlockPos pos, Predicate predicate)
+    {
+    	this(level, pos, predicate, null, null);
+    }
+
+    public NeighboringItems(Level level, BlockPos pos, Predicate predicate, Direction startingDir, PipeTypeGetter getter)
     {
         m_stacks = new ArrayList<NeighboringItem>(Direction.values().length);
 
-        Direction[] dirs = Direction.values();
-        for (int i = 0; i < dirs.length; ++i)
+        for (Direction dir : Direction.values())
         {
-            ItemStack stack = createItemStackForNeighbor(blockGetter, pos, dirs[i], predicate);
+        	ItemStack stack = null;
+        	Optional<Direction> dirFacing = Optional.empty();
+
+            BlockPos neighborPos = pos.relative(dir);
+            if (predicate.test(level, neighborPos, dir.getOpposite()))
+            {
+            	BlockState blockState = level.getBlockState(neighborPos);
+                stack = new ItemStack(blockState.getBlock());
+            	
+            	// There are a number of properties used to determine block placement.
+            	// Check all of them, starting from general to specific.
+            	dirFacing = blockState.getOptionalValue(BlockStateProperties.FACING);
+            	if (dirFacing.isEmpty())
+                	dirFacing = blockState.getOptionalValue(BlockStateProperties.HORIZONTAL_FACING);
+            	if (dirFacing.isEmpty())
+                	dirFacing = blockState.getOptionalValue(BlockStateProperties.FACING_HOPPER);
+            }
+
+            Direction dirFacingReal;
+        	if (dirFacing.isPresent())
+        		dirFacingReal = dirFacing.get();
+        	else
+        		dirFacingReal = Direction.NORTH; // Default value; in this case the block is probably rendered the same on all sides.
+            
             if (stack != null && stack.getCount() > 0)
             {
-                NeighboringItem item = new NeighboringItem(dirs[i], stack);
+                NeighboringItem item = new NeighboringItem(dir, dirFacingReal, stack);
                 m_stacks.add(item);
             }
         }
-    }
 
-    private static ItemStack createItemStackForNeighbor(BlockGetter blockGetter, BlockPos pos, Direction dir,
-            Predicate predicate)
-    {
-        BlockPos neighborPos = pos.relative(dir);
-        BlockEntity blockEntity = blockGetter.getBlockEntity(neighborPos);
-        if (predicate.test(blockEntity, dir.getOpposite()))
-        {
-            Block neighborBlock = blockGetter.getBlockState(neighborPos).getBlock();
-            ItemStack stack = new ItemStack(neighborBlock);
-            if (stack.getCount() > 0)
-                return stack;
-            else
-                return null;
-        }
+        m_startingDirection = startingDir;
+        if (getter != null && m_startingDirection != null)
+        	m_startingPipeType = getter.get(level, pos, m_startingDirection);
         else
-        {
-            return null;
-        }
+        	m_startingPipeType = PipeType.Item;
     }
 
     public void setStartingDirection(Direction dir)
@@ -75,34 +97,51 @@ public class NeighboringItems
         return m_startingDirection;
     }
 
+    public void setStartingPipeType(PipeType type)
+    {
+    	m_startingPipeType = type;
+    }
+
+    public PipeType getStartingPipeType()
+    {
+        return m_startingPipeType;
+    }
+
     public ArrayList<NeighboringItem> getItems()
     {
         return m_stacks;
     }
 
-    public void serialize(FriendlyByteBuf buffer)
+    public void serialize(RegistryFriendlyByteBuf buffer)
     {
         buffer.writeInt(m_stacks.size());
         for (int i = 0; i < m_stacks.size(); ++i)
         {
-            buffer.writeInt(SwiftUtils.dirToIndex(m_stacks.get(i).direction));
-            buffer.writeItemStack(m_stacks.get(i).stack, false);
+        	NeighboringItem item = m_stacks.get(i);
+            buffer.writeInt(SwiftUtils.dirToIndex(item.direction));
+            if (item.facing == null)
+            	buffer.writeInt(SwiftUtils.dirToIndex(Direction.NORTH));
+            else
+            	buffer.writeInt(SwiftUtils.dirToIndex(item.facing));
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, item.stack);
         }
         if (m_startingDirection == null)
             buffer.writeInt(-1);
         else
             buffer.writeInt(SwiftUtils.dirToIndex(m_startingDirection));
+        buffer.writeInt(m_startingPipeType.getIndex());
     }
 
-    public static NeighboringItems deserialize(FriendlyByteBuf buffer)
+    public static NeighboringItems deserialize(RegistryFriendlyByteBuf buffer)
     {
         int size = buffer.readInt();
         NeighboringItems items = new NeighboringItems(size);
         for (int i = 0; i < size; ++i)
         {
             Direction dir = SwiftUtils.indexToDir(buffer.readInt());
-            ItemStack stack = buffer.readItem();
-            NeighboringItem item = new NeighboringItem(dir, stack);
+            Direction facing = SwiftUtils.indexToDir(buffer.readInt());
+            ItemStack stack = ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer);
+            NeighboringItem item = new NeighboringItem(dir, facing, stack);
             items.m_stacks.add(item);
         }
         int dirInt = buffer.readInt();
@@ -110,9 +149,11 @@ public class NeighboringItems
             items.setStartingDirection(null);
         else
             items.setStartingDirection(SwiftUtils.indexToDir(dirInt));
+        items.setStartingPipeType(PipeType.fromIndex(buffer.readInt()));
         return items;
     }
 
     private ArrayList<NeighboringItem> m_stacks;
     private Direction m_startingDirection;
+    private PipeType m_startingPipeType;
 }

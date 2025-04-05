@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -18,7 +19,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,12 +26,13 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 
@@ -201,7 +202,7 @@ public class GuiTextField extends GuiTextWidget
         int i = this.cursorPosition < this.selectionEnd ? this.cursorPosition : this.selectionEnd;
         int j = this.cursorPosition < this.selectionEnd ? this.selectionEnd : this.cursorPosition;
         int k = this.maxStringLength - this.text.length() - (i - j);
-        String s = SharedConstants.filterText(textToWrite);
+        String s = StringUtil.filterText(textToWrite);
         int l = s.length();
         if (k < l)
         {
@@ -520,7 +521,7 @@ public class GuiTextField extends GuiTextWidget
         {
             return false;
         }
-        else if (SharedConstants.isAllowedChatCharacter(codePoint))
+        else if (StringUtil.isAllowedChatCharacter(codePoint))
         {
             if (isEnabled)
             {
@@ -724,18 +725,17 @@ public class GuiTextField extends GuiTextWidget
         }
 
         Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuilder();
         RenderSystem.setShader(GameRenderer::getPositionShader);
         RenderSystem.setShaderColor(0.0F, 0.0F, 255.0F, 255.0F);
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         Matrix4f pose = graphics.pose().last().pose();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex(pose, (float) startX, (float) endY, 0.0f).endVertex();
-        bufferbuilder.vertex(pose, (float) endX, (float) endY, 0.0f).endVertex();
-        bufferbuilder.vertex(pose, (float) endX, (float) startY, 0.0f).endVertex();
-        bufferbuilder.vertex(pose, (float) startX, (float) startY, 0.0f).endVertex();
-        tessellator.end();
+        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferBuilder.addVertex(pose, (float) startX, (float) endY, 0.0f);
+        bufferBuilder.addVertex(pose, (float) endX, (float) endY, 0.0f);
+        bufferBuilder.addVertex(pose, (float) endX, (float) startY, 0.0f);
+        bufferBuilder.addVertex(pose, (float) startX, (float) startY, 0.0f);
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
         RenderSystem.disableColorLogicOp();
     }
 
@@ -921,7 +921,7 @@ public class GuiTextField extends GuiTextWidget
         setText("");
     }
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/inner_screen.png");
 
     private float m_scale;

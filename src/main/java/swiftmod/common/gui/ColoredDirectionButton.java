@@ -5,8 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftUtils;
@@ -31,7 +31,7 @@ public class ColoredDirectionButton extends GuiTextureButton
         m_state = 0;
         m_rainbowTickCounter = 0;
         m_handler = handler;
-        m_disabledTexture = new ResourceLocation(Swift.MOD_NAME, "textures/gui/disabled_button.png");
+        m_disabledTexture = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "textures/gui/disabled_button.png");
         m_textOverlay = new GuiLabel(screen, 0, 0, width + 1, height + 1, Component.empty());
         m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
         m_textOverlay.setAlignment(GuiVerticalAlignment.Middle, GuiHorizontalAlignment.Center);
@@ -166,10 +166,10 @@ public class ColoredDirectionButton extends GuiTextureButton
                 m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN));
                 break;
             case 11:
-                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.AQUA));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_AQUA));
                 break;
             case 12:
-                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_AQUA));
+                m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.AQUA));
                 break;
             case 13:
                 m_textOverlay.setFontColor(TextColor.fromLegacyFormat(ChatFormatting.DARK_BLUE));

@@ -1,23 +1,25 @@
 package swiftmod.common.channels;
 
+import java.util.Objects;
+
 public class ChannelKey
 {
     public ChannelKey()
     {
         name = "";
-        tag = 0;
+        type = ChannelType.Items;
     }
 
-    public ChannelKey(String name, int tag)
+    public ChannelKey(String name, ChannelType type)
     {
         this.name = name;
-        this.tag = tag;
+        this.type = type;
     }
 
     @Override
     public int hashCode()
     {
-        return name.hashCode() ^ tag;
+        return Objects.hash(type, name);
     }
 
     @Override
@@ -26,9 +28,9 @@ public class ChannelKey
         if ((null == obj) || (obj.getClass() != ChannelKey.class))
             return false;
         ChannelKey other = (ChannelKey)obj;
-        return name.equals(other.name) && tag == other.tag;
+        return name.equals(other.name) && type == other.type;
     }
 
     public String name;
-    public int tag;
+    public ChannelType type;
 }

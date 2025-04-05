@@ -1,0 +1,32 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "RER",
+        "IGF",
+        "RDR"
+    ],
+    "key": {
+        "D": {
+            "tag": "c:gems/diamond"
+        },
+        "E": {
+            "item": "swift:advanced_energy_pipe"
+        },
+        "F": {
+            "item": "swift:advanced_fluid_pipe"
+        },
+        "G": {
+            "tag": "c:dusts/glowstone"
+        },
+        "I": {
+            "item": "swift:advanced_item_pipe"
+        },
+        "R": {
+            "tag": "c:dusts/redstone"
+        }
+    },
+    "result": {
+        "id": "swift:advanced_omni_pipe",
+        "count": 4
+    }
+}

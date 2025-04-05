@@ -2,8 +2,8 @@ package swiftmod.common.gui;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.RedstoneControl;
 import swiftmod.common.Swift;
@@ -15,6 +15,11 @@ public class RedstoneButton extends GuiTextureButton
     public interface StateChangeHandler
     {
         public void onStateChanged(RedstoneButton button, RedstoneControl state);
+    }
+
+    public RedstoneButton(GuiContainerScreen<?> screen, int x, int y, int width, int height)
+    {
+        this(screen, x, y, width, height, null);
     }
 
     public RedstoneButton(GuiContainerScreen<?> screen, int x, int y, int width, int height, StateChangeHandler handler)
@@ -149,13 +154,13 @@ public class RedstoneButton extends GuiTextureButton
         }
     }
 
-    public static final ResourceLocation REDSTONE_DISABLED_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation REDSTONE_DISABLED_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/redstone_disabled.png");
-    public static final ResourceLocation REDSTONE_IGNORED_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation REDSTONE_IGNORED_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/redstone_ignored.png");
-    public static final ResourceLocation REDSTONE_NORMAL_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation REDSTONE_NORMAL_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/redstone_normal.png");
-    public static final ResourceLocation REDSTONE_INVERTED_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation REDSTONE_INVERTED_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/redstone_inverted.png");
 
     private RedstoneControl m_state;

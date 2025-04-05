@@ -5,9 +5,9 @@ import java.util.List;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.fluids.FluidStack;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Notification;
 import swiftmod.common.Swift;
@@ -289,16 +289,16 @@ public class BasicFluidFilterWidget extends GuiWidget
 
     protected static final int FILTER_SLOTS_PER_ROW = 9;
 
-    protected static final ResourceLocation MATCH_AMOUNT_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation MATCH_AMOUNT_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/match_fluid_amount.png");
 
-    protected static final ResourceLocation IGNORE_AMOUNT_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation IGNORE_AMOUNT_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/ignore_fluid_amount.png");
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/basic_filter_upgrade.png");
 
-    protected static final ResourceLocation INFO_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation INFO_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/info.png");
 
     protected GuiTexture m_backgroundTexture;

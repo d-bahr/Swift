@@ -1,7 +1,13 @@
 package swiftmod.common;
 
+import com.mojang.serialization.Codec;
+
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 
 public enum WhiteListState
 {
@@ -19,6 +25,11 @@ public enum WhiteListState
     {
         return index;
     }
+    
+    private static final java.util.function.IntFunction<WhiteListState> BY_ID = ByIdMap.continuous(WhiteListState::ordinal, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
+
+    public static final Codec<WhiteListState> CODEC = SwiftDataComponents.makeEnumCodec("w", WhiteListState::getIndex, WhiteListState::fromIndex);
+    public static final StreamCodec<ByteBuf, WhiteListState> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, WhiteListState::ordinal);
 
     private static final WhiteListState[] BY_INDEX = { WhiteList, BlackList };
 

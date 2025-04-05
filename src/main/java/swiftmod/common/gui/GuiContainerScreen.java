@@ -12,8 +12,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T>
@@ -105,6 +106,16 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
 
     public void lateInit()
     {
+    }
+    
+    public void setWidth(int width)
+    {
+        imageWidth = width;
+    }
+    
+    public void setHeight(int height)
+    {
+        imageHeight = height;
     }
 
     public void setSize(int width, int height)
@@ -327,6 +338,11 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     public void setInitialFocus(GuiEventListener listener)
     {
     	super.setInitialFocus(listener);
+    }
+
+    public List<Component> getTooltipForItem(ItemStack itemStack)
+    {
+    	return getTooltipFromItem(getMinecraft(), itemStack);
     }
 
     // TODO: Combine to a GuiLabeledPlayerInventory class.

@@ -1,8 +1,0 @@
-{
-    "parent": "swift:block/pipe_model_up",
-    "textures":
-    {
-        "line": "swift:block/ultimate_fluid_pipe_vertical",
-        "attachment": "swift:block/pipe_attachment"
-    }
-}

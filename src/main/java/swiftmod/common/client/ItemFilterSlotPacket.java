@@ -1,11 +1,16 @@
 package swiftmod.common.client;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import swiftmod.common.BigItemStack;
+import swiftmod.common.Swift;
 
-public class ItemFilterSlotPacket extends DirectionalPacket
+public class ItemFilterSlotPacket extends IndexingPacket
 {
     public interface Handler
     {
@@ -14,52 +19,46 @@ public class ItemFilterSlotPacket extends DirectionalPacket
 
     public ItemFilterSlotPacket()
     {
+    	super(TYPE);
         slot = 0;
         itemStack = new BigItemStack();
     }
 
-    public ItemFilterSlotPacket(int s, BigItemStack stack)
+    public ItemFilterSlotPacket(int index, int s, BigItemStack stack)
     {
+    	super(TYPE, index);
         slot = s;
         itemStack = stack;
     }
-
-    public ItemFilterSlotPacket(FriendlyByteBuf buffer)
+    
+    public int getSlot()
     {
-        itemStack = new BigItemStack();
-        decode(buffer);
+    	return slot;
     }
-
-    public void decode(FriendlyByteBuf buffer)
+    
+    public BigItemStack getItemStack()
     {
-        super.decode(buffer);
-        slot = buffer.readInt();
-        itemStack.read(buffer);
-    }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        super.encode(buffer);
-        buffer.writeInt(slot);
-        itemStack.write(buffer);
+    	return itemStack;
     }
 
     public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
-        {
-            Handler handler = (Handler) player.containerMenu;
-            handler.handle(player, this);
-        }
+        	((Handler) player.containerMenu).handle(player, this);
     }
-
-    public static void register(SimpleChannel channel)
+    
+    public static void register(PayloadRegistrar registrar)
     {
-        channel.registerMessage(PacketIDs.ItemFilterSlot.value(),
-                ItemFilterSlotPacket.class, ItemFilterSlotPacket::encode,
-                ItemFilterSlotPacket::new, ItemFilterSlotPacket::handle);
+    	registrar.playToServer(TYPE, STREAM_CODEC, ItemFilterSlotPacket::handle);
     }
 
     public int slot;
     public BigItemStack itemStack;
+    
+    public static final CustomPacketPayload.Type<ItemFilterSlotPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "item_filter"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemFilterSlotPacket> STREAM_CODEC =
+    		StreamCodec.composite(IndexingPacket.STREAM_CODEC, ItemFilterSlotPacket::getIndex,
+    				ByteBufCodecs.VAR_INT, ItemFilterSlotPacket::getSlot,
+    				BigItemStack.STREAM_CODEC, ItemFilterSlotPacket::getItemStack,
+    				ItemFilterSlotPacket::new);
 }

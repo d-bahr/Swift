@@ -6,8 +6,8 @@ import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.BigItemStack;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Notification;
@@ -268,7 +268,9 @@ public class BasicItemFilterWidget extends GuiWidget
             	// When matching any sort of NBT, allow multiple items of the same
             	// type but with different NBT; this allows sorting e.g. items
             	// of different durabilities.
-	            if (ItemStack.isSameItemSameTags(s, stack))
+            	
+            	// TODO: Maybe this? ItemStack.isSameItemSameComponents(s, stack)
+	            if (ItemStack.isSameItemSameComponents(s, stack))
 	            {
 	                // Item already exists; abort.
 	                return false;
@@ -348,10 +350,10 @@ public class BasicItemFilterWidget extends GuiWidget
 
     protected static final int MAX_SLOT_QUANTITY = 99999;
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/basic_filter_upgrade.png");
 
-    protected static final ResourceLocation INFO_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation INFO_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/info.png");
 
     protected GuiTexture m_backgroundTexture;

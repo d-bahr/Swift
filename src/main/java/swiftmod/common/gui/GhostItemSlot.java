@@ -4,7 +4,6 @@ import java.util.function.BiPredicate;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -19,8 +18,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 
 @OnlyIn(Dist.CLIENT)
@@ -326,7 +325,8 @@ public class GhostItemSlot extends GuiItemTextureButton
                     matrix.scale(r, r, 1.0f);
                 }
                 matrix.translate(0.0, 0.0, 200.0);
-                MultiBufferSource.BufferSource b = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+                
+                MultiBufferSource.BufferSource b = graphics.bufferSource();
                 font.drawInBatch(s, (float) (left + 17) / r - font.width(s), (float) (top + 16) / r - 7, 0x00FFFFFF,
                         true, matrix.last().pose(), b, Font.DisplayMode.NORMAL, 0, 15728880);
                 b.endBatch();
@@ -337,11 +337,10 @@ public class GhostItemSlot extends GuiItemTextureButton
                 RenderSystem.disableDepthTest();
                 RenderSystem.disableBlend();
                 Tesselator tessellator = Tesselator.getInstance();
-                BufferBuilder bufferbuilder = tessellator.getBuilder();
                 int i = m_itemStack.getBarWidth();
                 int j = m_itemStack.getBarColor();
-                fillRect(bufferbuilder, left + 2, top + 13, 13, 2, 0, 0, 0, 0xFF);
-                fillRect(bufferbuilder, left + 2, top + 13, i, 1, j >> 16 & 0xFF, j >> 8 & 0xFF, j & 0xFF, 0xFF);
+                fillRect(tessellator, left + 2, top + 13, 13, 2, 0, 0, 0, 0xFF);
+                fillRect(tessellator, left + 2, top + 13, i, 1, j >> 16 & 0xFF, j >> 8 & 0xFF, j & 0xFF, 0xFF);
                 RenderSystem.enableBlend();
                 RenderSystem.enableDepthTest();
             }
@@ -349,16 +348,15 @@ public class GhostItemSlot extends GuiItemTextureButton
     }
 
     // Copied from ItemRenderer.
-    private void fillRect(BufferBuilder buffer, int x, int y, int width, int height, int red, int green, int blue, int alpha)
+    private void fillRect(Tesselator tessellator, int x, int y, int width, int height, int red, int green, int blue, int alpha)
     {
     	RenderSystem.setShader(GameRenderer::getPositionColorShader);
-    	buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-    	buffer.vertex((double)(x + 0), (double)(y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-    	buffer.vertex((double)(x + 0), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-    	buffer.vertex((double)(x + width), (double)(y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-    	buffer.vertex((double)(x + width), (double)(y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-    	RenderedBuffer rb = buffer.end();
-	    BufferUploader.draw(rb);
+    	BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+    	bufferBuilder.addVertex(x + 0, y + 0, 0.0f).setColor(red, green, blue, alpha);
+    	bufferBuilder.addVertex(x + 0, y + height, 0.0f).setColor(red, green, blue, alpha);
+    	bufferBuilder.addVertex(x + width, y + height, 0.0f).setColor(red, green, blue, alpha);
+    	bufferBuilder.addVertex(x + width, y + 0, 0.0f).setColor(red, green, blue, alpha);
+	    BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
     }
 
     private int m_slot;

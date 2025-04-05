@@ -3,9 +3,9 @@ package swiftmod.common.upgrades;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.fluids.FluidStack;
 import swiftmod.common.Swift;
 import swiftmod.common.WhiteListState;
 import swiftmod.common.client.FluidFilterConfigurationPacket;
@@ -92,7 +92,7 @@ public class BasicFluidFilterUpgradeContainerScreen extends GuiContainerScreen<B
         menu.sendUpdatePacketToServer(updatePacket);
     }
 
-    protected static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/basic_filter_background.png");
 
     protected BasicFluidFilterWidget m_filterWidget;

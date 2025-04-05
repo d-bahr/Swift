@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "C C",
+        " D ",
+        "C C"
+    ],
+    "key": {
+        "C": {
+            "tag": "c:ingots/gold"
+        },
+        "D": {
+            "tag": "c:gems/emerald"
+        }
+    },
+    "result": {
+        "id": "swift:stack_upgrade"
+    }
+}

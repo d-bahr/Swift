@@ -1,12 +1,15 @@
 package swiftmod.common.client;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.Direction;
-import net.minecraftforge.network.simple.SimpleChannel;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import swiftmod.common.RedstoneControl;
+import swiftmod.common.Swift;
 
-public class RedstoneControlConfigurationPacket extends DirectionalPacket
+public class RedstoneControlConfigurationPacket extends IndexingPacket
 {
     public interface Handler
     {
@@ -15,48 +18,37 @@ public class RedstoneControlConfigurationPacket extends DirectionalPacket
 
     public RedstoneControlConfigurationPacket()
     {
-        super();
+        super(TYPE);
         redstoneControl = RedstoneControl.Disabled;
     }
 
-    public RedstoneControlConfigurationPacket(Direction dir, RedstoneControl rc)
+    public RedstoneControlConfigurationPacket(int index, RedstoneControl rc)
     {
-        super(dir);
+        super(TYPE, index);
         redstoneControl = rc;
     }
-
-    public RedstoneControlConfigurationPacket(FriendlyByteBuf buffer)
+    
+    public RedstoneControl getRedstoneControl()
     {
-        decode(buffer);
-    }
-
-    public void decode(FriendlyByteBuf buffer)
-    {
-        super.decode(buffer);
-        redstoneControl = RedstoneControl.fromIndex(buffer.readInt());
-    }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        super.encode(buffer);
-        buffer.writeInt(redstoneControl.getIndex());
+    	return redstoneControl;
     }
 
     public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
-        {
-            Handler handler = (Handler) player.containerMenu;
-            handler.handle(player, this);
-        }
+        	((Handler) player.containerMenu).handle(player, this);
     }
 
-    public static void register(SimpleChannel channel)
+    public static void register(PayloadRegistrar registrar)
     {
-        channel.registerMessage(PacketIDs.RedstoneControlConfiguration.value(),
-                RedstoneControlConfigurationPacket.class, RedstoneControlConfigurationPacket::encode,
-                RedstoneControlConfigurationPacket::new, RedstoneControlConfigurationPacket::handle);
+    	registrar.playToServer(TYPE, STREAM_CODEC, RedstoneControlConfigurationPacket::handle);
     }
 
     public RedstoneControl redstoneControl;
+    
+    public static final CustomPacketPayload.Type<RedstoneControlConfigurationPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "redstone_cfg"));
+    public static final StreamCodec<ByteBuf, RedstoneControlConfigurationPacket> STREAM_CODEC =
+    		StreamCodec.composite(IndexingPacket.STREAM_CODEC, RedstoneControlConfigurationPacket::getIndex,
+    				RedstoneControl.STREAM_CODEC, RedstoneControlConfigurationPacket::getRedstoneControl,
+    				RedstoneControlConfigurationPacket::new);
 }

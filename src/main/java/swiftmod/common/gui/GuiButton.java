@@ -7,8 +7,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 
@@ -137,10 +137,12 @@ public class GuiButton extends GuiWidget
         graphics.blit(texture, getX(), getY(), 0, 0, width, height, width, height);
     }
 
-    public static final ResourceLocation s_baseTexture = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation s_baseTexture = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/button_base.png");
-    public static final ResourceLocation s_highlightedTexture = new ResourceLocation(Swift.MOD_NAME,
+    public static final ResourceLocation s_highlightedTexture = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/button_highlighted.png");
+    public static final ResourceLocation s_inactiveTexture = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
+            "textures/gui/button_inactive.png");
 
     protected GuiTooltip m_tooltip;
     protected IClickable m_onClick;

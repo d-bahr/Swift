@@ -1,11 +1,16 @@
 package swiftmod.common.client;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import swiftmod.common.Swift;
 import swiftmod.common.WhiteListState;
 
-public class FluidFilterConfigurationPacket extends DirectionalPacket
+public class FluidFilterConfigurationPacket extends IndexingPacket
 {
     public interface Handler
     {
@@ -14,60 +19,64 @@ public class FluidFilterConfigurationPacket extends DirectionalPacket
 
     public FluidFilterConfigurationPacket()
     {
+    	super(TYPE);
         whiteListState = WhiteListState.WhiteList;
         matchCount = false;
         matchMod = false;
         matchOreDictionary = false;
     }
 
-    public FluidFilterConfigurationPacket(WhiteListState state, boolean count, boolean mod, boolean oreDict)
+    public FluidFilterConfigurationPacket(int index, WhiteListState state, boolean count, boolean mod, boolean oreDict)
     {
+    	super(TYPE, index);
         whiteListState = state;
         matchCount = count;
         matchMod = mod;
         matchOreDictionary = oreDict;
     }
-
-    public FluidFilterConfigurationPacket(FriendlyByteBuf buffer)
+    
+    public WhiteListState getWhiteListState()
     {
-        decode(buffer);
+    	return whiteListState;
     }
-
-    public void decode(FriendlyByteBuf buffer)
+    
+    public boolean getMatchCount()
     {
-        super.decode(buffer);
-        whiteListState = WhiteListState.fromIndex(buffer.readInt());
-        matchCount = buffer.readBoolean();
-        matchMod = buffer.readBoolean();
-        matchOreDictionary = buffer.readBoolean();
+    	return matchCount;
     }
-
-    public void encode(FriendlyByteBuf buffer)
+    
+    public boolean getMatchMod()
     {
-        super.encode(buffer);
-        buffer.writeInt(whiteListState.getIndex());
-        buffer.writeBoolean(matchCount);
-        buffer.writeBoolean(matchMod);
-        buffer.writeBoolean(matchOreDictionary);
+    	return matchMod;
+    }
+    
+    public boolean getMatchOreDictionary()
+    {
+    	return matchOreDictionary;
     }
 
     public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
-        {
-            Handler handler = (Handler) player.containerMenu;
-            handler.handle(player, this);
-        }
+        	((Handler) player.containerMenu).handle(player, this);
     }
-
-    public static void register(SimpleChannel channel)
+    
+    public static void register(PayloadRegistrar registrar)
     {
-        channel.registerMessage(PacketIDs.FluidFilterConfiguration.value(), FluidFilterConfigurationPacket.class,
-                FluidFilterConfigurationPacket::encode, FluidFilterConfigurationPacket::new, FluidFilterConfigurationPacket::handle);
+    	registrar.playToServer(TYPE, STREAM_CODEC, FluidFilterConfigurationPacket::handle);
     }
 
     public WhiteListState whiteListState;
     public boolean matchCount;
     public boolean matchMod;
     public boolean matchOreDictionary;
+    
+    public static final CustomPacketPayload.Type<FluidFilterConfigurationPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "fluid_cfg"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, FluidFilterConfigurationPacket> STREAM_CODEC =
+    		StreamCodec.composite(IndexingPacket.STREAM_CODEC, FluidFilterConfigurationPacket::getIndex,
+    				WhiteListState.STREAM_CODEC, FluidFilterConfigurationPacket::getWhiteListState,
+    				ByteBufCodecs.BOOL, FluidFilterConfigurationPacket::getMatchCount,
+    				ByteBufCodecs.BOOL, FluidFilterConfigurationPacket::getMatchMod,
+    				ByteBufCodecs.BOOL, FluidFilterConfigurationPacket::getMatchOreDictionary,
+    				FluidFilterConfigurationPacket::new);
 }

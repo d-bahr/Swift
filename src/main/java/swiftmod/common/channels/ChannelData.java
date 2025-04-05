@@ -34,4 +34,14 @@ public class ChannelData
     public void read(FriendlyByteBuf buffer)
     {
     }
+    
+    public static ChannelData create(ChannelSpec spec)
+    {
+    	return new ChannelData();
+    }
+    
+    public static ChannelData decode(CompoundTag nbt, ChannelSpec spec)
+    {
+    	return new ChannelData(nbt);
+    }
 }

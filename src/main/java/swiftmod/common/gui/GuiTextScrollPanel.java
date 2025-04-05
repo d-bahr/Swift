@@ -7,8 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 
@@ -332,9 +332,9 @@ public class GuiTextScrollPanel extends GuiMultiLineTextWidget
     private int selected = -1;
     private ItemSelectedHandler m_itemSelectHandler;
 
-    protected static final ResourceLocation BACKGROUND = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/inner_screen.png");
-    protected static final ResourceLocation SCROLL_LIST = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation SCROLL_LIST = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/scroll_list.png");
     protected static final int SCROLL_BAR_WIDTH = 6;
     protected static final int SCROLL_BAR_HEIGHT = 6;

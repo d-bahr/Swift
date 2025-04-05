@@ -6,8 +6,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftUtils;
 
@@ -54,6 +54,7 @@ public class DirectionSelectionWidget extends GuiWidget
                     {
                         onDirectionButtonPress(dir);
                     });
+            m_buttons[dirIndex].setBackgroundInactiveTexture(GuiButton.s_inactiveTexture);
         }
         else
         {
@@ -63,6 +64,7 @@ public class DirectionSelectionWidget extends GuiWidget
                     {
                         onDirectionButtonPress(dir);
                     });
+            m_buttons[dirIndex].setBackgroundInactiveTexture(GuiButton.s_inactiveTexture);
         }
 
         String name = dir.getName();
@@ -71,6 +73,13 @@ public class DirectionSelectionWidget extends GuiWidget
 
         if (m_buttons[dirIndex] != null)
             addChild(m_buttons[dirIndex]);
+    }
+    
+    public void setDirectionEnabled(Direction dir, boolean enabled)
+    {
+        int dirIndex = SwiftUtils.dirToIndex(dir);
+        if (m_buttons[dirIndex] != null)
+        	m_buttons[dirIndex].active = enabled;
     }
 
     public void clearItemForDirection(Direction dir)
@@ -114,7 +123,7 @@ public class DirectionSelectionWidget extends GuiWidget
             default:
                 continue;
             }
-            resources[SwiftUtils.dirToIndex(dirs[i])] = new ResourceLocation(Swift.MOD_NAME, loc);
+            resources[SwiftUtils.dirToIndex(dirs[i])] = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, loc);
         }
         return resources;
     }

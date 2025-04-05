@@ -5,10 +5,11 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftTileEntities;
-import swiftmod.common.upgrades.BasicSideUpgradeItemStackHandler;
+import swiftmod.common.upgrades.BasicSideFluidUpgradeItemStackHandler;
 import swiftmod.common.upgrades.BasicUpgradeItemStackHandler;
 import swiftmod.common.upgrades.UpgradeInventory;
 
@@ -17,31 +18,25 @@ public class BasicFluidPipeTileEntity extends FluidPipeTileEntity
     public BasicFluidPipeTileEntity(BlockPos pos, BlockState state)
     {
         super(SwiftTileEntities.s_basicFluidPipeTileEntityType.get(), pos, state, createUpgradeInventory(),
-                BasicFluidPipeTileEntity::createSideUpgradeInventory);
+        		Direction.values().length, BasicFluidPipeTileEntity::createSideUpgradeInventory);
     }
 
     @Override
     protected int maxEffectiveSpeedUpgrades()
     {
-        return 0;
+        return 19;
     }
 
     @Override
     protected int maxEffectiveStackUpgrades()
     {
-        return 0;
+        return Integer.MAX_VALUE;
     }
 
     @Override
     protected int maxEffectiveSpeedDowngrades()
     {
-        return 0;
-    }
-
-    @Override
-    protected boolean canAcceptTeleportUpgrade()
-    {
-        return false;
+        return Integer.MAX_VALUE;
     }
 
     @Override
@@ -68,7 +63,7 @@ public class BasicFluidPipeTileEntity extends FluidPipeTileEntity
     public AbstractContainerMenu createMenu(int windowID, Inventory playerInventory, Player playerEntity)
     {
         return BasicFluidPipeContainer.createContainerServerSide(this, windowID, playerInventory, m_cache,
-                this::refreshFilter, this::onChannelUpdate, m_baseUpgradeInventory, m_sideUpgradeInventories);
+                this::refreshFilter, getBlockPos(), m_baseUpgradeInventory, m_sideUpgradeInventories);
     }
 
     public static UpgradeInventory createUpgradeInventory()
@@ -76,13 +71,10 @@ public class BasicFluidPipeTileEntity extends FluidPipeTileEntity
         return new UpgradeInventory(new BasicUpgradeItemStackHandler());
     }
 
-    public static UpgradeInventory createSideUpgradeInventory()
+    public static UpgradeInventory createSideUpgradeInventory(int index)
     {
-        return new UpgradeInventory(new BasicSideUpgradeItemStackHandler());
+        return new UpgradeInventory(new BasicSideFluidUpgradeItemStackHandler());
     }
-
-    public static int NUM_BASE_UPGRADE_SLOTS = 0;
-    public static int NUM_SIDE_UPGRADE_SLOTS = 0;
 
     private static final String DISPLAY_NAME = "container." + Swift.MOD_NAME + "." + getRegistryName();
 }

@@ -1,29 +1,25 @@
 package swiftmod.common.client;
 
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
-import swiftmod.common.SwiftUtils;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public abstract class DirectionalPacket extends Packet
 {
-    public DirectionalPacket()
+    public DirectionalPacket(CustomPacketPayload.Type<? extends CustomPacketPayload> t)
     {
+    	super(t);
         direction = Direction.NORTH;
     }
 
-    public DirectionalPacket(Direction dir)
+    public DirectionalPacket(CustomPacketPayload.Type<? extends CustomPacketPayload> t, Direction dir)
     {
+    	super(t);
         direction = dir;
     }
-
-    public void decode(FriendlyByteBuf buffer)
+    
+    public Direction getDirection()
     {
-        direction = SwiftUtils.indexToDir(buffer.readInt());
-    }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        buffer.writeInt(SwiftUtils.dirToIndex(direction));
+    	return direction;
     }
 
     public Direction direction;

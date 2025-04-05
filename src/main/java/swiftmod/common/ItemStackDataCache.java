@@ -1,8 +1,10 @@
 package swiftmod.common;
 
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class ItemStackDataCache implements DataCache
 {
@@ -16,26 +18,26 @@ public class ItemStackDataCache implements DataCache
         this.itemStack = itemStack;
     }
 
-    public void write(CompoundTag nbt)
+    public void write(HolderLookup.Provider provider, CompoundTag nbt)
     {
-        CompoundTag child = itemStack.serializeNBT();
+    	Tag child = itemStack.save(provider);
         nbt.put(SwiftUtils.tagName("cacheItemStack"), child);
     }
 
-    public void read(CompoundTag nbt)
+    public void read(HolderLookup.Provider provider, CompoundTag nbt)
     {
         CompoundTag child = nbt.getCompound(SwiftUtils.tagName("cacheItemStack"));
-        itemStack = ItemStack.of(child);
+        itemStack = ItemStack.parseOptional(provider, child);
     }
 
-    public void write(FriendlyByteBuf buffer)
+    public void write(RegistryFriendlyByteBuf buffer)
     {
-        buffer.writeItemStack(itemStack, false);
+    	ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, itemStack);
     }
 
-    public void read(FriendlyByteBuf buffer)
+    public void read(RegistryFriendlyByteBuf buffer)
     {
-        itemStack = buffer.readItem();
+    	itemStack = ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer);
     }
 
     public ItemStack itemStack;

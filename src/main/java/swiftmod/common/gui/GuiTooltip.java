@@ -4,11 +4,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiTooltip extends GuiMultiLineTextWidget
@@ -61,17 +60,9 @@ public class GuiTooltip extends GuiMultiLineTextWidget
         m_requestFocusOnPress = false;
     }
 
-    public void setTooltipForItem(ItemStack itemStack, boolean advancedUsageTooltip)
+    public void setTooltipForItem(ItemStack itemStack)
     {
-        TooltipFlag flag = TooltipFlag.Default.NORMAL;
-        if (advancedUsageTooltip)
-            flag = TooltipFlag.Default.ADVANCED;
-        setTooltipForItem(itemStack, flag);
-    }
-
-    public void setTooltipForItem(ItemStack itemStack, TooltipFlag tooltipFlags)
-    {
-        setText(itemStack.getTooltipLines(getPlayer(), tooltipFlags));
+    	setText(getScreen().getTooltipForItem(itemStack));
     }
 
     @Override

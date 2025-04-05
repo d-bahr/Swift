@@ -1,0 +1,13 @@
+{
+    "parent": "block/cube",
+    "render_type": "minecraft:solid",
+    "textures": {
+        "down": "swift:block/wormhole",
+        "up": "swift:block/wormhole",
+        "north": "swift:block/wormhole",
+        "east": "swift:block/wormhole",
+        "south": "swift:block/wormhole",
+        "west": "swift:block/wormhole",
+        "particle": "block/obsidian"
+    }
+}

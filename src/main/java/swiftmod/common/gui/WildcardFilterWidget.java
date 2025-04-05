@@ -5,8 +5,8 @@ import java.util.List;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 import swiftmod.common.Swift;
 
@@ -138,9 +138,9 @@ public class WildcardFilterWidget extends GuiWidget
             m_textField.clearText();
     }
 
-    protected static final ResourceLocation ADD_BUTTON_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation ADD_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/add_button.png");
-    protected static final ResourceLocation DELETE_BUTTON_TEXTURE = new ResourceLocation(Swift.MOD_NAME,
+    protected static final ResourceLocation DELETE_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME,
             "textures/gui/subtract_button.png");
 
     protected GuiTextField m_textField;

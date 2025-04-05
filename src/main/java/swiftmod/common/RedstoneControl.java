@@ -1,7 +1,13 @@
 package swiftmod.common;
 
+import com.mojang.serialization.Codec;
+
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 
 public enum RedstoneControl
 {
@@ -21,6 +27,11 @@ public enum RedstoneControl
     {
         return index;
     }
+    
+    private static final java.util.function.IntFunction<RedstoneControl> BY_ID = ByIdMap.continuous(RedstoneControl::ordinal, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
+
+    public static final Codec<RedstoneControl> CODEC = SwiftDataComponents.makeEnumCodec("r", RedstoneControl::getIndex, RedstoneControl::fromIndex);
+    public static final StreamCodec<ByteBuf, RedstoneControl> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, RedstoneControl::ordinal);
 
     private static final RedstoneControl[] BY_INDEX = { Disabled, Ignore, Normal, Inverted };
 

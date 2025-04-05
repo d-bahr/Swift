@@ -1,11 +1,16 @@
 package swiftmod.common.client;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import swiftmod.common.Swift;
 
-public class FluidFilterSlotPacket extends DirectionalPacket
+public class FluidFilterSlotPacket extends IndexingPacket
 {
     public interface Handler
     {
@@ -14,52 +19,46 @@ public class FluidFilterSlotPacket extends DirectionalPacket
 
     public FluidFilterSlotPacket()
     {
+    	super(TYPE);
         slot = 0;
         fluidStack = FluidStack.EMPTY;
     }
 
-    public FluidFilterSlotPacket(int s, FluidStack stack)
+    public FluidFilterSlotPacket(int index, int s, FluidStack stack)
     {
+    	super(TYPE, index);
         slot = s;
         fluidStack = stack;
     }
-
-    public FluidFilterSlotPacket(FriendlyByteBuf buffer)
+    
+    public int getSlot()
     {
-        fluidStack = FluidStack.EMPTY;
-        decode(buffer);
+    	return slot;
     }
-
-    public void decode(FriendlyByteBuf buffer)
+    
+    public FluidStack getFluidStack()
     {
-        super.decode(buffer);
-        slot = buffer.readInt();
-        fluidStack = FluidStack.readFromPacket(buffer);
-    }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        super.encode(buffer);
-        buffer.writeInt(slot);
-        fluidStack.writeToPacket(buffer);
+    	return fluidStack;
     }
 
     public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
-        {
-            Handler handler = (Handler) player.containerMenu;
-            handler.handle(player, this);
-        }
+        	((Handler) player.containerMenu).handle(player, this);
     }
-
-    public static void register(SimpleChannel channel)
+    
+    public static void register(PayloadRegistrar registrar)
     {
-        channel.registerMessage(PacketIDs.FluidFilterSlot.value(),
-                FluidFilterSlotPacket.class, FluidFilterSlotPacket::encode,
-                FluidFilterSlotPacket::new, FluidFilterSlotPacket::handle);
+    	registrar.playToServer(TYPE, STREAM_CODEC, FluidFilterSlotPacket::handle);
     }
 
     public int slot;
     public FluidStack fluidStack;
+    
+    public static final CustomPacketPayload.Type<FluidFilterSlotPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "fluid_filter"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, FluidFilterSlotPacket> STREAM_CODEC =
+    		StreamCodec.composite(IndexingPacket.STREAM_CODEC, FluidFilterSlotPacket::getIndex,
+    				ByteBufCodecs.VAR_INT, FluidFilterSlotPacket::getSlot,
+    				FluidStack.OPTIONAL_STREAM_CODEC, FluidFilterSlotPacket::getFluidStack,
+    				FluidFilterSlotPacket::new);
 }

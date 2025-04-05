@@ -1,12 +1,15 @@
 package swiftmod.common.client;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.Direction;
-import net.minecraftforge.network.simple.SimpleChannel;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import swiftmod.common.Swift;
 import swiftmod.common.TransferDirection;
 
-public class TransferDirectionConfigurationPacket extends DirectionalPacket
+public class TransferDirectionConfigurationPacket extends IndexingPacket
 {
     public interface Handler
     {
@@ -15,48 +18,37 @@ public class TransferDirectionConfigurationPacket extends DirectionalPacket
 
     public TransferDirectionConfigurationPacket()
     {
-        super();
+        super(TYPE);
         transferDirection = TransferDirection.Extract;
     }
 
-    public TransferDirectionConfigurationPacket(Direction dir, TransferDirection td)
+    public TransferDirectionConfigurationPacket(int index, TransferDirection td)
     {
-        super(dir);
+        super(TYPE, index);
         transferDirection = td;
     }
-
-    public TransferDirectionConfigurationPacket(FriendlyByteBuf buffer)
+    
+    public TransferDirection getTransferDirection()
     {
-        decode(buffer);
-    }
-
-    public void decode(FriendlyByteBuf buffer)
-    {
-        super.decode(buffer);
-        transferDirection = TransferDirection.fromIndex(buffer.readInt());
-    }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        super.encode(buffer);
-        buffer.writeInt(transferDirection.getIndex());
+    	return transferDirection;
     }
 
     public void process(ServerPlayer player)
     {
         if (player.containerMenu instanceof Handler)
-        {
-            Handler handler = (Handler) player.containerMenu;
-            handler.handle(player, this);
-        }
+        	((Handler) player.containerMenu).handle(player, this);
     }
 
-    public static void register(SimpleChannel channel)
+    public static void register(PayloadRegistrar registrar)
     {
-        channel.registerMessage(PacketIDs.TransferDirectionConfiguration.value(),
-                TransferDirectionConfigurationPacket.class, TransferDirectionConfigurationPacket::encode,
-                TransferDirectionConfigurationPacket::new, TransferDirectionConfigurationPacket::handle);
+    	registrar.playToServer(TYPE, STREAM_CODEC, TransferDirectionConfigurationPacket::handle);
     }
 
     public TransferDirection transferDirection;
+    
+    public static final CustomPacketPayload.Type<TransferDirectionConfigurationPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Swift.MOD_NAME, "tx_dir_cfg"));
+    public static final StreamCodec<ByteBuf, TransferDirectionConfigurationPacket> STREAM_CODEC =
+    		StreamCodec.composite(IndexingPacket.STREAM_CODEC, TransferDirectionConfigurationPacket::getIndex,
+    				TransferDirection.STREAM_CODEC, TransferDirectionConfigurationPacket::getTransferDirection,
+    				TransferDirectionConfigurationPacket::new);
 }

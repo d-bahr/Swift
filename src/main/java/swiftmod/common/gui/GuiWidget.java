@@ -11,8 +11,8 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import swiftmod.common.MouseButton;
 
 @OnlyIn(Dist.CLIENT)
@@ -497,13 +497,13 @@ public class GuiWidget extends AbstractWidget implements IDrawable
     }
 
     @Override
-    public final boolean mouseScrolled(double mouseX, double mouseY, double delta)
+    public final boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY)
     {
         if (active && visible)
         {
             if (containsMouse(mouseX, mouseY))
             {
-                return onMouseScrollWorker(mouseX, mouseY, delta);
+                return onMouseScrollWorker(mouseX, mouseY, scrollY);
             }
         }
         return false;

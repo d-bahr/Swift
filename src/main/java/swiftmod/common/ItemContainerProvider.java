@@ -3,16 +3,14 @@ package swiftmod.common;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
 
 public class ItemContainerProvider<T extends AbstractContainerMenu> implements MenuProvider
 {
@@ -31,7 +29,7 @@ public class ItemContainerProvider<T extends AbstractContainerMenu> implements M
     @FunctionalInterface
     public interface ContainerGuiEncoder
     {
-        void encode(Player player, ItemStack itemStack, FriendlyByteBuf FriendlyByteBuf);
+        void encode(Player player, ItemStack itemStack, RegistryFriendlyByteBuf FriendlyByteBuf);
     }
 
     public ItemContainerProvider(ItemStack itemStack, ContainerSupplier<T> supplier)
@@ -74,7 +72,7 @@ public class ItemContainerProvider<T extends AbstractContainerMenu> implements M
         if (!world.isClientSide)
         {
             MenuProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
-            NetworkHooks.openScreen((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
+            player.openMenu(containerProvider, (FriendlyByteBuf) ->
             {
                 encoder.encode(player, itemStack, FriendlyByteBuf);
             });
@@ -94,7 +92,7 @@ public class ItemContainerProvider<T extends AbstractContainerMenu> implements M
         if (!world.isClientSide)
         {
             MenuProvider containerProvider = new ItemContainerProvider<T>(itemStack, supplier);
-            NetworkHooks.openScreen((ServerPlayer) player, containerProvider, (FriendlyByteBuf) ->
+            player.openMenu(containerProvider, (FriendlyByteBuf) ->
             {
                 encoder.encode(player, itemStack, FriendlyByteBuf);
             });

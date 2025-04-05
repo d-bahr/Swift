@@ -2,12 +2,13 @@ package swiftmod.common;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class BasicItemFilter implements Filter<ItemStack>
 {
@@ -21,6 +22,47 @@ public class BasicItemFilter implements Filter<ItemStack>
         matchMod = false;
         matchNBT = false;
         matchOreDictionary = false;
+    }
+    
+    public BasicItemFilter(ItemStack itemStack)
+    {
+        super();
+        
+        if (itemStack == null || itemStack.isEmpty())
+        {
+            filterStacks = new ArrayList<BigItemStack>();
+            whiteListState = WhiteListState.WhiteList;
+            matchCount = false;
+            matchDamage = false;
+            matchMod = false;
+            matchNBT = false;
+            matchOreDictionary = false;
+        }
+        else
+        {
+	        filterStacks = itemStack.get(SwiftDataComponents.BIG_ITEM_STACK_LIST_DATA_COMPONENT);
+	        if (filterStacks == null)
+	        	filterStacks = new ArrayList<BigItemStack>();
+	        
+	        whiteListState = itemStack.get(SwiftDataComponents.WHITELIST_DATA_COMPONENT);
+	        if (whiteListState == null)
+	        	whiteListState = WhiteListState.WhiteList;
+	        
+	        Boolean match = itemStack.get(SwiftDataComponents.MATCH_COUNT_DATA_COMPONENT);
+	        matchCount = match != null ? match : false;
+	        
+	        match = itemStack.get(SwiftDataComponents.MATCH_DAMAGE_DATA_COMPONENT);
+	        matchDamage = match != null ? match : false;
+	        
+	        match = itemStack.get(SwiftDataComponents.MATCH_MOD_DATA_COMPONENT);
+	        matchMod = match != null ? match : false;
+	        
+	        match = itemStack.get(SwiftDataComponents.MATCH_NBT_DATA_COMPONENT);
+	        matchNBT = match != null ? match : false;
+	        
+	        match = itemStack.get(SwiftDataComponents.MATCH_ORE_DICT_DATA_COMPONENT);
+	        matchOreDictionary = match != null ? match : false;
+        }
     }
 
     public BasicItemFilter(BigItemStack f, WhiteListState w, boolean c, boolean d, boolean m, boolean n, boolean o)
@@ -99,8 +141,8 @@ public class BasicItemFilter implements Filter<ItemStack>
         ItemStack filterStack = filterItemStack.getItemStack();
         if (itemStack.getItem() != filterStack.getItem())
         {
-            if (matchMod && ForgeRegistries.ITEMS.getKey(itemStack.getItem()).getNamespace() ==
-            		ForgeRegistries.ITEMS.getKey(filterStack.getItem()).getNamespace())
+            if (matchMod && BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getNamespace() ==
+            		BuiltInRegistries.ITEM.getKey(filterStack.getItem()).getNamespace())
             {
                 return createReturnValue(reduceFilter, filterItemStack);
             }
@@ -151,7 +193,7 @@ public class BasicItemFilter implements Filter<ItemStack>
         return new FilterMatchResult<Filter<ItemStack>>(this, matched);
     }
 
-    public ArrayList<BigItemStack> filterStacks;
+    public List<BigItemStack> filterStacks;
     public WhiteListState whiteListState;
     public boolean matchCount;
     public boolean matchDamage;

@@ -1,0 +1,7 @@
+{
+    "parent": "swift:block/pipe_model_base",
+    "textures":
+    {
+        "base": "swift:block/advanced_omni_pipe"
+    }
+}

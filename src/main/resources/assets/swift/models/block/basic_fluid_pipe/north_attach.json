@@ -1,0 +1,8 @@
+{
+    "parent": "swift:block/pipe_model_north_attach",
+    "textures":
+    {
+        "line": "swift:block/basic_pipe_vertical",
+        "attachment": "swift:block/pipe_attachment"
+    }
+}
