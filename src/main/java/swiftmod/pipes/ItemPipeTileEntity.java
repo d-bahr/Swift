@@ -160,6 +160,12 @@ public abstract class ItemPipeTileEntity extends PipeTileEntity
     {
     	return PipeType.Item;
     }
+    
+    @Override
+    protected Direction getDirectionForIndex(int transferIndex)
+    {
+    	return SwiftUtils.indexToDir(transferIndex % 6);
+    }
 
     protected List<PipeNetwork> m_networkList;
     protected PipeNetwork m_network;

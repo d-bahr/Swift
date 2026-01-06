@@ -209,6 +209,16 @@ public class GuiWidget extends AbstractWidget implements IDrawable
     {
         return m_canLoseFocus;
     }
+    
+    public boolean isVisible()
+    {
+    	if (m_parent == null)
+    		return visible;
+    	if (!visible)
+    		return false;
+    	else
+    		return m_parent.isVisible();
+    }
 
     protected boolean onKeyPress(int keyCode, int scanCode, int modifiers)
     {

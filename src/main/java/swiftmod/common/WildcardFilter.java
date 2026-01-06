@@ -28,14 +28,17 @@ public abstract class WildcardFilter<T, U> implements Filter<T>
     	if (itemStack != null && !itemStack.isEmpty())
     	{
 	    	List<String> filters = itemStack.get(SwiftDataComponents.WILDCARD_LIST_DATA_COMPONENT);
-	        for (String filter : filters)
-	        {
-	            if (!filter.isEmpty())
-	            {
-	                Pattern regex = Pattern.compile(convertGlobToRegex(filter));
-	                regexes.add(regex);
-	            }
-	        }
+	    	if (filters != null)
+	    	{
+		        for (String filter : filters)
+		        {
+		            if (!filter.isEmpty())
+		            {
+		                Pattern regex = Pattern.compile(convertGlobToRegex(filter));
+		                regexes.add(regex);
+		            }
+		        }
+	    	}
     	}
     }
 

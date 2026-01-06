@@ -97,6 +97,12 @@ public class AdvancedItemPipeTileEntity extends ItemPipeTileEntity
     {
     	return SwiftUtils.dirToIndex(neighborDir) * 6 + SwiftUtils.dirToIndex(handlerDir);
     }
+    
+    @Override
+    protected Direction getDirectionForIndex(int transferIndex)
+    {
+    	return SwiftUtils.indexToDir(transferIndex / 6);
+    }
 
     /**
      * This function has nothing to do with GUI; it is called by Forge to create the server-side

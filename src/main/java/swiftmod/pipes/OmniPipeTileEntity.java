@@ -299,6 +299,12 @@ public abstract class OmniPipeTileEntity extends PipeTileEntity
     	else
     		return PipeType.Energy;
     }
+    
+    @Override
+    protected Direction getDirectionForIndex(int transferIndex)
+    {
+    	return SwiftUtils.indexToDir(transferIndex % 6);
+    }
 
     @Override
     protected void removeAllHandlers(PipeType type, PipeNetwork network)

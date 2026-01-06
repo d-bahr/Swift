@@ -248,7 +248,7 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers)
     {
-        if (m_focusedWidget != null)
+        if (m_focusedWidget != null && m_focusedWidget.isVisible())
         {
             if (m_focusedWidget.keyPressed(keyCode, scanCode, modifiers))
                 return true;
@@ -259,7 +259,7 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers)
     {
-        if (m_focusedWidget != null)
+        if (m_focusedWidget != null && m_focusedWidget.isVisible())
         {
             if (m_focusedWidget.keyReleased(keyCode, scanCode, modifiers))
                 return true;
@@ -270,7 +270,7 @@ public class GuiContainerScreen<T extends AbstractContainerMenu> extends Abstrac
     @Override
     public final boolean charTyped(char codePoint, int modifiers)
     {
-        if (m_focusedWidget != null)
+        if (m_focusedWidget != null && m_focusedWidget.isVisible())
         {
             if (m_focusedWidget.charTyped(codePoint, modifiers))
                 return true;

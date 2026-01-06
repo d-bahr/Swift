@@ -162,6 +162,12 @@ public abstract class FluidPipeTileEntity extends PipeTileEntity
     {
     	return PipeType.Fluid;
     }
+    
+    @Override
+    protected Direction getDirectionForIndex(int transferIndex)
+    {
+    	return SwiftUtils.indexToDir(transferIndex % 6);
+    }
 
     protected PipeNetwork m_network;
     protected Filter<FluidStack>[] m_filters;

@@ -401,7 +401,6 @@ public class GuiTextField extends GuiTextWidget
         this.setCursorPosition(this.text.length());
     }
 
-    @SuppressWarnings("resource")
     @Override
     public boolean onKeyPress(int keyCode, int scanCode, int modifiers)
     {

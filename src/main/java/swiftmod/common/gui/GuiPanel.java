@@ -25,6 +25,7 @@ public class GuiPanel extends GuiWidget
         m_backgroundTexture = null;
         m_drawBackground = true;
         m_playClickOnPress = false;
+        hide();
     }
 
     public GuiPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height)
@@ -38,6 +39,7 @@ public class GuiPanel extends GuiWidget
         m_backgroundTexture = null;
         m_drawBackground = true;
         m_playClickOnPress = false;
+        hide();
     }
 
     public GuiPanel(GuiContainerScreen<?> screen, int width, int height, ResourceLocation backgroundTexture)
@@ -51,6 +53,7 @@ public class GuiPanel extends GuiWidget
         m_backgroundTexture = backgroundTexture;
         m_drawBackground = true;
         m_playClickOnPress = false;
+        hide();
     }
 
     public GuiPanel(GuiContainerScreen<?> screen, int x, int y, int width, int height, ResourceLocation backgroundTexture)
@@ -64,6 +67,7 @@ public class GuiPanel extends GuiWidget
         m_backgroundTexture = backgroundTexture;
         m_drawBackground = true;
         m_playClickOnPress = false;
+        hide();
     }
 
     public void setBackgroundTexture(ResourceLocation texture)

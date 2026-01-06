@@ -5,10 +5,11 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix.Direction;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftTileEntities;
+import swiftmod.common.SwiftUtils;
 import swiftmod.common.upgrades.AdvancedSideEnergyUpgradeItemStackHandler;
 import swiftmod.common.upgrades.AdvancedSideFluidUpgradeItemStackHandler;
 import swiftmod.common.upgrades.AdvancedSideItemUpgradeItemStackHandler;
@@ -50,6 +51,13 @@ public class AdvancedOmniPipeTileEntity extends OmniPipeTileEntity
     public static String getRegistryName()
     {
         return "advanced_omni_pipe";
+    }
+    
+    @Override
+    protected Direction getDirectionForIndex(int transferIndex)
+    {
+    	// TODO: Fix this.
+    	return SwiftUtils.indexToDir((transferIndex / 6) % 6);
     }
 
     /**

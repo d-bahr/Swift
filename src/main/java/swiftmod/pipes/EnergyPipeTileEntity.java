@@ -113,6 +113,12 @@ public abstract class EnergyPipeTileEntity extends PipeTileEntity
     {
     	return PipeType.Energy;
     }
+    
+    @Override
+    protected Direction getDirectionForIndex(int transferIndex)
+    {
+    	return SwiftUtils.indexToDir(transferIndex % 6);
+    }
 
     protected PipeNetwork m_network;
 }

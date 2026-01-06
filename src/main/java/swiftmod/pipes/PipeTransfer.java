@@ -83,6 +83,10 @@ public class PipeTransfer
     	// is a nice workaround for cases where a small amount of items
     	// are inserted into the first slot every tick.
         int size = extractor.getSize();
+        // This check shouldn't really be necessary, but some mods are weird and expose
+        // handlers in strange ways.
+        if (size == 0)
+        	return itemMoveCount;
         int startingSlot = tick % size;
         
         // TODO: Keep track of which handlers have already been inserted into, and avoid those. Would save some time.

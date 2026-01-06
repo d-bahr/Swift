@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import swiftmod.common.Swift;
 import swiftmod.common.SwiftTileEntities;
+import swiftmod.common.SwiftUtils;
 import swiftmod.common.upgrades.AdvancedSideEnergyUpgradeItemStackHandler;
 import swiftmod.common.upgrades.AdvancedUpgradeItemStackHandler;
 import swiftmod.common.upgrades.UpgradeInventory;
@@ -48,6 +49,12 @@ public class AdvancedEnergyPipeTileEntity extends EnergyPipeTileEntity
     public static String getRegistryName()
     {
         return "advanced_energy_pipe";
+    }
+    
+    @Override
+    protected Direction getDirectionForIndex(int transferIndex)
+    {
+    	return SwiftUtils.indexToDir(transferIndex / 6);
     }
 
     /**

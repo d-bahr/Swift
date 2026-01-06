@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
@@ -22,10 +24,13 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
 import swiftmod.common.Color;
 import swiftmod.common.ContainerInventory;
@@ -232,8 +237,10 @@ public abstract class PipeTileEntity extends TileEntityBase
     	{
     		PipeNetwork network = getNetwork(type);
     		if (network != null)
+    		{
     			removeAllHandlers(type, network);
-    		network.decrementPipeCounter();
+    			network.decrementPipeCounter();
+    		}
     	}
     }
 
@@ -509,6 +516,8 @@ public abstract class PipeTileEntity extends TileEntityBase
     
     protected abstract PipeType getTypeForIndex(int transferIndex);
     
+    protected abstract Direction getDirectionForIndex(int transferIndex);
+    
     protected void onTransferDirectionChanged(int transferIndex, TransferDirection transferDir)
     {
     	PipeNetwork network = getNetwork(getTypeForIndex(transferIndex));
@@ -557,8 +566,44 @@ public abstract class PipeTileEntity extends TileEntityBase
     		// Send a message to the client to force a redraw of the colored attachment.
             setChanged();
     		//level.setBlocksDirty(getBlockPos(), getBlockState(), getBlockState());
-    		level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            //level.setBlock(getBlockPos(), getBlockState(), 3);
+           /* dir = getDirectionForIndex(transferIndex);
+            BlockState blockState = getBlockState();
+            BlockState fakeBlockState = blockState;
+            switch (dir)
+            {
+            case UP:
+            	fakeBlockState = blockState.setValue(PipeBlock.UP, 0);
+            	break;
+            	
+            case DOWN:
+            	fakeBlockState = blockState.setValue(PipeBlock.DOWN, 0);
+            	break;
+            	
+            case NORTH:
+            	fakeBlockState = blockState.setValue(PipeBlock.NORTH, 0);
+            	break;
+            	
+            case SOUTH:
+            	fakeBlockState = blockState.setValue(PipeBlock.SOUTH, 0);
+            	break;
+            	
+            case EAST:
+            	fakeBlockState = blockState.setValue(PipeBlock.EAST, 0);
+            	break;
+            	
+            case WEST:
+            	fakeBlockState = blockState.setValue(PipeBlock.WEST, 0);
+            	break;
+            }*/
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 0b0011);
+            // This is a huge hack. The block won't re-render unless we forcibly
+            // change the block state, so set it to something and then change it back.
+    		//level.sendBlockUpdated(getBlockPos(), blockState, fakeBlockState, 0b0011);
+    		//level.sendBlockUpdated(getBlockPos(), fakeBlockState, blockState, 0b0011);
+    		//EnumSet<Direction> dirs = EnumSet.of(dir.getOpposite());
+    		//net.neoforged.neoforge.event.EventHooks.onNeighborNotify(level, worldPosition.relative(dir), getBlockState(), dirs, true).isCanceled();
+    		//level.setBlock(getBlockPos(), fakeBlockState, 0b1011);
+    		//level.setBlock(getBlockPos(), blockState, 0b1011);
     	}
     }
     
